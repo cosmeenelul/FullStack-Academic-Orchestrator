@@ -5,14 +5,16 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.*;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 @Embeddable
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode
+@Data
 public class ProfesorDepartamentId implements Serializable {
 	private Integer departamentId;
 	private Integer profesorId;
+
 }

@@ -8,10 +8,11 @@ import jakarta.persistence.Table;
 import lombok.*;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
-@Table(name="tblprofesori")
+@Table(name="tblProfesori")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -32,5 +33,6 @@ public class Profesor extends CommonEntity{
 	private String telefon;
 
 	@OneToMany(mappedBy = "profesor")
-	private Set<ProfesorDepartament> profesori = new HashSet<>();
+	private Set<ProfesorDepartament> departamente = new HashSet<>();
+
 }

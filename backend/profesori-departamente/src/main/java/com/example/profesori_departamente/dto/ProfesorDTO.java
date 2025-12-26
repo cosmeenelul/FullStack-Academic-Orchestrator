@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.Set;
 
 @Data
 @Getter
@@ -15,6 +16,5 @@ public class ProfesorDTO {
 	private String prenume;
 	private String email;
 	private String telefon;
-	private RolDepartament rol;
-	private List<DepartamentDTO> departamentDTOS;
+	Set<ProfesorDepartamentDTO> departamente;
 }

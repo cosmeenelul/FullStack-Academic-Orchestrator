@@ -1,10 +1,12 @@
 package com.example.profesori_departamente.dto;
 
+import com.example.profesori_departamente.mapper.ProfesorMapper;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.Set;
 
 @Data
 @Getter
@@ -13,5 +15,5 @@ public class DepartamentDTO {
 	private String nume;
 	private String telefon;
 	private String linkWeb;
-	private List<ProfesorDTO> profesorDTOS;
+	private Set<ProfesorDepartamentDTO> profesori;
 }

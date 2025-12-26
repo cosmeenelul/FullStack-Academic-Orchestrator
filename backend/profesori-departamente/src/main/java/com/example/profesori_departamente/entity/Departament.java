@@ -7,12 +7,13 @@ import jakarta.persistence.Table;
 import lombok.*;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
 @Getter
 @Setter
-@Table(name="tbldepartamente")
+@Table(name="tblDepartamente")
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -27,6 +28,7 @@ public class Departament extends CommonEntity{
 	private String linkWeb;
 
 	@OneToMany(mappedBy = "departament")
-	private Set<ProfesorDepartament> departamente = new HashSet<>();
+	private Set<ProfesorDepartament> profesori = new HashSet<>();
+
 
 }
