@@ -3,11 +3,15 @@ package com.example.profesori_departamente.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.*;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity
-@Table(name="tblProfesori")
+@Table(name="tblprofesori")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -26,4 +30,7 @@ public class Profesor extends CommonEntity{
 
 	@Column(name= "telefon")
 	private String telefon;
+
+	@OneToMany(mappedBy = "profesor")
+	private Set<ProfesorDepartament> profesori = new HashSet<>();
 }

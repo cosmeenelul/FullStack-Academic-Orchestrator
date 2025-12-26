@@ -2,13 +2,17 @@ package com.example.profesori_departamente.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.*;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Getter
 @Setter
-@Table(name="tblDepartamente")
+@Table(name="tbldepartamente")
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -22,5 +26,7 @@ public class Departament extends CommonEntity{
 	@Column(name = "linkWeb")
 	private String linkWeb;
 
+	@OneToMany(mappedBy = "departament")
+	private Set<ProfesorDepartament> departamente = new HashSet<>();
 
 }
