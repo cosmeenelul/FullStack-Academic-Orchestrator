@@ -1,0 +1,15 @@
+services:
+  db:
+    image: mysql:latest
+    restart: always
+    container_name: mysql-prof-dep-container
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: profesoriDepartamenteDB
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data-prof-dep:/var/lib/mysql
+
+volumes:
+  mysql-data-prof-dep:
