@@ -24,4 +24,9 @@ public class ProfesorController {
 	public CreateProfesorResponse save(@RequestBody CreateProfesorRequest createProfesorRequest){
 		return profesorService.save(createProfesorRequest);
 	}
+
+	@PutMapping("/{id}")
+	public CreateProfesorResponse updateById(@RequestBody CreateProfesorRequest createProfesorRequest, @PathVariable Integer id){
+		return profesorService.updateById(id,createProfesorRequest);
+	}
 }

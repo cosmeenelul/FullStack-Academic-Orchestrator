@@ -35,11 +35,6 @@ public class ProfesorServiceImpl implements ProfesorService {
 	}
 
 	@Override
-	public ProfesorDTO findById() {
-		return null;
-	}
-
-	@Override
 	@Transactional
 	public CreateProfesorResponse save(CreateProfesorRequest createProfesorRequest) {
 
@@ -54,14 +49,15 @@ public class ProfesorServiceImpl implements ProfesorService {
 	}
 
 	@Override
-	public ProfesorDTO updateById() {
-		return null;
+	public CreateProfesorResponse updateById(Integer idProfesor,CreateProfesorRequest createProfesorRequest) {
+		return processProfesorUpdate(idProfesor, createProfesorRequest.getNume(), createProfesorRequest.getPrenume(),createProfesorRequest.getTelefon(),createProfesorRequest.getEmail(),createProfesorRequest.getIdDepartamente(),createProfesorRequest.getRolDepartament());
 	}
 
-	@Override
-	public ProfesorDTO deleteById() {
-		return null;
-	}
+//	@Override
+//	public ProfesorDTO deleteById(Integer idProfesor) {
+//		return pr
+//	}
+
 
 	private void userAlreadyExists(String telefon){
 		if(profesorRepository.existsByTelefon(telefon))
@@ -100,4 +96,29 @@ public class ProfesorServiceImpl implements ProfesorService {
 	private Departament loadDepartament(Integer idDepartament){
 		return departamentRepository.findById(idDepartament).orElseThrow(()->new RuntimeException("Nu exista departamentul"));
 	}
+
+	private CreateProfesorResponse processProfesorUpdate(Integer idProfesor,String nume, String prenume, String telefon, String email, List<Integer> idDepartamente, RolDepartament rolDepartament){
+		Profesor profesor = profesorRepository.findById(idProfesor).orElseThrow(()->new RuntimeException("Profesorul nu a fost gasit in baza de date!"));
+		profesor.getDepartamente().clear();
+		for(Integer idDepartament : idDepartamente){
+
+			Departament departament = loadDepartament(idDepartament);
+
+			ProfesorDepartamentId profesorDepartamentId = new ProfesorDepartamentId(idDepartament,idProfesor);
+			ProfesorDepartament profesorDepartament = new ProfesorDepartament(profesorDepartamentId,profesor,departament,rolDepartament);
+
+			profesor.getDepartamente().add(profesorDepartament);
+		}
+
+		profesor.setNume(nume);
+		profesor.setPrenume(prenume);
+		profesor.setEmail(email);
+		profesor.setTelefon(telefon);
+
+		Profesor profesorSalvat = profesorRepository.save(profesor);
+		ProfesorDTO profesorDTO = profesorMapper.toDTO(profesorSalvat);
+		return new CreateProfesorResponse(profesorDTO);
+	}
+
+	private void validateDepartmentRole()
 }

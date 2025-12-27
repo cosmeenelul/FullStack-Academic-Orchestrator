@@ -1,10 +1,7 @@
 package com.example.profesori_departamente.entity;
 
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.HashSet;
@@ -33,7 +30,7 @@ public class Profesor extends CommonEntity{
 	@Column(name= "telefon")
 	private String telefon;
 
-	@OneToMany(mappedBy = "profesor")
+	@OneToMany(mappedBy = "profesor",cascade = CascadeType.ALL,orphanRemoval = true)
 	@Builder.Default
 	private Set<ProfesorDepartament> departamente = new HashSet<>();
 

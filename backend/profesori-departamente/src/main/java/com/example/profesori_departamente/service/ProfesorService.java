@@ -8,8 +8,7 @@ import java.util.List;
 
 public interface ProfesorService {
 	List<ProfesorDTO> findAll();
-	ProfesorDTO findById();
 	CreateProfesorResponse save(CreateProfesorRequest createProfesorRequest);
-	ProfesorDTO updateById();
-	ProfesorDTO deleteById();
+	CreateProfesorResponse updateById(Integer idProfesor, CreateProfesorRequest createProfesorRequest);
+//	ProfesorDTO deleteById(Integer idProfesor);
 }
