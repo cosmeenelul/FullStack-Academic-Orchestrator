@@ -99,7 +99,11 @@ public class ProfesorServiceImpl implements ProfesorService {
 
 	private CreateProfesorResponse processProfesorUpdate(Integer idProfesor,String nume, String prenume, String telefon, String email, List<Integer> idDepartamente, RolDepartament rolDepartament){
 		Profesor profesor = profesorRepository.findById(idProfesor).orElseThrow(()->new RuntimeException("Profesorul nu a fost gasit in baza de date!"));
-		profesor.getDepartamente().clear();
+		validateMemberDepartmentRole(rolDepartament);
+
+		profesor.getDepartamente().removeIf(legatura ->
+				!legatura.getRolDepartament().equals(RolDepartament.Director)
+		);
 		for(Integer idDepartament : idDepartamente){
 
 			Departament departament = loadDepartament(idDepartament);
@@ -120,5 +124,9 @@ public class ProfesorServiceImpl implements ProfesorService {
 		return new CreateProfesorResponse(profesorDTO);
 	}
 
-	private void validateDepartmentRole()
+	private void validateMemberDepartmentRole(RolDepartament rolDepartament){
+		if(rolDepartament != RolDepartament.Membru){
+			throw new RuntimeException("Nu se poate modifica rolul de membru de aici");
+		}
+	}
 }
