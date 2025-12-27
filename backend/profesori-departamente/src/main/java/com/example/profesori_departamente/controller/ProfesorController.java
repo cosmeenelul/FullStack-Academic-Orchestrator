@@ -29,4 +29,9 @@ public class ProfesorController {
 	public CreateProfesorResponse updateById(@RequestBody CreateProfesorRequest createProfesorRequest, @PathVariable Integer id){
 		return profesorService.updateById(id,createProfesorRequest);
 	}
+
+	@DeleteMapping("/{id}")
+	public ProfesorDTO deleteById(@PathVariable Integer id){
+		return profesorService.deleteById(id);
+	}
 }

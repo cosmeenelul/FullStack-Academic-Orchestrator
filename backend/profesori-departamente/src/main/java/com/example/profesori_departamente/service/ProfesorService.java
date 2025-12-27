@@ -10,5 +10,5 @@ public interface ProfesorService {
 	List<ProfesorDTO> findAll();
 	CreateProfesorResponse save(CreateProfesorRequest createProfesorRequest);
 	CreateProfesorResponse updateById(Integer idProfesor, CreateProfesorRequest createProfesorRequest);
-//	ProfesorDTO deleteById(Integer idProfesor);
+	ProfesorDTO deleteById(Integer idProfesor);
 }

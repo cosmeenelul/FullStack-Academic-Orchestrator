@@ -49,14 +49,17 @@ public class ProfesorServiceImpl implements ProfesorService {
 	}
 
 	@Override
+	@Transactional
 	public CreateProfesorResponse updateById(Integer idProfesor,CreateProfesorRequest createProfesorRequest) {
 		return processProfesorUpdate(idProfesor, createProfesorRequest.getNume(), createProfesorRequest.getPrenume(),createProfesorRequest.getTelefon(),createProfesorRequest.getEmail(),createProfesorRequest.getIdDepartamente(),createProfesorRequest.getRolDepartament());
 	}
 
-//	@Override
-//	public ProfesorDTO deleteById(Integer idProfesor) {
-//		return pr
-//	}
+	@Override
+	public ProfesorDTO deleteById(Integer idProfesor) {
+		ProfesorDTO profesorSters = profesorMapper.toDTO(profesorRepository.findById(idProfesor).orElseThrow(()->new RuntimeException("Nu exista acest profesor in baza de date!")));
+		profesorRepository.deleteById(idProfesor);
+		return profesorSters;
+	}
 
 
 	private void userAlreadyExists(String telefon){
