@@ -3,7 +3,6 @@ package com.example.profesori_departamente.mapper;
 import com.example.profesori_departamente.dto.ProfesorDTO;
 import com.example.profesori_departamente.entity.Profesor;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
 import java.util.List;
 
