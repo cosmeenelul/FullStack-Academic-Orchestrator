@@ -1,11 +1,11 @@
 package com.example.profesori_departamente.controller;
 
 import com.example.profesori_departamente.dto.ProfesorDTO;
+import com.example.profesori_departamente.dto.request.CreateProfesorRequest;
+import com.example.profesori_departamente.dto.response.CreateProfesorResponse;
 import com.example.profesori_departamente.service.impl.ProfesorServiceImpl;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -18,5 +18,10 @@ public class ProfesorController {
 	@GetMapping()
 	public List<ProfesorDTO> findAll(){
 		return profesorService.findAll();
+	}
+
+	@PostMapping()
+	public CreateProfesorResponse save(@RequestBody CreateProfesorRequest createProfesorRequest){
+		return profesorService.save(createProfesorRequest);
 	}
 }

@@ -18,6 +18,7 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
+@Builder
 public class Profesor extends CommonEntity{
 
 	@Column(name="nume")
@@ -33,12 +34,7 @@ public class Profesor extends CommonEntity{
 	private String telefon;
 
 	@OneToMany(mappedBy = "profesor")
+	@Builder.Default
 	private Set<ProfesorDepartament> departamente = new HashSet<>();
 
-	public Profesor(String nume, String prenume, String email, String telefon) {
-		this.nume = nume;
-		this.prenume = prenume;
-		this.telefon = telefon;
-		this.email = email;
-	}
 }

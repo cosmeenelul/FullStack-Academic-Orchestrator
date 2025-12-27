@@ -10,7 +10,6 @@ import com.example.profesori_departamente.repository.ProfesorDepartamentReposito
 import com.example.profesori_departamente.repository.ProfesorRepository;
 
 import com.example.profesori_departamente.service.ProfesorService;
-import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +20,6 @@ import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
-@Builder
 public class ProfesorServiceImpl implements ProfesorService {
 	private final ProfesorRepository profesorRepository;
 	private final ProfesorMapper profesorMapper;
@@ -42,12 +40,14 @@ public class ProfesorServiceImpl implements ProfesorService {
 	}
 
 	@Override
+	@Transactional
 	public CreateProfesorResponse save(CreateProfesorRequest createProfesorRequest) {
+
 		Profesor profesor = processProfesorCreation(createProfesorRequest.getNume(),
 				createProfesorRequest.getPrenume(),
 				createProfesorRequest.getTelefon(),
 				createProfesorRequest.getEmail(),
-				createProfesorRequest.getIdDepartament(),
+				createProfesorRequest.getIdDepartamente(),
 				createProfesorRequest.getRolDepartament());
 		ProfesorDTO profesorDTO = profesorMapper.toDTO(profesor);
 		return new CreateProfesorResponse(profesorDTO);
@@ -68,21 +68,33 @@ public class ProfesorServiceImpl implements ProfesorService {
 			throw new RuntimeException("User already exists!");
 	}
 
-	private Profesor processProfesorCreation(String nume, String prenume, String telefon, String email, Integer idDepartament, RolDepartament rolDepartament){
+	private Profesor processProfesorCreation(String nume, String prenume, String telefon, String email, List<Integer> idDepartamente, RolDepartament rolDepartament) {
 		userAlreadyExists(telefon);
 
-		Profesor profesor = new Profesor(nume,prenume,email,telefon);
-		Profesor profesorSalvat = profesorRepository.save(profesor);
+		Profesor profesorSalvat = profesorRepository.save(Profesor.builder()
+				.nume(nume)
+				.prenume(prenume)
+				.email(email)
+				.telefon(telefon)
+				.build());
 
-		Departament departament = loadDepartament(idDepartament);
+		for (Integer idDept : idDepartamente) {
+			Departament departament = loadDepartament(idDept);
 
-		Set<ProfesorDepartament> profesorDepartamentSet = new HashSet<>();
-		ProfesorDepartamentId profesorDepartamentId = new ProfesorDepartamentId(idDepartament,profesorSalvat.getId());
-		ProfesorDepartament profesorDepartament = new ProfesorDepartament(profesorDepartamentId,profesor,departament,rolDepartament);
+			ProfesorDepartamentId profesorDepartamentId = new ProfesorDepartamentId(profesorSalvat.getId(), idDept);
 
-		profesorDepartamentRepository.save(profesorDepartament);
+			ProfesorDepartament profesorDepartament = new ProfesorDepartament(
+					profesorDepartamentId,
+					profesorSalvat,
+					departament,
+					rolDepartament
+			);
 
-		return profesorRepository.findById(profesorSalvat.getId()).orElseThrow(()->new RuntimeException("A aparut o eroarea la afisarea datelor salvate!"));
+			profesorDepartamentRepository.save(profesorDepartament);
+			profesorSalvat.getDepartamente().add(profesorDepartament);
+		}
+
+		return profesorSalvat;
 	}
 
 	private Departament loadDepartament(Integer idDepartament){
