@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class ProfesorDepartamentServiceImpl implements ProfesorDepartamentService {
@@ -37,5 +39,15 @@ public class ProfesorDepartamentServiceImpl implements ProfesorDepartamentServic
 		profesorDepartament.setProfesor(profesorMembru);
 		profesorDepartamentRepository.save(profesorDepartament);
 		return profesorMapper.toDTO(profesorMembru);
+	}
+
+	@Override
+	public List<ProfesorDepartament> findProfesorDepartamentByDepartament_Id(Integer departamentId) {
+		return profesorDepartamentRepository.findProfesorDepartamentByDepartament_Id(departamentId);
+	}
+
+	@Override
+	public boolean existsByDepartmentRole(RolDepartament rolDepartament) {
+		return false;
 	}
 }

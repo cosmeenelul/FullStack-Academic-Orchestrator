@@ -1,6 +1,8 @@
 package com.example.profesori_departamente.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -32,6 +34,8 @@ public class Profesor extends CommonEntity{
 
 	@OneToMany(mappedBy = "profesor",cascade = CascadeType.ALL,orphanRemoval = true)
 	@Builder.Default
+	@JsonBackReference
+	@JsonIgnore
 	private Set<ProfesorDepartament> departamente = new HashSet<>();
 
 }

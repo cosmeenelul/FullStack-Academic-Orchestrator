@@ -14,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 @Service
@@ -58,6 +60,20 @@ public class ProfesorServiceImpl implements ProfesorService {
 		profesorRepository.deleteById(idProfesor);
 		return profesorSters;
 	}
+
+	@Override
+	public List<ProfesorDTO> findAllProfesorByDepartamentId(Integer departamentId) {
+		List<ProfesorDepartament> profesorDepartaments = profesorDepartamentRepository.findProfesorDepartamentByDepartament_Id(departamentId);
+		List<Integer> profesoriIds = new ArrayList<>();
+
+		for(ProfesorDepartament profesorDepartament : profesorDepartaments)
+			profesoriIds.add(profesorDepartament.getProfesor().getId());
+
+		List<Profesor> profesori = profesorRepository.findAllById(profesoriIds);
+
+		return profesorMapper.toDTOList(profesori);
+	}
+
 
 
 	private void userAlreadyExists(String telefon){
@@ -125,8 +141,7 @@ public class ProfesorServiceImpl implements ProfesorService {
 	}
 
 	private void validateMemberDepartmentRole(RolDepartament rolDepartament){
-		if(rolDepartament != RolDepartament.Membru){
-			throw new RuntimeException("Nu se poate modifica rolul de membru de aici");
-		}
+
 	}
+
 }

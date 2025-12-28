@@ -20,6 +20,11 @@ public class ProfesorController {
 		return profesorService.findAll();
 	}
 
+	@GetMapping("/departamente")
+	public List<ProfesorDTO> findAllByDepartamentId(@RequestParam("departamentId") Integer departamentId){
+		return profesorService.findAllProfesorByDepartamentId(departamentId);
+	}
+
 	@PostMapping()
 	public CreateProfesorResponse save(@RequestBody CreateProfesorRequest createProfesorRequest){
 		return profesorService.save(createProfesorRequest);
