@@ -118,7 +118,12 @@ public class ProfesorServiceImpl implements ProfesorService {
 	}
 
 	private CreateProfesorResponse processProfesorUpdate(Integer idProfesor,String nume, String prenume, String telefon, String email, List<Integer> idDepartamente, RolDepartament rolDepartament){
+
 		Profesor profesor = profesorRepository.findById(idProfesor).orElseThrow(()->new RuntimeException("Profesorul nu a fost gasit in baza de date!"));
+
+		if(!profesor.getTelefon().equals(telefon))
+			userAlreadyExists(telefon);
+
 
 		for(Integer idDepartament : idDepartamente)
 			validateMemberDepartmentRole(rolDepartament,idDepartament);

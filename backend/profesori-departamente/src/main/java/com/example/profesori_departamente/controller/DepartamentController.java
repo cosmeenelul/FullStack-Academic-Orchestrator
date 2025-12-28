@@ -28,4 +28,9 @@ public class DepartamentController {
 	public DepartamentDTO deleteById(@PathVariable Integer idDepartment){
 		return departamentService.deleteById(idDepartment);
 	}
+
+	@PutMapping("/{idDepartment}")
+	public DepartamentDTO updateById(@PathVariable Integer idDepartment,@RequestBody CreateDepartamentRequest createDepartamentRequest){
+		return departamentService.updateById(idDepartment,createDepartamentRequest);
+	}
 }

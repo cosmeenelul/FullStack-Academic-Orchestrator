@@ -9,4 +9,5 @@ public interface DepartamentService {
 	List<DepartamentDTO> findAll();
 	DepartamentDTO save(CreateDepartamentRequest createDepartamentRequest);
 	DepartamentDTO deleteById(Integer idDepartament);
+	DepartamentDTO updateById(Integer id, CreateDepartamentRequest createDepartamentRequest);
 }

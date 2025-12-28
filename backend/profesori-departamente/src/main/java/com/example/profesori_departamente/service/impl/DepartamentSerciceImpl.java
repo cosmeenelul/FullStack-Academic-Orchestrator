@@ -3,8 +3,6 @@ package com.example.profesori_departamente.service.impl;
 import com.example.profesori_departamente.dto.DepartamentDTO;
 import com.example.profesori_departamente.dto.request.CreateDepartamentRequest;
 import com.example.profesori_departamente.entity.Departament;
-import com.example.profesori_departamente.entity.Profesor;
-import com.example.profesori_departamente.entity.ProfesorDepartament;
 import com.example.profesori_departamente.mapper.DepartamentMapper;
 import com.example.profesori_departamente.repository.DepartamentRepository;
 import com.example.profesori_departamente.repository.ProfesorDepartamentRepository;
@@ -66,6 +64,21 @@ public class DepartamentSerciceImpl implements DepartamentService {
 		}
 
 		return departamentDTO;
+	}
+
+	@Override
+	public DepartamentDTO updateById(Integer id, CreateDepartamentRequest createDepartamentRequest) {
+		Departament departament = departamentRepository.findById(id).orElseThrow(()->new RuntimeException("Acest departament nu exista!"));
+		departament.setNume(createDepartamentRequest.getNume());
+		departament.setTelefon(createDepartamentRequest.getTelefon());
+		departament.setLinkWeb(createDepartamentRequest.getLinkWeb());
+
+		if(!createDepartamentRequest.getTelefon().equals(departament.getTelefon()))
+			verifyTelefon(createDepartamentRequest.getTelefon());
+
+		departamentRepository.save(departament);
+
+		return departamentMapper.toDTO(departament);
 	}
 
 
