@@ -9,6 +9,7 @@ import com.example.profesori_departamente.repository.DepartamentRepository;
 import com.example.profesori_departamente.repository.ProfesorDepartamentRepository;
 import com.example.profesori_departamente.repository.ProfesorRepository;
 
+import com.example.profesori_departamente.service.ProfesorDepartamentService;
 import com.example.profesori_departamente.service.ProfesorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ public class ProfesorServiceImpl implements ProfesorService {
 	private final ProfesorMapper profesorMapper;
 	private final DepartamentRepository departamentRepository;
 	private final ProfesorDepartamentRepository profesorDepartamentRepository;
+	private final ProfesorDepartamentService profesorDepartamentService;
 
 	@Override
 	@Transactional(readOnly = true)
@@ -115,7 +117,9 @@ public class ProfesorServiceImpl implements ProfesorService {
 
 	private CreateProfesorResponse processProfesorUpdate(Integer idProfesor,String nume, String prenume, String telefon, String email, List<Integer> idDepartamente, RolDepartament rolDepartament){
 		Profesor profesor = profesorRepository.findById(idProfesor).orElseThrow(()->new RuntimeException("Profesorul nu a fost gasit in baza de date!"));
-		validateMemberDepartmentRole(rolDepartament);
+
+		for(Integer idDepartament : idDepartamente)
+			validateMemberDepartmentRole(rolDepartament,idDepartament);
 
 		profesor.getDepartamente().removeIf(legatura ->
 				!legatura.getRolDepartament().equals(RolDepartament.Director)
@@ -140,8 +144,9 @@ public class ProfesorServiceImpl implements ProfesorService {
 		return new CreateProfesorResponse(profesorDTO);
 	}
 
-	private void validateMemberDepartmentRole(RolDepartament rolDepartament){
-
+	private void validateMemberDepartmentRole(RolDepartament rolDepartament,Integer departmentId){
+		if(profesorDepartamentService.existsByDepartmentRoleAndDepartmentId(rolDepartament,departmentId))
+			throw new RuntimeException("Exista deja un Director in acest departament, folositi functia de Schimbare Director!");
 	}
 
 }

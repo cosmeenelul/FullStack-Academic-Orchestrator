@@ -9,5 +9,5 @@ import java.util.List;
 public interface ProfesorDepartamentService {
 	ProfesorDTO changeDirector(Integer idDepartament, Integer idMembru);
 	List<ProfesorDepartament> findProfesorDepartamentByDepartament_Id(Integer departamentId);
-	boolean existsByDepartmentRole(RolDepartament rolDepartament);
+	boolean existsByDepartmentRoleAndDepartmentId(RolDepartament rolDepartament, Integer departmentId);
 }

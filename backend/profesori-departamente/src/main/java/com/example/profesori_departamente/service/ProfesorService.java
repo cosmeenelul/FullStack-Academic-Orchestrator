@@ -12,5 +12,4 @@ public interface ProfesorService {
 	CreateProfesorResponse updateById(Integer idProfesor, CreateProfesorRequest createProfesorRequest);
 	ProfesorDTO deleteById(Integer idProfesor);
 	List<ProfesorDTO> findAllProfesorByDepartamentId(Integer departamentId);
-	ProfesorDTO addDirector(ProfesorDTO profesorDTO);
 }

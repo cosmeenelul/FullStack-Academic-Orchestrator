@@ -47,7 +47,9 @@ public class ProfesorDepartamentServiceImpl implements ProfesorDepartamentServic
 	}
 
 	@Override
-	public boolean existsByDepartmentRole(RolDepartament rolDepartament) {
-		return false;
+	public boolean existsByDepartmentRoleAndDepartmentId(RolDepartament rolDepartament, Integer departmentId) {
+		return rolDepartament == RolDepartament.Director && profesorDepartamentRepository.existsByRolDepartamentAndDepartament_Id(RolDepartament.Director, departmentId);
 	}
+
+
 }

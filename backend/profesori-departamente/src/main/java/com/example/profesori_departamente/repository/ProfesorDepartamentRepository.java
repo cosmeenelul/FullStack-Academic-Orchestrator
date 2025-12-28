@@ -13,5 +13,5 @@ import java.util.List;
 public interface ProfesorDepartamentRepository extends JpaRepository<ProfesorDepartament, ProfesorDepartamentId> {
 	ProfesorDepartament findProfesorDepartamentByRolDepartamentAndDepartament_Id(RolDepartament rolDepartament,Integer idDepartament);
 	List<ProfesorDepartament> findProfesorDepartamentByDepartament_Id(Integer departamentId);
-	boolean existsByRolDepartament(RolDepartament rolDepartament);
+	boolean existsByRolDepartamentAndDepartament_Id(RolDepartament rolDepartament, Integer departamentId);
 }
