@@ -12,6 +12,7 @@ public interface DepartamentMapper {
 
 
 	@Mapping(target = "profesori", ignore = true)
+	@Mapping(target = "id", source = "id")
 	DepartamentDTO toDTO(Departament departament);
 
 	List<DepartamentDTO> toDTOList(List<Departament> departament);

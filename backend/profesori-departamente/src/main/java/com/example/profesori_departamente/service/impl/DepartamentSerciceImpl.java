@@ -3,13 +3,18 @@ package com.example.profesori_departamente.service.impl;
 import com.example.profesori_departamente.dto.DepartamentDTO;
 import com.example.profesori_departamente.dto.request.CreateDepartamentRequest;
 import com.example.profesori_departamente.entity.Departament;
+import com.example.profesori_departamente.entity.Profesor;
+import com.example.profesori_departamente.entity.ProfesorDepartament;
 import com.example.profesori_departamente.mapper.DepartamentMapper;
 import com.example.profesori_departamente.repository.DepartamentRepository;
+import com.example.profesori_departamente.repository.ProfesorDepartamentRepository;
+import com.example.profesori_departamente.repository.ProfesorRepository;
 import com.example.profesori_departamente.service.DepartamentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -18,6 +23,8 @@ public class DepartamentSerciceImpl implements DepartamentService {
 
 	private final DepartamentRepository departamentRepository;
 	private final DepartamentMapper departamentMapper;
+	private final ProfesorDepartamentRepository profesorDepartamentRepository;
+	private final ProfesorRepository profesorRepository;
 
 	public List<DepartamentDTO> findAll(){
 		return departamentMapper.toDTOList(departamentRepository.findAll());
@@ -36,6 +43,31 @@ public class DepartamentSerciceImpl implements DepartamentService {
 				.build());
 		return departamentMapper.toDTO(departamentSalvat);
 	}
+
+	@Override
+	@Transactional
+	public DepartamentDTO deleteById(Integer idDepartament) {
+		Departament departament = departamentRepository.findById(idDepartament)
+				.orElseThrow(() -> new RuntimeException("Nu exista acest departament"));
+		DepartamentDTO departamentDTO = departamentMapper.toDTO(departament);
+
+		List<Integer> idsProfesoriDeVerificat = profesorDepartamentRepository.findProfesorIdsByDepartamentId(idDepartament);
+
+		departamentRepository.delete(departament);
+
+		departamentRepository.flush();
+
+		for (Integer idProf : idsProfesoriDeVerificat) {
+			long count = profesorDepartamentRepository.countByProfesor_Id(idProf);
+
+			if (count == 0) {
+				profesorRepository.deleteById(idProf);
+			}
+		}
+
+		return departamentDTO;
+	}
+
 
 	private void verifyTelefon(String telefon){
 		if(departamentRepository.existsByTelefon(telefon))

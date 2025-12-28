@@ -12,6 +12,7 @@ import java.util.Set;
 @Getter
 @Setter
 public class ProfesorDTO {
+	private Integer id;
 	private String nume;
 	private String prenume;
 	private String email;

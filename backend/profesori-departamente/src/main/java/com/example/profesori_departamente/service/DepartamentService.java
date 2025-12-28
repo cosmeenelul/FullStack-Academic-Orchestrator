@@ -8,4 +8,5 @@ import java.util.List;
 public interface DepartamentService {
 	List<DepartamentDTO> findAll();
 	DepartamentDTO save(CreateDepartamentRequest createDepartamentRequest);
+	DepartamentDTO deleteById(Integer idDepartament);
 }

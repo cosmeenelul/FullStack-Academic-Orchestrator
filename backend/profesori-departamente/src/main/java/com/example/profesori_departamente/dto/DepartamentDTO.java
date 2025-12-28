@@ -12,6 +12,7 @@ import java.util.Set;
 @Getter
 @Setter
 public class DepartamentDTO {
+	private Integer id;
 	private String nume;
 	private String telefon;
 	private String linkWeb;

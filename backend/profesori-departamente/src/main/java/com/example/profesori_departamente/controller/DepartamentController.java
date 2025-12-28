@@ -23,4 +23,9 @@ public class DepartamentController {
 	public DepartamentDTO save(@RequestBody CreateDepartamentRequest createDepartamentRequest){
 		return departamentService.save(createDepartamentRequest);
 	}
+
+	@DeleteMapping("/{idDepartment}")
+	public DepartamentDTO deleteById(@PathVariable Integer idDepartment){
+		return departamentService.deleteById(idDepartment);
+	}
 }
