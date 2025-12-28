@@ -1,11 +1,10 @@
 package com.example.profesori_departamente.controller;
 
 import com.example.profesori_departamente.dto.DepartamentDTO;
+import com.example.profesori_departamente.dto.request.CreateDepartamentRequest;
 import com.example.profesori_departamente.service.DepartamentService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -18,5 +17,10 @@ public class DepartamentController {
 	@GetMapping
 	public List<DepartamentDTO> findAlL(){
 		return departamentService.findAll();
+	}
+
+	@PostMapping()
+	public DepartamentDTO save(@RequestBody CreateDepartamentRequest createDepartamentRequest){
+		return departamentService.save(createDepartamentRequest);
 	}
 }

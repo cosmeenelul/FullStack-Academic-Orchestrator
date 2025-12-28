@@ -86,6 +86,9 @@ public class ProfesorServiceImpl implements ProfesorService {
 	private Profesor processProfesorCreation(String nume, String prenume, String telefon, String email, List<Integer> idDepartamente, RolDepartament rolDepartament) {
 		userAlreadyExists(telefon);
 
+		for(Integer idDepartament : idDepartamente)
+			validateMemberDepartmentRole(rolDepartament,idDepartament);
+
 		Profesor profesorSalvat = profesorRepository.save(Profesor.builder()
 				.nume(nume)
 				.prenume(prenume)
@@ -102,7 +105,7 @@ public class ProfesorServiceImpl implements ProfesorService {
 					profesorDepartamentId,
 					profesorSalvat,
 					departament,
-					RolDepartament.Membru
+					rolDepartament
 			);
 
 			profesorSalvat.getDepartamente().add(profesorDepartament);
