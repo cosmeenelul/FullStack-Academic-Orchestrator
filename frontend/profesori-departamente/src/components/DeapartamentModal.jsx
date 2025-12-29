@@ -11,7 +11,7 @@ import {
 } from "@chakra-ui/react";
 import { FiX } from "react-icons/fi";
 
-const DepartamentModal = ({ isOpen, onClose }) => {
+const DepartamentModal = ({ isOpen, onClose, titlu, descriere }) => {
   // Dacă modalul nu este deschis, nu returnăm nimic (nu randăm nimic)
   if (!isOpen) return null;
 
@@ -65,10 +65,10 @@ const DepartamentModal = ({ isOpen, onClose }) => {
           <Flex justify="space-between" align="center" mb="6">
             <Box>
               <Heading size="lg" color="white">
-                Adaugă Departament
+                {titlu}
               </Heading>
               <Text fontSize="sm" color="gray.400">
-                Completează detaliile noii structuri.
+                {descriere}
               </Text>
             </Box>
             <IconButton

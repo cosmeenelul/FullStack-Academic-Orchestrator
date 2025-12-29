@@ -169,10 +169,14 @@ const Departamente = () => {
         <DepartamentModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
+          titlu={"Adaugă Departament"}
+          descriere={"Aici adaugi datele noului departament"}
         />
       )}
       {isEditModalOpen && (
         <DepartamentModal
+          titlu={"Editează Departament"}
+          descriere={"Aici editezi datele unui departament existent"}
           isOpen={isEditModalOpen}
           onClose={() => setIsModalEditOpen(false)}
         />

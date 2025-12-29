@@ -46,7 +46,6 @@ const DeleteConfirmationModal = ({
         animation="fadeIn 0.2s ease-out forwards"
         onClick={onClose}
       >
-        {/* --- FEREASTRA DE ALERTĂ --- */}
         <Box
           bg="#1a202c" // Darker background
           w="450px"
@@ -54,7 +53,7 @@ const DeleteConfirmationModal = ({
           borderRadius="xl"
           border="1px solid"
           borderColor="red.900" // Bordură roșie subtilă
-          boxShadow="0 0 40px rgba(229, 62, 62, 0.2)" // Glow roșu
+          boxShadow="0 0 40px rgba(229, 62, 62, 0.2)"
           p="8"
           textAlign="center"
           position="relative"
@@ -68,7 +67,7 @@ const DeleteConfirmationModal = ({
               borderRadius="full"
               bg="red.900"
               color="red.200"
-              animation="shake 0.5s ease-in-out 0.3s" // Tremură puțin când apare
+              animation="shake 0.5s ease-in-out 0.3s"
             >
               <Icon as={FiAlertTriangle} boxSize="8" />
             </Box>
