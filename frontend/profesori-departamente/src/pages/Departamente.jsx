@@ -20,11 +20,12 @@ import {
   FiX,
 } from "react-icons/fi";
 import DepartamentModal from "@/components/DeapartamentModal";
+import DeleteConfirmationModal from "@/components/DeleteConfirmationModal";
 
 const Departamente = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsModalEditOpen] = useState(false);
-
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const departamenteMock = [
     {
       id: 1,
@@ -149,6 +150,7 @@ const Departamente = () => {
                       <FiEdit2 />
                     </IconButton>
                     <IconButton
+                      onClick={() => setIsDeleteModalOpen(true)}
                       aria-label="Delete"
                       bg="transparent"
                       color="red.400"
@@ -175,8 +177,20 @@ const Departamente = () => {
           onClose={() => setIsModalEditOpen(false)}
         />
       )}
+      {isDeleteModalOpen && (
+        <DeleteConfirmationModal
+          isOpen={isDeleteModalOpen}
+          onClose={() => setIsDeleteModalOpen(false)}
+          onConfirm={() => {
+            DeleteConfirm();
+            setIsDeleteModalOpen(false);
+          }}
+        />
+      )}
     </Box>
   );
 };
-
+function DeleteConfirm() {
+  console.log("S-A STERS");
+}
 export default Departamente;

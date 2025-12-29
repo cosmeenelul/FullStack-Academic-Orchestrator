@@ -103,8 +103,8 @@ const DeleteConfirmationModal = ({
               ⚠ ATENȚIE:
             </Text>
             <Text color="red.100" fontSize="sm" textAlign="left">
-              Această acțiune va șterge automat și toți <b>profesorii</b>{" "}
-              arondați acestui departament. Acțiunea este ireversibilă!
+              Această acțiune va șterge automat toți <b>profesorii</b> arondați
+              doar acestui departament. Acțiunea este ireversibilă!
             </Text>
           </Box>
 
