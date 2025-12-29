@@ -9,20 +9,36 @@ import {
   Stack,
   Grid,
   Icon,
+  Select, // Componenta Select Compusă
+  createListCollection, // Obligatoriu pentru v3
 } from "@chakra-ui/react";
-import { FiX, FiPlus, FiTrash2, FiUser, FiLayers } from "react-icons/fi";
+import {
+  FiX,
+  FiPlus,
+  FiTrash2,
+  FiUser,
+  FiLayers,
+  FiChevronDown, // Iconița pentru dropdown
+} from "react-icons/fi";
 
 const EditProfesorModal = ({ isOpen, onClose, profesor, onSave }) => {
-  // --- 1. DATE HARDCODATE (Sursa de adevăr pentru dropdown) ---
-  const availableDepartments = [
-    { id: 101, nume: "Ingineria Sistemelor" },
-    { id: 102, nume: "Automatică și Calculatoare" },
-    { id: 103, nume: "Electronică Aplicată" },
-    { id: 104, nume: "Telecomunicații" },
-    { id: 105, nume: "Fizică" }, // Am mai adăugat unul de test
-  ];
+  // --- 1. CONFIGURARE DATE (COLLECTIONS) ---
 
-  const fixedRole = "MEMBRU"; // Rolul blocat
+  // Lista de departamente disponibile
+  const departmentsCollection = createListCollection({
+    items: [
+      { label: "Ingineria Sistemelor", value: "101" },
+      { label: "Automatică și Calculatoare", value: "102" },
+      { label: "Electronică Aplicată", value: "103" },
+      { label: "Telecomunicații", value: "104" },
+      { label: "Fizică", value: "105" },
+    ],
+  });
+
+  // Lista pentru Rol (conține doar Membru pentru că e blocat)
+  const rolesCollection = createListCollection({
+    items: [{ label: "Membru", value: "MEMBRU" }],
+  });
 
   // --- 2. STATE-URI ---
   const [formData, setFormData] = useState({
@@ -33,19 +49,20 @@ const EditProfesorModal = ({ isOpen, onClose, profesor, onSave }) => {
   });
 
   const [assignedDepartments, setAssignedDepartments] = useState([]);
-  const [selectedDeptId, setSelectedDeptId] = useState("");
 
-  // --- 3. POPULARE DATE (Când se deschide modalul) ---
+  // ATENȚIE: În v3, value este un Array!
+  const [selectedDeptId, setSelectedDeptId] = useState([]);
+  const [selectedRole, setSelectedRole] = useState(["MEMBRU"]);
+
+  // --- 3. POPULARE DATE ---
   useEffect(() => {
     if (isOpen && profesor) {
-      // Punem datele profesorului selectat în form
       setFormData({
         nume: profesor.nume || "",
         prenume: profesor.prenume || "",
         email: profesor.email || "",
         telefon: profesor.telefon || "",
       });
-      // Punem departamentele existente ale profesorului
       setAssignedDepartments(profesor.departamente || []);
     }
   }, [isOpen, profesor]);
@@ -56,16 +73,19 @@ const EditProfesorModal = ({ isOpen, onClose, profesor, onSave }) => {
   };
 
   const handleAddDepartment = () => {
-    if (!selectedDeptId) return;
+    // Luăm prima valoare din array (v3 returnează array)
+    const deptIdVal = selectedDeptId[0];
+    const roleVal = selectedRole[0];
 
-    // Găsim obiectul departament bazat pe ID-ul selectat
-    const deptObj = availableDepartments.find(
-      (d) => d.id === parseInt(selectedDeptId)
+    if (!deptIdVal) return;
+
+    // Găsim obiectul original în colecție
+    const deptObj = departmentsCollection.items.find(
+      (d) => d.value === deptIdVal
     );
 
-    // Verificăm duplicatele
     const alreadyExists = assignedDepartments.find(
-      (d) => d.id === parseInt(selectedDeptId)
+      (d) => d.id === parseInt(deptIdVal)
     );
 
     if (alreadyExists) {
@@ -73,15 +93,14 @@ const EditProfesorModal = ({ isOpen, onClose, profesor, onSave }) => {
       return;
     }
 
-    // Adăugăm departamentul nou cu rolul FORȚAT de MEMBRU
     const newAssignment = {
-      id: deptObj.id,
-      nume: deptObj.nume,
-      rol: fixedRole,
+      id: parseInt(deptObj.value),
+      nume: deptObj.label,
+      rol: roleVal,
     };
 
     setAssignedDepartments([...assignedDepartments, newAssignment]);
-    setSelectedDeptId(""); // Resetăm dropdown-ul
+    setSelectedDeptId([]); // Resetăm selecția
   };
 
   const handleRemoveDepartment = (idToRemove) => {
@@ -92,30 +111,17 @@ const EditProfesorModal = ({ isOpen, onClose, profesor, onSave }) => {
 
   const handleSaveClick = () => {
     const updatedData = {
-      id: profesor?.id, // Păstrăm ID-ul original
+      id: profesor?.id,
       ...formData,
       departamente: assignedDepartments,
     };
 
     console.log("Saving Edit Data:", updatedData);
-    onSave(updatedData); // Trimitem datele la părinte
+    onSave(updatedData);
     onClose();
   };
 
-  // --- 5. RENDER SAFETY CHECK ---
   if (!isOpen) return null;
-
-  // Stiluri CSS inline pentru elementele HTML native (Select)
-  const selectStyle = {
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
-    border: "1px solid rgba(255, 255, 255, 0.2)",
-    color: "white",
-    borderRadius: "6px",
-    padding: "8px",
-    width: "100%",
-    outline: "none",
-    cursor: "pointer",
-  };
 
   return (
     <Box
@@ -139,14 +145,14 @@ const EditProfesorModal = ({ isOpen, onClose, profesor, onSave }) => {
         maxH="90vh"
         borderRadius="xl"
         border="1px solid"
-        borderColor="orange.700" // Culoare diferită (Portocaliu) pentru EDIT
+        borderColor="orange.700"
         boxShadow="2xl"
         overflow="hidden"
         onClick={(e) => e.stopPropagation()}
         display="flex"
         flexDirection="column"
       >
-        {/* HEADER - Portocaliu */}
+        {/* HEADER */}
         <Box
           p="6"
           bgGradient="linear(to-r, orange.900, red.900)"
@@ -176,7 +182,7 @@ const EditProfesorModal = ({ isOpen, onClose, profesor, onSave }) => {
           </Button>
         </Box>
 
-        {/* BODY - Scrollable */}
+        {/* BODY */}
         <Box flex="1" overflowY="auto" p="6">
           <Stack spacing="6">
             {/* ZONA INFO PERSONALE */}
@@ -197,6 +203,7 @@ const EditProfesorModal = ({ isOpen, onClose, profesor, onSave }) => {
                   color="white"
                   borderColor="whiteAlpha.200"
                   bg="whiteAlpha.50"
+                  _focus={{ borderColor: "orange.400" }}
                 />
                 <Input
                   name="nume"
@@ -206,6 +213,7 @@ const EditProfesorModal = ({ isOpen, onClose, profesor, onSave }) => {
                   color="white"
                   borderColor="whiteAlpha.200"
                   bg="whiteAlpha.50"
+                  _focus={{ borderColor: "orange.400" }}
                 />
                 <Input
                   name="email"
@@ -215,6 +223,7 @@ const EditProfesorModal = ({ isOpen, onClose, profesor, onSave }) => {
                   color="white"
                   borderColor="whiteAlpha.200"
                   bg="whiteAlpha.50"
+                  _focus={{ borderColor: "orange.400" }}
                 />
                 <Input
                   name="telefon"
@@ -224,18 +233,19 @@ const EditProfesorModal = ({ isOpen, onClose, profesor, onSave }) => {
                   color="white"
                   borderColor="whiteAlpha.200"
                   bg="whiteAlpha.50"
+                  _focus={{ borderColor: "orange.400" }}
                 />
               </Grid>
             </Box>
 
             <Box h="1px" bg="whiteAlpha.100" />
 
-            {/* ZONA DEPARTAMENTE (Cu Rol Blocat) */}
+            {/* ZONA DEPARTAMENTE */}
             <Box>
               <Flex align="center" gap="2" color="orange.300" mb="4">
                 <Icon as={FiLayers} />
                 <Text fontWeight="bold" fontSize="sm">
-                  AFILIERE (Exclusiv Membru)
+                  AFILIERE
                 </Text>
               </Flex>
 
@@ -251,50 +261,101 @@ const EditProfesorModal = ({ isOpen, onClose, profesor, onSave }) => {
                   gap="3"
                   alignItems="end"
                 >
-                  {/* SELECT 1: Departamente disponibile (Hardcodat) */}
+                  {/* --- SELECT 1: DEPARTAMENT (Chakra v3) --- */}
                   <Box>
                     <Text color="gray.400" fontSize="xs" mb="1">
                       DEPARTAMENT
                     </Text>
-                    <select
-                      style={selectStyle}
+
+                    <Select.Root
+                      collection={departmentsCollection}
                       value={selectedDeptId}
-                      onChange={(e) => setSelectedDeptId(e.target.value)}
+                      onValueChange={(e) => setSelectedDeptId(e.value)}
                     >
-                      <option style={{ color: "black" }} value="">
-                        Alege...
-                      </option>
-                      {availableDepartments.map((d) => (
-                        <option
-                          style={{ color: "black" }}
-                          key={d.id}
-                          value={d.id}
+                      <Select.HiddenSelect />
+                      <Select.Control>
+                        <Select.Trigger
+                          px="3"
+                          py="2"
+                          bg="rgba(0,0,0,0.3)"
+                          border="1px solid"
+                          borderColor="whiteAlpha.300"
+                          borderRadius="md"
+                          width="100%"
+                          display="flex"
+                          justifyContent="space-between"
+                          alignItems="center"
+                          color="white"
+                          _hover={{ borderColor: "orange.400" }}
                         >
-                          {d.nume}
-                        </option>
-                      ))}
-                    </select>
+                          <Select.ValueText placeholder="Alege departament..." />
+                          <Icon as={FiChevronDown} color="gray.500" />
+                        </Select.Trigger>
+                      </Select.Control>
+
+                      {/* Positioner cu zIndex mare ca să iasă din modal */}
+                      <Select.Positioner zIndex={10000}>
+                        <Select.Content
+                          bg="#1a202c"
+                          border="1px solid"
+                          borderColor="orange.700"
+                          borderRadius="md"
+                          p="2"
+                          zIndex={10000}
+                          width="var(--reference-width)"
+                        >
+                          {departmentsCollection.items.map((dept) => (
+                            <Select.Item
+                              key={dept.value}
+                              item={dept}
+                              _hover={{ bg: "orange.800" }}
+                              _highlighted={{ bg: "orange.800" }}
+                              p="2"
+                              borderRadius="sm"
+                              cursor="pointer"
+                              color="white"
+                            >
+                              <Select.ItemText>{dept.label}</Select.ItemText>
+                            </Select.Item>
+                          ))}
+                        </Select.Content>
+                      </Select.Positioner>
+                    </Select.Root>
                   </Box>
 
-                  {/* SELECT 2: Rol (Blocat visual si functional) */}
+                  {/* --- SELECT 2: ROL (Blocat pe Membru) --- */}
                   <Box>
                     <Text color="gray.400" fontSize="xs" mb="1">
                       ROL (Fix)
                     </Text>
-                    <select
-                      style={{
-                        ...selectStyle,
-                        opacity: 0.6,
-                        cursor: "not-allowed",
-                        backgroundColor: "rgba(0,0,0,0.3)",
-                      }}
-                      value={fixedRole}
-                      disabled // Blocăm input-ul HTML
+
+                    <Select.Root
+                      collection={rolesCollection}
+                      value={selectedRole}
+                      disabled={true} // BLOCĂM SELECTUL
                     >
-                      <option style={{ color: "black" }} value="MEMBRU">
-                        Membru
-                      </option>
-                    </select>
+                      <Select.HiddenSelect />
+                      <Select.Control>
+                        <Select.Trigger
+                          px="3"
+                          py="2"
+                          bg="rgba(0,0,0,0.3)"
+                          border="1px solid"
+                          borderColor="whiteAlpha.300"
+                          borderRadius="md"
+                          width="100%"
+                          display="flex"
+                          justifyContent="space-between"
+                          alignItems="center"
+                          color="gray.400" // Culoare mai ștearsă pt disabled
+                          cursor="not-allowed"
+                          opacity={0.7}
+                        >
+                          <Select.ValueText placeholder="Rol..." />
+                          {/* Fără iconiță sau iconiță ștearsă */}
+                        </Select.Trigger>
+                      </Select.Control>
+                    </Select.Root>
                   </Box>
 
                   <Button
@@ -310,7 +371,7 @@ const EditProfesorModal = ({ isOpen, onClose, profesor, onSave }) => {
                 </Grid>
               </Box>
 
-              {/* Tabel/Lista departamente asignate */}
+              {/* Lista departamente adăugate */}
               <Stack mt="4" spacing="2">
                 {assignedDepartments.map((dept, idx) => (
                   <Flex

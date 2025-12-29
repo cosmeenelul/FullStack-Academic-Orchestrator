@@ -1,373 +1,316 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Box,
   Flex,
-  Heading,
   Text,
+  Heading,
+  Table,
+  Badge,
   Button,
   Input,
+  IconButton,
+  Avatar,
   Stack,
-  Grid,
+  HStack,
   Icon,
 } from "@chakra-ui/react";
-import { FiX, FiPlus, FiTrash2, FiUser, FiLayers } from "react-icons/fi";
+import {
+  FiPlus,
+  FiEdit2,
+  FiTrash2,
+  FiSearch,
+  FiPhone,
+  FiMail,
+  FiMoreHorizontal,
+  FiAward,
+} from "react-icons/fi";
+import ProfesorDetailsModal from "@/components/ProfesorDetailsProfile";
+import ProfesorModal from "@/components/ProfesorModal";
+import EditProfesorModal from "@/components/EditProfesorModal";
 
-const EditProfesorModal = ({ isOpen, onClose, profesor, onSave }) => {
-  // --- 1. DATE HARDCODATE ---
-  const availableDepartments = [
-    { id: 101, nume: "Ingineria Sistemelor" },
-    { id: 102, nume: "Automatică și Calculatoare" },
-    { id: 103, nume: "Electronică Aplicată" },
-    { id: 104, nume: "Telecomunicații" },
-    { id: 105, nume: "Fizică" },
+// Putem importa componentele de Modal create anterior dacă vrei să le refolosești
+// import DeleteConfirmationModal from "@/components/DeleteConfirmationModal";
+
+const Profesori = () => {
+  // Mockup bazat pe ProfesorDTO.java și structura Set<ProfesorDepartamentDTO>
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateProfileModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const profesoriMock = [
+    {
+      id: 1,
+      nume: "Popescu",
+      prenume: "Andrei",
+      email: "andrei.popescu@upb.ro",
+      telefon: "0722 123 456",
+      // Simulăm Set-ul de departamente
+      departamente: [
+        { id: 101, nume: "Ingineria Sistemelor", rol: "Director" },
+        { id: 102, nume: "Automatică", rol: "Membru" },
+      ],
+    },
+    {
+      id: 2,
+      nume: "Ionescu",
+      prenume: "Maria",
+      email: "maria.ionescu@upb.ro",
+      telefon: "0744 987 654",
+      departamente: [{ id: 102, nume: "Automatică", rol: "Membru" }],
+    },
+    {
+      id: 3,
+      nume: "Vasilescu",
+      prenume: "Dan",
+      email: "dan.vasilescu@upb.ro",
+      telefon: "0755 111 222",
+      departamente: [
+        { id: 103, nume: "Telecomunicații", rol: "Membru" },
+        { id: 104, nume: "Electronică", rol: "Membru Consiliu" },
+      ],
+    },
+    {
+      id: 4,
+      nume: "Georgescu",
+      prenume: "Elena",
+      email: "elena.georgescu@upb.ro",
+      telefon: "0766 333 444",
+      departamente: [{ id: 101, nume: "Ingineria Sistemelor", rol: "Membru" }],
+    },
   ];
 
-  const fixedRole = "MEMBRU"; // Rolul fix
-
-  // --- 2. STATE-URI ---
-  const [formData, setFormData] = useState({
-    nume: "",
-    prenume: "",
-    email: "",
-    telefon: "",
-  });
-
-  const [assignedDepartments, setAssignedDepartments] = useState([]);
-  const [selectedDeptId, setSelectedDeptId] = useState("");
-
-  // --- 3. POPULARE DATE ---
-  useEffect(() => {
-    if (isOpen && profesor) {
-      setFormData({
-        nume: profesor.nume || "",
-        prenume: profesor.prenume || "",
-        email: profesor.email || "",
-        telefon: profesor.telefon || "",
-      });
-      setAssignedDepartments(profesor.departamente || []);
-    }
-  }, [isOpen, profesor]);
-
-  // --- 4. HANDLERS ---
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleAddDepartment = () => {
-    if (!selectedDeptId) return;
-
-    const deptObj = availableDepartments.find(
-      (d) => d.id === parseInt(selectedDeptId)
-    );
-
-    const alreadyExists = assignedDepartments.find(
-      (d) => d.id === parseInt(selectedDeptId)
-    );
-
-    if (alreadyExists) {
-      alert("Profesorul este deja asignat la acest departament!");
-      return;
-    }
-
-    const newAssignment = {
-      id: deptObj.id,
-      nume: deptObj.nume,
-      rol: fixedRole,
-    };
-
-    setAssignedDepartments([...assignedDepartments, newAssignment]);
-    setSelectedDeptId("");
-  };
-
-  const handleRemoveDepartment = (idToRemove) => {
-    setAssignedDepartments(
-      assignedDepartments.filter((d) => d.id !== idToRemove)
-    );
-  };
-
-  const handleSaveClick = () => {
-    const updatedData = {
-      id: profesor?.id,
-      ...formData,
-      departamente: assignedDepartments,
-    };
-
-    console.log("Saving Edit Data:", updatedData);
-    onSave(updatedData);
-    onClose();
-  };
-
-  if (!isOpen) return null;
-
-  // --- STILURI IDENTICE CU CREARE PROFESOR ---
-  const selectStyle = {
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
-    border: "1px solid rgba(255, 255, 255, 0.2)",
-    color: "white",
-    borderRadius: "6px",
-    padding: "8px",
-    width: "100%",
-    outline: "none",
-    cursor: "pointer",
-    // Asigură consistența fontului
-    fontFamily: "inherit",
-    fontSize: "0.875rem", // echivalent text-sm
-  };
-
   return (
-    <Box
-      position="fixed"
-      top="0"
-      left="0"
-      w="100vw"
-      h="100vh"
-      bg="blackAlpha.800"
-      backdropFilter="blur(5px)"
-      zIndex="9999"
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
-      onClick={onClose}
-    >
-      <Box
-        bg="#0f172a"
-        w="700px"
-        maxW="95%"
-        maxH="90vh"
-        borderRadius="xl"
-        border="1px solid"
-        borderColor="orange.700" // Culoare specifică Editării
-        boxShadow="2xl"
-        overflow="hidden"
-        onClick={(e) => e.stopPropagation()}
-        display="flex"
-        flexDirection="column"
-      >
-        {/* HEADER */}
-        <Box
-          p="6"
-          bgGradient="linear(to-r, orange.900, red.900)"
-          display="flex"
-          justifyContent="space-between"
-          alignItems="center"
-        >
-          <Box>
-            <Heading size="md" color="white" mb="1">
-              Editează Profesor
-            </Heading>
-            <Text color="orange.200" fontSize="sm">
-              Modifică datele și afilierile.
-            </Text>
+    <Box w="100%" minH="100vh" position="relative">
+      {/* --- HEADER + SEARCH AREA --- */}
+      <Flex justify="space-between" align="flex-end" mb="8" wrap="wrap" gap="4">
+        <Box>
+          <Heading size="xl" color="white" mb="2">
+            Corp Profesoral
+          </Heading>
+          <Text color="gray.400">
+            Gestionează profesorii și afilierile acestora la departamente.
+          </Text>
+        </Box>
+
+        <Flex gap="4" align="center">
+          {/* Search Bar Smecher */}
+          <Box position="relative" w="300px">
+            <Box position="absolute" left="3" top="3" color="blue.400">
+              <FiSearch />
+            </Box>
+            <Input
+              placeholder="Caută după nume sau email..."
+              pl="10"
+              bg="rgba(13, 16, 30, 0.5)"
+              border="1px solid"
+              borderColor="whiteAlpha.200"
+              color="white"
+              borderRadius="xl"
+              _focus={{
+                borderColor: "blue.500",
+                boxShadow: "0 0 15px rgba(49, 130, 206, 0.3)",
+                bg: "rgba(13, 16, 30, 0.8)",
+              }}
+            />
           </Box>
 
           <Button
-            onClick={onClose}
-            minW="32px"
-            h="32px"
-            p="0"
-            borderRadius="full"
-            bg="whiteAlpha.200"
-            _hover={{ bg: "red.500" }}
-          >
-            <Icon as={FiX} color="white" />
-          </Button>
-        </Box>
-
-        {/* BODY */}
-        <Box flex="1" overflowY="auto" p="6">
-          <Stack spacing="6">
-            {/* ZONA INFO PERSONALE */}
-            <Box>
-              <Flex align="center" gap="2" color="orange.300" mb="4">
-                <Icon as={FiUser} />
-                <Text fontWeight="bold" fontSize="sm">
-                  DATE DE CONTACT
-                </Text>
-              </Flex>
-
-              <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap="4">
-                <Input
-                  name="prenume"
-                  value={formData.prenume}
-                  onChange={handleChange}
-                  placeholder="Prenume"
-                  color="white"
-                  borderColor="whiteAlpha.200"
-                  bg="whiteAlpha.50"
-                  _focus={{ borderColor: "orange.400" }}
-                />
-                <Input
-                  name="nume"
-                  value={formData.nume}
-                  onChange={handleChange}
-                  placeholder="Nume"
-                  color="white"
-                  borderColor="whiteAlpha.200"
-                  bg="whiteAlpha.50"
-                  _focus={{ borderColor: "orange.400" }}
-                />
-                <Input
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder="Email"
-                  color="white"
-                  borderColor="whiteAlpha.200"
-                  bg="whiteAlpha.50"
-                  _focus={{ borderColor: "orange.400" }}
-                />
-                <Input
-                  name="telefon"
-                  value={formData.telefon}
-                  onChange={handleChange}
-                  placeholder="Telefon"
-                  color="white"
-                  borderColor="whiteAlpha.200"
-                  bg="whiteAlpha.50"
-                  _focus={{ borderColor: "orange.400" }}
-                />
-              </Grid>
-            </Box>
-
-            <Box h="1px" bg="whiteAlpha.100" />
-
-            {/* ZONA DEPARTAMENTE */}
-            <Box>
-              <Flex align="center" gap="2" color="orange.300" mb="4">
-                <Icon as={FiLayers} />
-                <Text fontWeight="bold" fontSize="sm">
-                  AFILIERE
-                </Text>
-              </Flex>
-
-              <Box
-                bg="whiteAlpha.50"
-                p="4"
-                borderRadius="lg"
-                border="1px dashed"
-                borderColor="whiteAlpha.200"
-              >
-                <Grid
-                  templateColumns={{ base: "1fr", md: "2fr 1.5fr auto" }}
-                  gap="3"
-                  alignItems="end"
-                >
-                  {/* SELECT 1: DEPARTAMENT (Exact ca la Create) */}
-                  <Box>
-                    <Text color="gray.400" fontSize="xs" mb="1">
-                      DEPARTAMENT
-                    </Text>
-                    <select
-                      style={selectStyle}
-                      value={selectedDeptId}
-                      onChange={(e) => setSelectedDeptId(e.target.value)}
-                    >
-                      <option style={{ color: "black" }} value="">
-                        Alege...
-                      </option>
-                      {availableDepartments.map((d) => (
-                        <option
-                          style={{ color: "black" }}
-                          key={d.id}
-                          value={d.id}
-                        >
-                          {d.nume}
-                        </option>
-                      ))}
-                    </select>
-                  </Box>
-
-                  {/* SELECT 2: ROL (Acelasi stil, dar disabled si blocat pe Membru) */}
-                  <Box>
-                    <Text color="gray.400" fontSize="xs" mb="1">
-                      ROL (Fix)
-                    </Text>
-                    <select
-                      // Aplicăm stilul dar reducem opacitatea pt a sugera că e readonly
-                      style={{
-                        ...selectStyle,
-                        opacity: 0.6,
-                        cursor: "not-allowed",
-                      }}
-                      value={fixedRole}
-                      disabled
-                    >
-                      <option style={{ color: "black" }} value="MEMBRU">
-                        Membru
-                      </option>
-                    </select>
-                  </Box>
-
-                  <Button
-                    onClick={handleAddDepartment}
-                    bg="orange.600"
-                    color="white"
-                    _hover={{ bg: "orange.500" }}
-                  >
-                    <Flex align="center" gap="2">
-                      <Icon as={FiPlus} /> Adaugă
-                    </Flex>
-                  </Button>
-                </Grid>
-              </Box>
-
-              {/* Tabel Lista */}
-              <Stack mt="4" spacing="2">
-                {assignedDepartments.map((dept, idx) => (
-                  <Flex
-                    key={dept.id || idx}
-                    bg="whiteAlpha.100"
-                    p="2"
-                    borderRadius="md"
-                    justify="space-between"
-                    align="center"
-                    borderLeft="3px solid"
-                    borderColor="orange.500"
-                  >
-                    <Box ml="2">
-                      <Text color="white" fontSize="sm" fontWeight="bold">
-                        {dept.nume}
-                      </Text>
-                      <Text color="gray.400" fontSize="xs">
-                        {dept.rol}
-                      </Text>
-                    </Box>
-
-                    <Button
-                      onClick={() => handleRemoveDepartment(dept.id)}
-                      minW="30px"
-                      h="30px"
-                      p="0"
-                      bg="transparent"
-                      color="red.400"
-                      _hover={{ bg: "whiteAlpha.100" }}
-                    >
-                      <Icon as={FiTrash2} />
-                    </Button>
-                  </Flex>
-                ))}
-              </Stack>
-            </Box>
-          </Stack>
-        </Box>
-
-        {/* FOOTER */}
-        <Flex p="4" bg="blackAlpha.300" justify="flex-end" gap="3">
-          <Button onClick={onClose} variant="ghost" color="gray.400">
-            Anulează
-          </Button>
-          <Button
-            onClick={handleSaveClick}
-            bg="orange.600"
+            bg="blue.600"
             color="white"
-            _hover={{ bg: "orange.500" }}
+            _hover={{ bg: "blue.500", transform: "translateY(-2px)" }}
+            transition="all 0.2s"
+            size="lg"
+            borderRadius="xl"
+            boxShadow="0 0 15px rgba(49, 130, 206, 0.5)"
+            leftIcon={<FiPlus />}
+            onClick={() => setIsCreateProfileModalOpen(true)}
           >
-            Salvează Modificări
+            Adaugă Profesor
           </Button>
         </Flex>
+      </Flex>
+
+      {/* --- TABELUL DE PROFESORI --- */}
+
+      <Box
+        bg="rgba(13, 16, 30, 0.7)"
+        backdropFilter="blur(12px)"
+        border="1px solid"
+        borderColor="whiteAlpha.100"
+        borderRadius="2xl"
+        boxShadow="xl"
+        // MODIFICĂRILE CHEIE SUNT AICI:
+        p="0" // 1. Eliminăm spațiul interior ca tabelul să atingă marginile
+        overflow="hidden" // 2. Tăiem colțurile tabelului ca să se potrivească cu borderRadius-ul containerului
+      >
+        <Table.Root variant="simple" size="md">
+          {/* Header-ul va avea acum fundalul lipit de margini */}
+          <Table.Header bg="rgba(0, 0, 0, 0.3)">
+            <Table.Row borderColor="whiteAlpha.100">
+              <Table.ColumnHeader
+                color="blue.300"
+                fontWeight="bold"
+                py="6"
+                pl="8"
+              >
+                PROFESOR
+              </Table.ColumnHeader>
+              <Table.ColumnHeader color="blue.300" fontWeight="bold" py="6">
+                CONTACT
+              </Table.ColumnHeader>
+              <Table.ColumnHeader color="blue.300" fontWeight="bold" py="6">
+                DEPARTAMENTE & ROLURI
+              </Table.ColumnHeader>
+              <Table.ColumnHeader
+                textAlign="right"
+                color="blue.300"
+                py="6"
+                pr="8"
+              >
+                ACȚIUNI
+              </Table.ColumnHeader>
+            </Table.Row>
+          </Table.Header>
+
+          <Table.Body>
+            {profesoriMock.map((prof) => (
+              <Table.Row
+                key={prof.id}
+                _hover={{ bg: "whiteAlpha.50" }}
+                transition="0.2s"
+                borderColor="whiteAlpha.50"
+              >
+                {/* 1. Nume și Avatar - Ajustăm padding-ul celulelor (pl="8") ca să nu fie textul lipit de margine */}
+                <Table.Cell pl="8" py="5">
+                  <HStack gap="4">
+                    <Avatar.Root size="md" variant="solid">
+                      <Avatar.Fallback
+                        bgGradient="to-br"
+                        gradientFrom="blue.500"
+                        gradientTo="purple.600"
+                        color="white"
+                        fontWeight="bold"
+                      >
+                        {prof.nume[0]}
+                        {prof.prenume[0]}
+                      </Avatar.Fallback>
+                    </Avatar.Root>
+                    <Box>
+                      <Text fontWeight="bold" color="white" fontSize="md">
+                        {prof.nume} {prof.prenume}
+                      </Text>
+                      <Text fontSize="xs" color="gray.400" mt="-1">
+                        ID: #{prof.id}
+                      </Text>
+                    </Box>
+                  </HStack>
+                </Table.Cell>
+
+                <Table.Cell py="5">
+                  <Stack gap="1">
+                    <Flex align="center" gap="2" color="gray.300">
+                      <Icon as={FiMail} color="blue.400" boxSize="3.5" />
+                      <Text fontSize="sm">{prof.email}</Text>
+                    </Flex>
+                    <Flex align="center" gap="2" color="gray.400">
+                      <Icon as={FiPhone} color="green.400" boxSize="3.5" />
+                      <Text fontSize="xs">{prof.telefon}</Text>
+                    </Flex>
+                  </Stack>
+                </Table.Cell>
+
+                <Table.Cell py="5">
+                  <Flex wrap="wrap" gap="2" maxW="350px">
+                    {prof.departamente.map((dept) => (
+                      <Badge
+                        key={dept.id}
+                        colorPalette={
+                          dept.rol === "Director" ? "purple" : "blue"
+                        }
+                        variant={dept.rol === "Director" ? "solid" : "subtle"}
+                        borderRadius="full"
+                        px="3"
+                        py="1"
+                        textTransform="none"
+                        display="flex"
+                        alignItems="center"
+                        gap="1.5"
+                      >
+                        {dept.rol === "Director" && <Icon as={FiAward} />}
+                        {dept.nume}
+                        {dept.rol !== "Membru" && (
+                          <Text
+                            as="span"
+                            opacity="0.8"
+                            ml="1"
+                            fontWeight="normal"
+                          >
+                            | {dept.rol}
+                          </Text>
+                        )}
+                      </Badge>
+                    ))}
+                  </Flex>
+                </Table.Cell>
+
+                {/* Ajustăm padding-ul la ultima celulă (pr="8") */}
+                <Table.Cell textAlign="right" pr="8" py="5">
+                  <HStack justify="flex-end" gap="1">
+                    <IconButton
+                      onClick={() => setIsProfileOpen(true)}
+                      aria-label="More"
+                      variant="ghost"
+                      color="blue.200"
+                      size="sm"
+                      _hover={{ bg: "blue.900", color: "white" }}
+                    >
+                      <FiMoreHorizontal />
+                    </IconButton>
+                    <IconButton
+                      onClick={() => setIsEditModalOpen(true)}
+                      aria-label="Edit"
+                      variant="ghost"
+                      color="yellow.400"
+                      size="sm"
+                      _hover={{ bg: "yellow.900", color: "yellow.200" }}
+                    >
+                      <FiEdit2 />
+                    </IconButton>
+                    <IconButton
+                      aria-label="Delete"
+                      variant="ghost"
+                      color="red.400"
+                      size="sm"
+                      _hover={{ bg: "red.900", color: "red.200" }}
+                    >
+                      <FiTrash2 />
+                    </IconButton>
+                  </HStack>
+                </Table.Cell>
+              </Table.Row>
+            ))}
+          </Table.Body>
+        </Table.Root>
       </Box>
+      {isProfileOpen && (
+        <ProfesorDetailsModal
+          isOpen={isProfileOpen}
+          onClose={() => setIsProfileOpen(false)}
+        />
+      )}
+      {isCreateModalOpen && (
+        <ProfesorModal
+          isOpen={isCreateModalOpen}
+          onClose={() => setIsCreateProfileModalOpen(false)}
+        />
+      )}
+      {isEditModalOpen && (
+        <EditProfesorModal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+        />
+      )}
     </Box>
   );
 };
 
-export default EditProfesorModal;
+export default Profesori;
