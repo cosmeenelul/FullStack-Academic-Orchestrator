@@ -35,6 +35,11 @@ public class ProfesorController {
 		return profesorService.updateById(id,createProfesorRequest);
 	}
 
+	@GetMapping("/profil/{idProfesor}")
+	public ProfesorDTO findById(@PathVariable Integer idProfesor){
+		return profesorService.findById(idProfesor);
+	}
+
 	@DeleteMapping("/{id}")
 	public ProfesorDTO deleteById(@PathVariable Integer id){
 		return profesorService.deleteById(id);

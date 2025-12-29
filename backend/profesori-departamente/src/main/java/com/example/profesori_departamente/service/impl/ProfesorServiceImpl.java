@@ -75,6 +75,10 @@ public class ProfesorServiceImpl implements ProfesorService {
 		return profesorMapper.toDTOList(profesori);
 	}
 
+	@Override
+	public ProfesorDTO findById(Integer idProfesor) {
+		return profesorMapper.toDTO(profesorRepository.findById(idProfesor).orElseThrow(()->new RuntimeException("Nu exista acest profesor in departament!")));
+	}
 
 
 	private void userAlreadyExists(String telefon){
