@@ -24,12 +24,14 @@ import {
   FiMoreHorizontal,
   FiAward,
 } from "react-icons/fi";
+import ProfesorDetailsModal from "@/components/ProfesorDetailsProfile";
 
 // Putem importa componentele de Modal create anterior dacă vrei să le refolosești
 // import DeleteConfirmationModal from "@/components/DeleteConfirmationModal";
 
 const Profesori = () => {
   // Mockup bazat pe ProfesorDTO.java și structura Set<ProfesorDepartamentDTO>
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const profesoriMock = [
     {
       id: 1,
@@ -123,43 +125,47 @@ const Profesori = () => {
       </Flex>
 
       {/* --- TABELUL DE PROFESORI --- */}
+
       <Box
         bg="rgba(13, 16, 30, 0.7)"
         backdropFilter="blur(12px)"
         border="1px solid"
         borderColor="whiteAlpha.100"
         borderRadius="2xl"
-        p="1" // Padding mic pentru container
         boxShadow="xl"
-        overflow="hidden"
+        // MODIFICĂRILE CHEIE SUNT AICI:
+        p="0" // 1. Eliminăm spațiul interior ca tabelul să atingă marginile
+        overflow="hidden" // 2. Tăiem colțurile tabelului ca să se potrivească cu borderRadius-ul containerului
       >
         <Table.Root variant="simple" size="md">
-          <Table.Header bg="whiteAlpha.50">
+          {/* Header-ul va avea acum fundalul lipit de margini */}
+          <Table.Header bg="rgba(0, 0, 0, 0.3)">
             <Table.Row borderColor="whiteAlpha.100">
               <Table.ColumnHeader
                 color="blue.300"
                 fontWeight="bold"
-                py="5"
-                pl="6"
+                py="6"
+                pl="8"
               >
                 PROFESOR
               </Table.ColumnHeader>
-              <Table.ColumnHeader color="blue.300" fontWeight="bold" py="5">
+              <Table.ColumnHeader color="blue.300" fontWeight="bold" py="6">
                 CONTACT
               </Table.ColumnHeader>
-              <Table.ColumnHeader color="blue.300" fontWeight="bold" py="5">
+              <Table.ColumnHeader color="blue.300" fontWeight="bold" py="6">
                 DEPARTAMENTE & ROLURI
               </Table.ColumnHeader>
               <Table.ColumnHeader
                 textAlign="right"
                 color="blue.300"
-                py="5"
-                pr="6"
+                py="6"
+                pr="8"
               >
                 ACȚIUNI
               </Table.ColumnHeader>
             </Table.Row>
           </Table.Header>
+
           <Table.Body>
             {profesoriMock.map((prof) => (
               <Table.Row
@@ -168,8 +174,8 @@ const Profesori = () => {
                 transition="0.2s"
                 borderColor="whiteAlpha.50"
               >
-                {/* 1. Nume și Avatar */}
-                <Table.Cell pl="6" py="4">
+                {/* 1. Nume și Avatar - Ajustăm padding-ul celulelor (pl="8") ca să nu fie textul lipit de margine */}
+                <Table.Cell pl="8" py="5">
                   <HStack gap="4">
                     <Avatar.Root size="md" variant="solid">
                       <Avatar.Fallback
@@ -194,8 +200,7 @@ const Profesori = () => {
                   </HStack>
                 </Table.Cell>
 
-                {/* 2. Contact (Email & Telefon) */}
-                <Table.Cell py="4">
+                <Table.Cell py="5">
                   <Stack gap="1">
                     <Flex align="center" gap="2" color="gray.300">
                       <Icon as={FiMail} color="blue.400" boxSize="3.5" />
@@ -208,8 +213,7 @@ const Profesori = () => {
                   </Stack>
                 </Table.Cell>
 
-                {/* 3. Departamente (Badge-uri colorate) */}
-                <Table.Cell py="4">
+                <Table.Cell py="5">
                   <Flex wrap="wrap" gap="2" maxW="350px">
                     {prof.departamente.map((dept) => (
                       <Badge
@@ -221,14 +225,13 @@ const Profesori = () => {
                         borderRadius="full"
                         px="3"
                         py="1"
-                        textTransform="none" // Să nu fie totul uppercase
+                        textTransform="none"
                         display="flex"
                         alignItems="center"
                         gap="1.5"
                       >
                         {dept.rol === "Director" && <Icon as={FiAward} />}
                         {dept.nume}
-                        {/* Afișăm rolul doar dacă e ceva special, altfel aglomerează */}
                         {dept.rol !== "Membru" && (
                           <Text
                             as="span"
@@ -244,10 +247,11 @@ const Profesori = () => {
                   </Flex>
                 </Table.Cell>
 
-                {/* 4. Actiuni */}
-                <Table.Cell textAlign="right" pr="6" py="4">
+                {/* Ajustăm padding-ul la ultima celulă (pr="8") */}
+                <Table.Cell textAlign="right" pr="8" py="5">
                   <HStack justify="flex-end" gap="1">
                     <IconButton
+                      onClick={() => setIsProfileOpen(true)}
                       aria-label="More"
                       variant="ghost"
                       color="blue.200"
@@ -281,6 +285,12 @@ const Profesori = () => {
           </Table.Body>
         </Table.Root>
       </Box>
+      {isProfileOpen && (
+        <ProfesorDetailsModal
+          isOpen={isProfileOpen}
+          onClose={() => setIsProfileOpen(false)}
+        />
+      )}
     </Box>
   );
 };
