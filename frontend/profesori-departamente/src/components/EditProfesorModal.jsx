@@ -13,16 +13,16 @@ import {
 import { FiX, FiPlus, FiTrash2, FiUser, FiLayers } from "react-icons/fi";
 
 const EditProfesorModal = ({ isOpen, onClose, profesor, onSave }) => {
-  // --- 1. DATE HARDCODATE ---
+  // --- 1. DATE HARDCODATE (Sursa de adevăr pentru dropdown) ---
   const availableDepartments = [
     { id: 101, nume: "Ingineria Sistemelor" },
     { id: 102, nume: "Automatică și Calculatoare" },
     { id: 103, nume: "Electronică Aplicată" },
     { id: 104, nume: "Telecomunicații" },
-    { id: 105, nume: "Fizică" },
+    { id: 105, nume: "Fizică" }, // Am mai adăugat unul de test
   ];
 
-  const fixedRole = "MEMBRU"; // Rolul fix
+  const fixedRole = "MEMBRU"; // Rolul blocat
 
   // --- 2. STATE-URI ---
   const [formData, setFormData] = useState({
@@ -35,15 +35,17 @@ const EditProfesorModal = ({ isOpen, onClose, profesor, onSave }) => {
   const [assignedDepartments, setAssignedDepartments] = useState([]);
   const [selectedDeptId, setSelectedDeptId] = useState("");
 
-  // --- 3. POPULARE DATE ---
+  // --- 3. POPULARE DATE (Când se deschide modalul) ---
   useEffect(() => {
     if (isOpen && profesor) {
+      // Punem datele profesorului selectat în form
       setFormData({
         nume: profesor.nume || "",
         prenume: profesor.prenume || "",
         email: profesor.email || "",
         telefon: profesor.telefon || "",
       });
+      // Punem departamentele existente ale profesorului
       setAssignedDepartments(profesor.departamente || []);
     }
   }, [isOpen, profesor]);
@@ -56,10 +58,12 @@ const EditProfesorModal = ({ isOpen, onClose, profesor, onSave }) => {
   const handleAddDepartment = () => {
     if (!selectedDeptId) return;
 
+    // Găsim obiectul departament bazat pe ID-ul selectat
     const deptObj = availableDepartments.find(
       (d) => d.id === parseInt(selectedDeptId)
     );
 
+    // Verificăm duplicatele
     const alreadyExists = assignedDepartments.find(
       (d) => d.id === parseInt(selectedDeptId)
     );
@@ -69,6 +73,7 @@ const EditProfesorModal = ({ isOpen, onClose, profesor, onSave }) => {
       return;
     }
 
+    // Adăugăm departamentul nou cu rolul FORȚAT de MEMBRU
     const newAssignment = {
       id: deptObj.id,
       nume: deptObj.nume,
@@ -76,7 +81,7 @@ const EditProfesorModal = ({ isOpen, onClose, profesor, onSave }) => {
     };
 
     setAssignedDepartments([...assignedDepartments, newAssignment]);
-    setSelectedDeptId("");
+    setSelectedDeptId(""); // Resetăm dropdown-ul
   };
 
   const handleRemoveDepartment = (idToRemove) => {
@@ -87,19 +92,20 @@ const EditProfesorModal = ({ isOpen, onClose, profesor, onSave }) => {
 
   const handleSaveClick = () => {
     const updatedData = {
-      id: profesor?.id,
+      id: profesor?.id, // Păstrăm ID-ul original
       ...formData,
       departamente: assignedDepartments,
     };
 
     console.log("Saving Edit Data:", updatedData);
-    onSave(updatedData);
+    onSave(updatedData); // Trimitem datele la părinte
     onClose();
   };
 
+  // --- 5. RENDER SAFETY CHECK ---
   if (!isOpen) return null;
 
-  // --- STILURI IDENTICE CU CREARE PROFESOR ---
+  // Stiluri CSS inline pentru elementele HTML native (Select)
   const selectStyle = {
     backgroundColor: "rgba(255, 255, 255, 0.1)",
     border: "1px solid rgba(255, 255, 255, 0.2)",
@@ -109,9 +115,6 @@ const EditProfesorModal = ({ isOpen, onClose, profesor, onSave }) => {
     width: "100%",
     outline: "none",
     cursor: "pointer",
-    // Asigură consistența fontului
-    fontFamily: "inherit",
-    fontSize: "0.875rem", // echivalent text-sm
   };
 
   return (
@@ -136,14 +139,14 @@ const EditProfesorModal = ({ isOpen, onClose, profesor, onSave }) => {
         maxH="90vh"
         borderRadius="xl"
         border="1px solid"
-        borderColor="orange.700" // Culoare specifică Editării
+        borderColor="orange.700" // Culoare diferită (Portocaliu) pentru EDIT
         boxShadow="2xl"
         overflow="hidden"
         onClick={(e) => e.stopPropagation()}
         display="flex"
         flexDirection="column"
       >
-        {/* HEADER */}
+        {/* HEADER - Portocaliu */}
         <Box
           p="6"
           bgGradient="linear(to-r, orange.900, red.900)"
@@ -173,7 +176,7 @@ const EditProfesorModal = ({ isOpen, onClose, profesor, onSave }) => {
           </Button>
         </Box>
 
-        {/* BODY */}
+        {/* BODY - Scrollable */}
         <Box flex="1" overflowY="auto" p="6">
           <Stack spacing="6">
             {/* ZONA INFO PERSONALE */}
@@ -194,7 +197,6 @@ const EditProfesorModal = ({ isOpen, onClose, profesor, onSave }) => {
                   color="white"
                   borderColor="whiteAlpha.200"
                   bg="whiteAlpha.50"
-                  _focus={{ borderColor: "orange.400" }}
                 />
                 <Input
                   name="nume"
@@ -204,7 +206,6 @@ const EditProfesorModal = ({ isOpen, onClose, profesor, onSave }) => {
                   color="white"
                   borderColor="whiteAlpha.200"
                   bg="whiteAlpha.50"
-                  _focus={{ borderColor: "orange.400" }}
                 />
                 <Input
                   name="email"
@@ -214,7 +215,6 @@ const EditProfesorModal = ({ isOpen, onClose, profesor, onSave }) => {
                   color="white"
                   borderColor="whiteAlpha.200"
                   bg="whiteAlpha.50"
-                  _focus={{ borderColor: "orange.400" }}
                 />
                 <Input
                   name="telefon"
@@ -224,19 +224,18 @@ const EditProfesorModal = ({ isOpen, onClose, profesor, onSave }) => {
                   color="white"
                   borderColor="whiteAlpha.200"
                   bg="whiteAlpha.50"
-                  _focus={{ borderColor: "orange.400" }}
                 />
               </Grid>
             </Box>
 
             <Box h="1px" bg="whiteAlpha.100" />
 
-            {/* ZONA DEPARTAMENTE */}
+            {/* ZONA DEPARTAMENTE (Cu Rol Blocat) */}
             <Box>
               <Flex align="center" gap="2" color="orange.300" mb="4">
                 <Icon as={FiLayers} />
                 <Text fontWeight="bold" fontSize="sm">
-                  AFILIERE
+                  AFILIERE (Exclusiv Membru)
                 </Text>
               </Flex>
 
@@ -252,7 +251,7 @@ const EditProfesorModal = ({ isOpen, onClose, profesor, onSave }) => {
                   gap="3"
                   alignItems="end"
                 >
-                  {/* SELECT 1: DEPARTAMENT (Exact ca la Create) */}
+                  {/* SELECT 1: Departamente disponibile (Hardcodat) */}
                   <Box>
                     <Text color="gray.400" fontSize="xs" mb="1">
                       DEPARTAMENT
@@ -277,20 +276,20 @@ const EditProfesorModal = ({ isOpen, onClose, profesor, onSave }) => {
                     </select>
                   </Box>
 
-                  {/* SELECT 2: ROL (Acelasi stil, dar disabled si blocat pe Membru) */}
+                  {/* SELECT 2: Rol (Blocat visual si functional) */}
                   <Box>
                     <Text color="gray.400" fontSize="xs" mb="1">
                       ROL (Fix)
                     </Text>
                     <select
-                      // Aplicăm stilul dar reducem opacitatea pt a sugera că e readonly
                       style={{
                         ...selectStyle,
                         opacity: 0.6,
                         cursor: "not-allowed",
+                        backgroundColor: "rgba(0,0,0,0.3)",
                       }}
                       value={fixedRole}
-                      disabled
+                      disabled // Blocăm input-ul HTML
                     >
                       <option style={{ color: "black" }} value="MEMBRU">
                         Membru
@@ -311,7 +310,7 @@ const EditProfesorModal = ({ isOpen, onClose, profesor, onSave }) => {
                 </Grid>
               </Box>
 
-              {/* Tabel Lista */}
+              {/* Tabel/Lista departamente asignate */}
               <Stack mt="4" spacing="2">
                 {assignedDepartments.map((dept, idx) => (
                   <Flex
