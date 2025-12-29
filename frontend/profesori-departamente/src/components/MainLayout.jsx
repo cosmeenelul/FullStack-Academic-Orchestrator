@@ -7,7 +7,7 @@ import {
   Heading,
   Link as ChakraLink,
 } from "@chakra-ui/react";
-import { Link as ReactRouterLink, useLocation } from "react-router-dom";
+import { Link as ReactRouterNavLink, useLocation } from "react-router-dom";
 import { FiHome, FiUsers, FiLayers, FiLogOut } from "react-icons/fi";
 
 const MainLayout = ({ children }) => {
@@ -18,7 +18,7 @@ const MainLayout = ({ children }) => {
     <Flex h="100vh" overflow="hidden">
       <Box
         w="260px"
-        bg="blue.950"
+        bg="bg.muted"
         color="white"
         display="flex"
         flexDirection="column"
@@ -33,7 +33,13 @@ const MainLayout = ({ children }) => {
         </Box>
 
         <Stack gap="2" px={4} flex="1">
-          <NavItem to="/" icon={FiHome} active={isActive("/")}>
+          <NavItem
+            to="/"
+            icon={FiHome}
+            _focus={{ outline: "none" }}
+            _focusVisible={{ outline: "none" }}
+            active={isActive("/")}
+          >
             Dashboard
           </NavItem>
           <NavItem
@@ -66,18 +72,17 @@ const MainLayout = ({ children }) => {
         </Box>
       </Box>
 
-      {/* --- ZONA DE CONȚINUT --- */}
-      <Box flex="1" bg="gray.50" display="flex" flexDirection="column">
+      <Box flex="1" bg="gray.800" display="flex" flexDirection="column">
         <Flex
           as="header"
           align="center"
           justify="space-between"
           px={8}
           py={4}
-          bg="white"
+          bg="bg.muted"
           boxShadow="sm"
         >
-          <Text fontSize="lg" fontWeight="semibold" color="gray.600">
+          <Text fontSize="lg" fontWeight="semibold" color="white">
             {isActive("/")
               ? "Dashboard Overview"
               : isActive("/departamente")
@@ -87,14 +92,13 @@ const MainLayout = ({ children }) => {
 
           <Flex align="center" gap="4">
             <Box textAlign="right">
-              <Text fontSize="sm" fontWeight="bold" color="gray.700">
+              <Text fontSize="sm" fontWeight="bold" color="white">
                 Admin User
               </Text>
-              <Text fontSize="xs" color="gray.500">
+              <Text fontSize="xs" color="white">
                 System Manager
               </Text>
             </Box>
-            {/* Avatar simplificat pentru a evita eroarea 500 */}
             <Box w="10" h="10" bg="blue.500" borderRadius="full" />
           </Flex>
         </Flex>
@@ -107,26 +111,36 @@ const MainLayout = ({ children }) => {
   );
 };
 
-const NavItem = ({ to, icon, children, active }) => {
+const NavItem = ({ to, icon, children }) => {
   return (
-    <ChakraLink
-      as={ReactRouterLink}
+    <Box
+      as={ReactRouterNavLink}
       to={to}
-      style={{ textDecoration: "none", width: "100%" }}
+      width="100%"
+      _focus={{ outline: "none", boxShadow: "none" }}
+      _focusVisible={{ outline: "none", boxShadow: "none" }}
+      display="flex"
+      alignItems="center"
+      p={3}
+      borderRadius="lg"
+      color="blue.100"
+      transition="all 0.2s"
+      _hover={{
+        bg: "blue.800",
+        color: "white",
+      }}
+      _activeLink={{
+        bg: "blue.600",
+        color: "white",
+        fontWeight: "bold",
+      }}
     >
-      <Flex
-        align="center"
-        p={3}
-        borderRadius="lg"
-        bg={active ? "blue.600" : "transparent"}
-        color={active ? "white" : "blue.100"}
-        _hover={{ bg: active ? "blue.600" : "blue.800", color: "white" }}
-      >
-        {React.createElement(icon, { style: { marginRight: "12px" } })}
-        <Text fontWeight="medium">{children}</Text>
-      </Flex>
-    </ChakraLink>
+      {React.createElement(icon, {
+        style: { marginRight: "12px", fontSize: "18px" },
+      })}
+
+      <Text>{children}</Text>
+    </Box>
   );
 };
-
 export default MainLayout;
