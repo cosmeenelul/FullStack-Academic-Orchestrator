@@ -7,6 +7,9 @@ const DeleteConfirmationModal = ({
   onClose,
   onConfirm,
   departmentName,
+  titlu,
+  descriere,
+  atentie,
 }) => {
   if (!isOpen) return null;
 
@@ -74,11 +77,11 @@ const DeleteConfirmationModal = ({
           </Flex>
 
           <Heading size="lg" color="white" mb="4">
-            Ștergi Departamentul?
+            {titlu}
           </Heading>
 
           <Text color="gray.300" fontSize="md" mb="2">
-            Ești pe cale să ștergi departamentul{" "}
+            {descriere}
             <Text as="span" color="red.300" fontWeight="bold">
               {departmentName}
             </Text>
@@ -102,8 +105,7 @@ const DeleteConfirmationModal = ({
               ⚠ ATENȚIE:
             </Text>
             <Text color="red.100" fontSize="sm" textAlign="left">
-              Această acțiune va șterge automat toți <b>profesorii</b> arondați
-              doar acestui departament. Acțiunea este ireversibilă!
+              {atentie}
             </Text>
           </Box>
 

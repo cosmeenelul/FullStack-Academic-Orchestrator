@@ -27,7 +27,7 @@ import {
 import ProfesorDetailsModal from "@/components/ProfesorDetailsProfile";
 import ProfesorModal from "@/components/ProfesorModal";
 import EditProfesorModal from "@/components/EditProfesorModal";
-
+import DeleteConfirmationModal from "@/components/DeleteConfirmationModal";
 // Putem importa componentele de Modal create anterior dacă vrei să le refolosești
 // import DeleteConfirmationModal from "@/components/DeleteConfirmationModal";
 
@@ -36,6 +36,7 @@ const Profesori = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateProfileModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const profesoriMock = [
     {
       id: 1,
@@ -276,6 +277,7 @@ const Profesori = () => {
                       <FiEdit2 />
                     </IconButton>
                     <IconButton
+                      onClick={() => setIsDeleteModalOpen(true)}
                       aria-label="Delete"
                       variant="ghost"
                       color="red.400"
@@ -309,8 +311,27 @@ const Profesori = () => {
           onClose={() => setIsEditModalOpen(false)}
         />
       )}
+      {isDeleteModalOpen && (
+        <DeleteConfirmationModal
+          isOpen={isDeleteModalOpen}
+          onClose={() => setIsDeleteModalOpen(false)}
+          onConfirm={() => {
+            DeleteConfirm();
+            setIsDeleteModalOpen(false);
+          }}
+          departmentName={"Nume Profesor"}
+          titlu={"Ștergere Profesor"}
+          descriere={`Urmeaza sa stergi profesorul`}
+          atentie={
+            "Această acțiune va șterge profesorul din baza de date, această acțiune este ireversibila !"
+          }
+        />
+      )}
     </Box>
   );
+  function DeleteConfirm() {
+    console.log("Sters profesor");
+  }
 };
 
 export default Profesori;

@@ -189,6 +189,12 @@ const Departamente = () => {
             DeleteConfirm();
             setIsDeleteModalOpen(false);
           }}
+          departmentName={"Nume Departament"}
+          titlu={"Ștergere Departament"}
+          descriere={`Urmeaza sa stergi departamentul ${" Nume departament"}`}
+          atentie={
+            "Această acțiune va șterge departamentul si inclusiv toți membrii care aparțin doar acestui departament, această acțiune este ireversibila !"
+          }
         />
       )}
     </Box>
