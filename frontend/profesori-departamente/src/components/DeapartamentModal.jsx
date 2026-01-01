@@ -11,14 +11,26 @@ import {
 } from "@chakra-ui/react";
 import { FiX } from "react-icons/fi";
 
-const DepartamentModal = ({ isOpen, onClose, titlu, descriere }) => {
-  // Dacă modalul nu este deschis, nu returnăm nimic (nu randăm nimic)
+const DepartamentModal = ({
+  isOpen,
+  onClose,
+  onSave,
+  titlu,
+  descriere,
+  dateFormular,
+  setDateFormular,
+}) => {
   if (!isOpen) return null;
+  function handleChange(e) {
+    const { name, value } = e.target;
 
+    setDateFormular((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  }
   return (
     <>
-      {/* --- CSS PENTRU ANIMAȚII --- */}
-      {/* Le păstrăm aici ca să fie disponibile doar când modalul e activ */}
       <style>
         {`
           @keyframes fadeIn {
@@ -98,6 +110,9 @@ const DepartamentModal = ({ isOpen, onClose, titlu, descriere }) => {
                 NUME DEPARTAMENT
               </Text>
               <Input
+                onChange={handleChange}
+                name="nume"
+                value={dateFormular.nume}
                 placeholder="ex: Facultatea de Automatică"
                 bg="whiteAlpha.50"
                 border="1px solid"
@@ -123,6 +138,9 @@ const DepartamentModal = ({ isOpen, onClose, titlu, descriere }) => {
                 TELEFON
               </Text>
               <Input
+                onChange={handleChange}
+                name="telefon"
+                value={dateFormular.telefon}
                 placeholder="ex: 021 402 ..."
                 bg="whiteAlpha.50"
                 border="1px solid"
@@ -144,6 +162,9 @@ const DepartamentModal = ({ isOpen, onClose, titlu, descriere }) => {
                 WEBSITE
               </Text>
               <Input
+                onChange={handleChange}
+                name="linkWeb"
+                value={dateFormular.linkWeb}
                 placeholder="https://..."
                 bg="whiteAlpha.50"
                 border="1px solid"
@@ -166,6 +187,7 @@ const DepartamentModal = ({ isOpen, onClose, titlu, descriere }) => {
               Anulează
             </Button>
             <Button
+              onClick={onSave}
               bgGradient="to-r"
               gradientFrom="blue.600"
               gradientTo="blue.400"

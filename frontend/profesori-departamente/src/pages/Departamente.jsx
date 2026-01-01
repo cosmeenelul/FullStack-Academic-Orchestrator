@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Flex,
@@ -10,6 +10,7 @@ import {
   Stack,
   Input,
   IconButton,
+  Link,
 } from "@chakra-ui/react";
 import {
   FiPlus,
@@ -19,37 +20,89 @@ import {
   FiPhone,
   FiX,
 } from "react-icons/fi";
+import { LuExternalLink } from "react-icons/lu";
 import DepartamentModal from "@/components/DeapartamentModal";
 import DeleteConfirmationModal from "@/components/DeleteConfirmationModal";
+import SuccessFeedback from "@/components/SuccessFeedback";
+import { CgPathCrop } from "react-icons/cg";
+import ErrorFeedback from "@/components/ErrorFeedback";
 
 const Departamente = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsModalEditOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const departamenteMock = [
-    {
-      id: 1,
-      nume: "Ingineria Sistemelor",
-      telefon: "021 402 9100",
-      linkWeb: "https://automatica.pub.ro",
-    },
-    {
-      id: 2,
-      nume: "Telecomunicații",
-      telefon: "021 402 9101",
-      linkWeb: "https://etti.pub.ro",
-    },
-    {
-      id: 3,
-      nume: "Electronică Aplicată",
-      telefon: "021 402 9102",
-      linkWeb: "https://electronica.pub.ro",
-    },
-  ];
+  const [dateFormular, setDateFormular] = useState({
+    nume: "",
+    telefon: "",
+    linkWeb: "",
+  });
+  const [succesFeedback, setSuccesFeedback] = useState(false);
+  const [listaDepartamente, setListaDepartamente] = useState([]);
+  const [deleteDepartamente, setDeleteDepartemente] = useState(0);
+  const [departamentDeSters, setDepartamentDeSters] = useState(null);
+  const [errorFeedback, setErrorFeedback] = useState(false);
+  const [mesajErorare, setMesajErorare] = useState("");
+  useEffect(() => {
+    async function getDepartamente() {
+      try {
+        const res = await fetch("http://localhost:8080/departamente");
+        const departamente = await res.json();
+        console.log(departamente);
+        setListaDepartamente(departamente);
+      } catch {
+        throw new Error("A problem has occured");
+      } finally {
+        console.log("Loading...");
+      }
+    }
+    getDepartamente();
+  }, [deleteDepartamente]);
 
+  async function saveNewDepartment() {
+    try {
+      const res = await fetch("http://localhost:8080/departamente", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(dateFormular),
+      });
+
+      if (res.ok) {
+        const noulDept = await res.json();
+        setListaDepartamente((prev) => [...prev, noulDept]);
+        setIsModalOpen(false);
+        setSuccesFeedback(true);
+        setDateFormular({ nume: "", telefon: "", linkWeb: "" });
+      } else {
+        const errorData = await res.json();
+
+        throw new Error(errorData.message || "Eroare necunoscuta de la server");
+      }
+    } catch (error) {
+      console.log("Eroare prinsa:", error.message);
+
+      setMesajErorare(error.message);
+      setIsModalOpen(false);
+      setDateFormular({ nume: "", telefon: "", linkWeb: "" });
+      setErrorFeedback(true);
+    }
+  }
+
+  async function deleteDepartament(id) {
+    try {
+      const res = await fetch(`http://localhost:8080/departamente/${id}`, {
+        method: "DELETE",
+      });
+
+      if (res.ok) {
+        setDeleteDepartemente((prev) => prev + 1);
+        setIsDeleteModalOpen(false);
+      }
+    } catch {
+      throw new Error("Erorare la stergerea elementului");
+    }
+  }
   return (
     <Box w="100%" minH="100vh" position="relative">
-      {/* --- HEADER --- */}
       <Flex justify="space-between" align="center" mb="8">
         <Box>
           <Heading size="xl" color="white" mb="2">
@@ -58,7 +111,6 @@ const Departamente = () => {
           <Text color="gray.400">Administrează structura academică.</Text>
         </Box>
 
-        {/* Butonul care deschide modalul manual */}
         <Button
           onClick={() => setIsModalOpen(true)}
           bg="blue.600"
@@ -106,7 +158,7 @@ const Departamente = () => {
             </Table.Row>
           </Table.Header>
           <Table.Body>
-            {departamenteMock.map((dept) => (
+            {listaDepartamente.map((dept) => (
               <Table.Row
                 key={dept.id}
                 _hover={{ bg: "whiteAlpha.50" }}
@@ -133,7 +185,20 @@ const Departamente = () => {
                     cursor="pointer"
                     _hover={{ textDecoration: "underline" }}
                   >
-                    <FiExternalLink /> Link
+                    <Link
+                      href={dept.linkWeb}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
+                      }}
+                      colorPalette="blue"
+                    >
+                      Link
+                      <LuExternalLink />
+                    </Link>
                   </Flex>
                 </Table.Cell>
                 <Table.Cell textAlign="right">
@@ -150,7 +215,11 @@ const Departamente = () => {
                       <FiEdit2 />
                     </IconButton>
                     <IconButton
-                      onClick={() => setIsDeleteModalOpen(true)}
+                      onClick={() => {
+                        console.log(dept.id);
+                        setIsDeleteModalOpen(true);
+                        setDepartamentDeSters(dept.id);
+                      }}
                       aria-label="Delete"
                       bg="transparent"
                       color="red.400"
@@ -167,10 +236,36 @@ const Departamente = () => {
       </Box>
       {isModalOpen && (
         <DepartamentModal
+          dateFormular={dateFormular}
+          setDateFormular={setDateFormular}
           isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
+          onSave={saveNewDepartment}
+          onClose={() => {
+            setIsModalOpen(false);
+            setDateFormular({
+              nume: "",
+              telefon: "",
+              linkWeb: "",
+            });
+          }}
           titlu={"Adaugă Departament"}
           descriere={"Aici adaugi datele noului departament"}
+        />
+      )}
+      {succesFeedback && (
+        <SuccessFeedback
+          onClose={() => setSuccesFeedback(false)}
+          message="Departamentul a fost adăugat cu succes!"
+        />
+      )}
+      {errorFeedback && (
+        <ErrorFeedback
+          message={mesajErorare}
+          onClose={() => setErrorFeedback(false)}
+          onRetry={() => {
+            setErrorFeedback(false);
+            setIsModalOpen(true);
+          }}
         />
       )}
       {isEditModalOpen && (
@@ -185,10 +280,7 @@ const Departamente = () => {
         <DeleteConfirmationModal
           isOpen={isDeleteModalOpen}
           onClose={() => setIsDeleteModalOpen(false)}
-          onConfirm={() => {
-            DeleteConfirm();
-            setIsDeleteModalOpen(false);
-          }}
+          onConfirm={() => deleteDepartament(departamentDeSters)}
           departmentName={"Nume Departament"}
           titlu={"Ștergere Departament"}
           descriere={`Urmeaza sa stergi departamentul ${" Nume departament"}`}
@@ -200,7 +292,5 @@ const Departamente = () => {
     </Box>
   );
 };
-function DeleteConfirm() {
-  console.log("S-A STERS");
-}
+
 export default Departamente;
