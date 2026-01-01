@@ -45,6 +45,7 @@ const Departamente = () => {
   const [mesajErorare, setMesajErorare] = useState("");
   const [updateId, setUpdateId] = useState(null);
   const [tipOperatiune, setTipOperatiune] = useState(null);
+  const [departamentNume, setDepartamentNume] = useState("");
   useEffect(() => {
     async function getDepartamente() {
       try {
@@ -262,6 +263,7 @@ const Departamente = () => {
                         console.log(dept.id);
                         setIsDeleteModalOpen(true);
                         setDepartamentDeSters(dept.id);
+                        setDepartamentNume(dept.nume);
                       }}
                       aria-label="Delete"
                       bg="transparent"
@@ -328,9 +330,9 @@ const Departamente = () => {
           isOpen={isDeleteModalOpen}
           onClose={() => setIsDeleteModalOpen(false)}
           onConfirm={() => deleteDepartament(departamentDeSters)}
-          departmentName={"Nume Departament"}
+          departmentName={departamentNume}
           titlu={"Ștergere Departament"}
-          descriere={`Urmeaza sa stergi departamentul ${" Nume departament"}`}
+          descriere={`Urmeaza sa stergi departamentul `}
           atentie={
             "Această acțiune va șterge departamentul si inclusiv toți membrii care aparțin doar acestui departament, această acțiune este ireversibila !"
           }
