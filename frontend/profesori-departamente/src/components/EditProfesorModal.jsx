@@ -120,306 +120,320 @@ const EditProfesorModal = ({ isOpen, onClose, profesor, onSave }) => {
   if (!isOpen) return null;
 
   return (
-    <Box
-      position="fixed"
-      top="0"
-      left="0"
-      w="100vw"
-      h="100vh"
-      bg="blackAlpha.800"
-      backdropFilter="blur(5px)"
-      zIndex="9999"
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
-      onClick={onClose}
-    >
+    <>
+      <style>
+        {`
+          @keyframes fadeIn {
+            from { opacity: 0; backdrop-filter: blur(0px); }
+            to { opacity: 1; backdrop-filter: blur(5px); }
+          }
+          @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+          }
+        `}
+      </style>
       <Box
-        bg="#0f172a"
-        w="700px"
-        maxW="95%"
-        maxH="90vh"
-        borderRadius="xl"
-        border="1px solid"
-        borderColor="orange.700"
-        boxShadow="2xl"
-        overflow="hidden"
-        onClick={(e) => e.stopPropagation()}
+        position="fixed"
+        top="0"
+        left="0"
+        w="100vw"
+        h="100vh"
+        bg="blackAlpha.800"
+        backdropFilter="blur(5px)"
+        zIndex="9999"
         display="flex"
-        flexDirection="column"
+        alignItems="center"
+        justifyContent="center"
+        onClick={onClose}
       >
-        {/* HEADER */}
         <Box
-          p="6"
-          bgGradient="linear(to-r, orange.900, red.900)"
+          bg="#0f172a"
+          w="700px"
+          maxW="95%"
+          maxH="90vh"
+          borderRadius="xl"
+          border="1px solid"
+          borderColor="orange.700"
+          boxShadow="2xl"
+          overflow="hidden"
+          onClick={(e) => e.stopPropagation()}
           display="flex"
-          justifyContent="space-between"
-          alignItems="center"
+          flexDirection="column"
         >
-          <Box>
-            <Heading size="md" color="white" mb="1">
-              Editează Profesor
-            </Heading>
-            <Text color="orange.200" fontSize="sm">
-              Modifică datele și afilierile.
-            </Text>
-          </Box>
-
-          <Button
-            onClick={onClose}
-            minW="32px"
-            h="32px"
-            p="0"
-            borderRadius="full"
-            bg="whiteAlpha.200"
-            _hover={{ bg: "red.500" }}
+          {/* HEADER */}
+          <Box
+            p="6"
+            bgGradient="linear(to-r, orange.900, red.900)"
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
           >
-            <Icon as={FiX} color="white" />
-          </Button>
-        </Box>
-
-        {/* BODY */}
-        <Box flex="1" overflowY="auto" p="6">
-          <Stack spacing="6">
-            {/* INFO PERSONALE */}
             <Box>
-              <Flex align="center" gap="2" color="orange.300" mb="4">
-                <Icon as={FiUser} />
-                <Text fontWeight="bold" fontSize="sm">
-                  DATE DE CONTACT
-                </Text>
-              </Flex>
-
-              <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap="4">
-                <Input
-                  name="prenume"
-                  value={formData.prenume}
-                  onChange={handleChange}
-                  placeholder="Prenume"
-                  color="white"
-                  borderColor="whiteAlpha.200"
-                  bg="whiteAlpha.50"
-                  _focus={{ borderColor: "orange.400" }}
-                />
-                <Input
-                  name="nume"
-                  value={formData.nume}
-                  onChange={handleChange}
-                  placeholder="Nume"
-                  color="white"
-                  borderColor="whiteAlpha.200"
-                  bg="whiteAlpha.50"
-                  _focus={{ borderColor: "orange.400" }}
-                />
-                <Input
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder="Email"
-                  color="white"
-                  borderColor="whiteAlpha.200"
-                  bg="whiteAlpha.50"
-                  _focus={{ borderColor: "orange.400" }}
-                />
-                <Input
-                  name="telefon"
-                  value={formData.telefon}
-                  onChange={handleChange}
-                  placeholder="Telefon"
-                  color="white"
-                  borderColor="whiteAlpha.200"
-                  bg="whiteAlpha.50"
-                  _focus={{ borderColor: "orange.400" }}
-                />
-              </Grid>
+              <Heading size="md" color="white" mb="1">
+                Editează Profesor
+              </Heading>
+              <Text color="orange.200" fontSize="sm">
+                Modifică datele și afilierile.
+              </Text>
             </Box>
 
-            <Box h="1px" bg="whiteAlpha.100" />
+            <Button
+              onClick={onClose}
+              minW="32px"
+              h="32px"
+              p="0"
+              borderRadius="full"
+              bg="whiteAlpha.200"
+              _hover={{ bg: "red.500" }}
+            >
+              <Icon as={FiX} color="white" />
+            </Button>
+          </Box>
 
-            {/* ZONA AFILIERE */}
-            <Box>
-              <Flex align="center" gap="2" color="orange.300" mb="4">
-                <Icon as={FiLayers} />
-                <Text fontWeight="bold" fontSize="sm">
-                  AFILIERE
-                </Text>
-              </Flex>
+          {/* BODY */}
+          <Box flex="1" overflowY="auto" p="6">
+            <Stack spacing="6">
+              {/* INFO PERSONALE */}
+              <Box>
+                <Flex align="center" gap="2" color="orange.300" mb="4">
+                  <Icon as={FiUser} />
+                  <Text fontWeight="bold" fontSize="sm">
+                    DATE DE CONTACT
+                  </Text>
+                </Flex>
 
-              <Box
-                bg="whiteAlpha.50"
-                p="4"
-                borderRadius="lg"
-                border="1px dashed"
-                borderColor="whiteAlpha.200"
-              >
-                <Grid
-                  templateColumns={{ base: "1fr", md: "2fr 1.5fr auto" }}
-                  gap="3"
-                  alignItems="end"
-                >
-                  {/* --- SELECT DEPARTAMENT (Cu Force Bottom) --- */}
-                  <Box>
-                    <Text color="gray.400" fontSize="xs" mb="1">
-                      DEPARTAMENT
-                    </Text>
-
-                    <Select.Root
-                      collection={departmentsCollection}
-                      value={selectedDeptId}
-                      onValueChange={(e) => setSelectedDeptId(e.value)}
-                    >
-                      <Select.HiddenSelect />
-                      <Select.Control>
-                        <Select.Trigger
-                          px="3"
-                          py="2"
-                          bg="rgba(0,0,0,0.3)"
-                          border="1px solid"
-                          borderColor="whiteAlpha.300"
-                          borderRadius="md"
-                          width="100%"
-                          display="flex"
-                          justifyContent="space-between"
-                          alignItems="center"
-                          color="white"
-                          _hover={{ borderColor: "orange.400" }}
-                        >
-                          <Select.ValueText placeholder="Alege departament..." />
-                          <Icon as={FiChevronDown} color="gray.500" />
-                        </Select.Trigger>
-                      </Select.Control>
-
-                      <Select.Positioner zIndex={10000}>
-                        <Select.Content
-                          bg="#1a202c"
-                          border="1px solid"
-                          borderColor="orange.700"
-                          borderRadius="md"
-                          p="2"
-                          zIndex={10000}
-                          width="var(--reference-width)"
-                        >
-                          {departmentsCollection.items.map((dept) => (
-                            <Select.Item
-                              key={dept.value}
-                              item={dept}
-                              _hover={{ bg: "orange.800" }}
-                              p="2"
-                              borderRadius="sm"
-                              cursor="pointer"
-                              color="white"
-                            >
-                              <Select.ItemText>{dept.label}</Select.ItemText>
-                            </Select.Item>
-                          ))}
-                        </Select.Content>
-                      </Select.Positioner>
-                    </Select.Root>
-                  </Box>
-
-                  {/* --- SELECT ROL (Doar Membru - Blocat Vizual) --- */}
-                  <Box>
-                    <Text color="gray.400" fontSize="xs" mb="1">
-                      ROL (Fix)
-                    </Text>
-
-                    <Select.Root
-                      collection={rolesCollection}
-                      value={selectedRole}
-                      disabled={true} // Blocat
-                    >
-                      <Select.HiddenSelect />
-                      <Select.Control>
-                        <Select.Trigger
-                          px="3"
-                          py="2"
-                          bg="rgba(0,0,0,0.3)"
-                          border="1px solid"
-                          borderColor="whiteAlpha.300"
-                          borderRadius="md"
-                          width="100%"
-                          display="flex"
-                          justifyContent="space-between"
-                          alignItems="center"
-                          color="gray.400"
-                          cursor="not-allowed"
-                          opacity={0.7}
-                        >
-                          <Select.ValueText placeholder="Rol..." />
-                        </Select.Trigger>
-                      </Select.Control>
-                    </Select.Root>
-                  </Box>
-
-                  <Button
-                    onClick={handleAddDepartment}
-                    bg="orange.600"
+                <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap="4">
+                  <Input
+                    name="prenume"
+                    value={formData.prenume}
+                    onChange={handleChange}
+                    placeholder="Prenume"
                     color="white"
-                    _hover={{ bg: "orange.500" }}
-                  >
-                    <Flex align="center" gap="2">
-                      <Icon as={FiPlus} /> Adaugă
-                    </Flex>
-                  </Button>
+                    borderColor="whiteAlpha.200"
+                    bg="whiteAlpha.50"
+                    _focus={{ borderColor: "orange.400" }}
+                  />
+                  <Input
+                    name="nume"
+                    value={formData.nume}
+                    onChange={handleChange}
+                    placeholder="Nume"
+                    color="white"
+                    borderColor="whiteAlpha.200"
+                    bg="whiteAlpha.50"
+                    _focus={{ borderColor: "orange.400" }}
+                  />
+                  <Input
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    placeholder="Email"
+                    color="white"
+                    borderColor="whiteAlpha.200"
+                    bg="whiteAlpha.50"
+                    _focus={{ borderColor: "orange.400" }}
+                  />
+                  <Input
+                    name="telefon"
+                    value={formData.telefon}
+                    onChange={handleChange}
+                    placeholder="Telefon"
+                    color="white"
+                    borderColor="whiteAlpha.200"
+                    bg="whiteAlpha.50"
+                    _focus={{ borderColor: "orange.400" }}
+                  />
                 </Grid>
               </Box>
 
-              {/* LISTA DEPARTAMENTE */}
-              <Stack mt="4" spacing="2">
-                {assignedDepartments.map((dept, idx) => (
-                  <Flex
-                    key={dept.id || idx}
-                    bg="whiteAlpha.100"
-                    p="2"
-                    borderRadius="md"
-                    justify="space-between"
-                    align="center"
-                    borderLeft="3px solid"
-                    borderColor="orange.500"
+              <Box h="1px" bg="whiteAlpha.100" />
+
+              {/* ZONA AFILIERE */}
+              <Box>
+                <Flex align="center" gap="2" color="orange.300" mb="4">
+                  <Icon as={FiLayers} />
+                  <Text fontWeight="bold" fontSize="sm">
+                    AFILIERE
+                  </Text>
+                </Flex>
+
+                <Box
+                  bg="whiteAlpha.50"
+                  p="4"
+                  borderRadius="lg"
+                  border="1px dashed"
+                  borderColor="whiteAlpha.200"
+                >
+                  <Grid
+                    templateColumns={{ base: "1fr", md: "2fr 1.5fr auto" }}
+                    gap="3"
+                    alignItems="end"
                   >
-                    <Box ml="2">
-                      <Text color="white" fontSize="sm" fontWeight="bold">
-                        {dept.nume}
+                    {/* --- SELECT DEPARTAMENT (Cu Force Bottom) --- */}
+                    <Box>
+                      <Text color="gray.400" fontSize="xs" mb="1">
+                        DEPARTAMENT
                       </Text>
-                      <Text color="gray.400" fontSize="xs">
-                        {dept.rol}
+
+                      <Select.Root
+                        collection={departmentsCollection}
+                        value={selectedDeptId}
+                        onValueChange={(e) => setSelectedDeptId(e.value)}
+                      >
+                        <Select.HiddenSelect />
+                        <Select.Control>
+                          <Select.Trigger
+                            px="3"
+                            py="2"
+                            bg="rgba(0,0,0,0.3)"
+                            border="1px solid"
+                            borderColor="whiteAlpha.300"
+                            borderRadius="md"
+                            width="100%"
+                            display="flex"
+                            justifyContent="space-between"
+                            alignItems="center"
+                            color="white"
+                            _hover={{ borderColor: "orange.400" }}
+                          >
+                            <Select.ValueText placeholder="Alege departament..." />
+                            <Icon as={FiChevronDown} color="gray.500" />
+                          </Select.Trigger>
+                        </Select.Control>
+
+                        <Select.Positioner zIndex={10000}>
+                          <Select.Content
+                            bg="#1a202c"
+                            border="1px solid"
+                            borderColor="orange.700"
+                            borderRadius="md"
+                            p="2"
+                            zIndex={10000}
+                            width="var(--reference-width)"
+                          >
+                            {departmentsCollection.items.map((dept) => (
+                              <Select.Item
+                                key={dept.value}
+                                item={dept}
+                                _hover={{ bg: "orange.800" }}
+                                p="2"
+                                borderRadius="sm"
+                                cursor="pointer"
+                                color="white"
+                              >
+                                <Select.ItemText>{dept.label}</Select.ItemText>
+                              </Select.Item>
+                            ))}
+                          </Select.Content>
+                        </Select.Positioner>
+                      </Select.Root>
+                    </Box>
+
+                    {/* --- SELECT ROL (Doar Membru - Blocat Vizual) --- */}
+                    <Box>
+                      <Text color="gray.400" fontSize="xs" mb="1">
+                        ROL (Fix)
                       </Text>
+
+                      <Select.Root
+                        collection={rolesCollection}
+                        value={selectedRole}
+                        disabled={true} // Blocat
+                      >
+                        <Select.HiddenSelect />
+                        <Select.Control>
+                          <Select.Trigger
+                            px="3"
+                            py="2"
+                            bg="rgba(0,0,0,0.3)"
+                            border="1px solid"
+                            borderColor="whiteAlpha.300"
+                            borderRadius="md"
+                            width="100%"
+                            display="flex"
+                            justifyContent="space-between"
+                            alignItems="center"
+                            color="gray.400"
+                            cursor="not-allowed"
+                            opacity={0.7}
+                          >
+                            <Select.ValueText placeholder="Rol..." />
+                          </Select.Trigger>
+                        </Select.Control>
+                      </Select.Root>
                     </Box>
 
                     <Button
-                      onClick={() => handleRemoveDepartment(dept.id)}
-                      minW="30px"
-                      h="30px"
-                      p="0"
-                      bg="transparent"
-                      color="red.400"
-                      _hover={{ bg: "whiteAlpha.100" }}
+                      onClick={handleAddDepartment}
+                      bg="orange.600"
+                      color="white"
+                      _hover={{ bg: "orange.500" }}
                     >
-                      <Icon as={FiTrash2} />
+                      <Flex align="center" gap="2">
+                        <Icon as={FiPlus} /> Adaugă
+                      </Flex>
                     </Button>
-                  </Flex>
-                ))}
-              </Stack>
-            </Box>
-          </Stack>
-        </Box>
+                  </Grid>
+                </Box>
 
-        {/* FOOTER */}
-        <Flex p="4" bg="blackAlpha.300" justify="flex-end" gap="3">
-          <Button onClick={onClose} variant="ghost" color="gray.400">
-            Anulează
-          </Button>
-          <Button
-            onClick={handleSaveClick}
-            bg="orange.600"
-            color="white"
-            _hover={{ bg: "orange.500" }}
-          >
-            Salvează Modificări
-          </Button>
-        </Flex>
+                {/* LISTA DEPARTAMENTE */}
+                <Stack mt="4" spacing="2">
+                  {assignedDepartments.map((dept, idx) => (
+                    <Flex
+                      key={dept.id || idx}
+                      bg="whiteAlpha.100"
+                      p="2"
+                      borderRadius="md"
+                      justify="space-between"
+                      align="center"
+                      borderLeft="3px solid"
+                      borderColor="orange.500"
+                    >
+                      <Box ml="2">
+                        <Text color="white" fontSize="sm" fontWeight="bold">
+                          {dept.nume}
+                        </Text>
+                        <Text color="gray.400" fontSize="xs">
+                          {dept.rol}
+                        </Text>
+                      </Box>
+
+                      <Button
+                        onClick={() => handleRemoveDepartment(dept.id)}
+                        minW="30px"
+                        h="30px"
+                        p="0"
+                        bg="transparent"
+                        color="red.400"
+                        _hover={{ bg: "whiteAlpha.100" }}
+                      >
+                        <Icon as={FiTrash2} />
+                      </Button>
+                    </Flex>
+                  ))}
+                </Stack>
+              </Box>
+            </Stack>
+          </Box>
+
+          {/* FOOTER */}
+          <Flex p="4" bg="blackAlpha.300" justify="flex-end" gap="3">
+            <Button onClick={onClose} variant="ghost" color="gray.400">
+              Anulează
+            </Button>
+            <Button
+              onClick={handleSaveClick}
+              bg="orange.600"
+              color="white"
+              _hover={{ bg: "orange.500" }}
+            >
+              Salvează Modificări
+            </Button>
+          </Flex>
+        </Box>
       </Box>
-    </Box>
+    </>
   );
 };
 

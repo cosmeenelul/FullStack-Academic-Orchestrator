@@ -39,9 +39,11 @@ const Departamente = () => {
   const [succesFeedback, setSuccesFeedback] = useState(false);
   const [listaDepartamente, setListaDepartamente] = useState([]);
   const [deleteDepartamente, setDeleteDepartemente] = useState(0);
+  const [updateDepartamente, setUpdateDepartamente] = useState(0);
   const [departamentDeSters, setDepartamentDeSters] = useState(null);
   const [errorFeedback, setErrorFeedback] = useState(false);
   const [mesajErorare, setMesajErorare] = useState("");
+  const [updateId, setUpdateId] = useState(null);
   useEffect(() => {
     async function getDepartamente() {
       try {
@@ -56,7 +58,7 @@ const Departamente = () => {
       }
     }
     getDepartamente();
-  }, [deleteDepartamente]);
+  }, [deleteDepartamente, updateDepartamente]);
 
   async function saveNewDepartment() {
     try {
@@ -96,10 +98,44 @@ const Departamente = () => {
       if (res.ok) {
         setDeleteDepartemente((prev) => prev + 1);
         setIsDeleteModalOpen(false);
+        setSuccesFeedback(true);
       }
     } catch {
       throw new Error("Erorare la stergerea elementului");
     }
+  }
+
+  async function editDepartament(id) {
+    try {
+      const res = await fetch(`http://localhost:8080/departamente/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(dateFormular),
+      });
+      if (res.ok) {
+        setSuccesFeedback(true);
+        setUpdateDepartamente((update) => update + 1);
+        setIsModalEditOpen(false);
+        setDateFormular({ nume: "", telefon: "", linkWeb: "" });
+      } else {
+        const errorData = res.json();
+        console.error(errorData);
+      }
+    } catch (error) {
+      setErrorFeedback(true);
+      setMesajErorare(error.message);
+      setIsModalEditOpen(false);
+      setDateFormular({ nume: "", telefon: "", linkWeb: "" });
+    }
+  }
+
+  function handleEditModal(deptSelectat) {
+    setDateFormular({
+      nume: deptSelectat.nume,
+      telefon: deptSelectat.telefon,
+      linkWeb: deptSelectat.linkWeb,
+    });
+    setUpdateId(deptSelectat.id);
   }
   return (
     <Box w="100%" minH="100vh" position="relative">
@@ -206,6 +242,7 @@ const Departamente = () => {
                     <IconButton
                       onClick={() => {
                         setIsModalEditOpen(true);
+                        handleEditModal(dept);
                       }}
                       aria-label="Edit"
                       bg="transparent"
@@ -255,7 +292,7 @@ const Departamente = () => {
       {succesFeedback && (
         <SuccessFeedback
           onClose={() => setSuccesFeedback(false)}
-          message="Departamentul a fost adăugat cu succes!"
+          message="Modificările au fost realizate cu succes!"
         />
       )}
       {errorFeedback && (
@@ -270,10 +307,13 @@ const Departamente = () => {
       )}
       {isEditModalOpen && (
         <DepartamentModal
+          dateFormular={dateFormular}
+          setDateFormular={setDateFormular}
           titlu={"Editează Departament"}
           descriere={"Aici editezi datele unui departament existent"}
           isOpen={isEditModalOpen}
           onClose={() => setIsModalEditOpen(false)}
+          onSave={() => editDepartament(updateId)}
         />
       )}
       {isDeleteModalOpen && (

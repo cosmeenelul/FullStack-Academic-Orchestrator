@@ -102,320 +102,334 @@ const ProfesorModal = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <Box
-      position="fixed"
-      top="0"
-      left="0"
-      w="100vw"
-      h="100vh"
-      bg="blackAlpha.800"
-      backdropFilter="blur(5px)"
-      zIndex="9999"
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
-      onClick={onClose}
-    >
+    <>
+      <style>
+        {`
+          @keyframes fadeIn {
+            from { opacity: 0; backdrop-filter: blur(0px); }
+            to { opacity: 1; backdrop-filter: blur(5px); }
+          }
+          @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+          }
+        `}
+      </style>
       <Box
-        bg="#0f172a"
-        w="700px"
-        maxW="95%"
-        maxH="90vh"
-        borderRadius="xl"
-        border="1px solid"
-        borderColor="blue.900"
-        boxShadow="2xl"
-        overflow="hidden"
-        onClick={(e) => e.stopPropagation()}
+        position="fixed"
+        top="0"
+        left="0"
+        w="100vw"
+        h="100vh"
+        bg="blackAlpha.800"
+        backdropFilter="blur(5px)"
+        zIndex="9999"
         display="flex"
-        flexDirection="column"
+        alignItems="center"
+        justifyContent="center"
+        onClick={onClose}
       >
-        {/* HEADER */}
         <Box
-          p="6"
-          bgGradient="linear(to-r, blue.900, purple.900)"
+          bg="#0f172a"
+          w="700px"
+          maxW="95%"
+          maxH="90vh"
+          borderRadius="xl"
+          border="1px solid"
+          borderColor="blue.900"
+          boxShadow="2xl"
+          overflow="hidden"
+          onClick={(e) => e.stopPropagation()}
           display="flex"
-          justifyContent="space-between"
-          alignItems="center"
+          flexDirection="column"
         >
-          <Box>
-            <Heading size="md" color="white" mb="1">
-              Adaugă Profesor
-            </Heading>
-            <Text color="blue.200" fontSize="sm">
-              Completează detaliile
-            </Text>
-          </Box>
-
-          <Button
-            onClick={onClose}
-            minW="32px"
-            h="32px"
-            p="0"
-            borderRadius="full"
-            bg="whiteAlpha.200"
-            _hover={{ bg: "red.500" }}
+          {/* HEADER */}
+          <Box
+            p="6"
+            bgGradient="linear(to-r, blue.900, purple.900)"
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
           >
-            <Icon as={FiX} color="white" />
-          </Button>
-        </Box>
-
-        {/* BODY */}
-        <Box flex="1" overflowY="auto" p="6">
-          <Stack spacing="6">
-            {/* INFO PERSONALE */}
             <Box>
-              <Flex align="center" gap="2" color="blue.300" mb="4">
-                <Icon as={FiUser} />
-                <Text fontWeight="bold" fontSize="sm">
-                  INFORMAȚII PERSONALE
-                </Text>
-              </Flex>
-
-              <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap="4">
-                <Input
-                  name="prenume"
-                  placeholder="Prenume"
-                  onChange={handleChange}
-                  color="white"
-                  borderColor="whiteAlpha.200"
-                  bg="whiteAlpha.50"
-                />
-                <Input
-                  name="nume"
-                  placeholder="Nume"
-                  onChange={handleChange}
-                  color="white"
-                  borderColor="whiteAlpha.200"
-                  bg="whiteAlpha.50"
-                />
-                <Input
-                  name="email"
-                  placeholder="Email"
-                  onChange={handleChange}
-                  color="white"
-                  borderColor="whiteAlpha.200"
-                  bg="whiteAlpha.50"
-                />
-                <Input
-                  name="telefon"
-                  placeholder="Telefon"
-                  onChange={handleChange}
-                  color="white"
-                  borderColor="whiteAlpha.200"
-                  bg="whiteAlpha.50"
-                />
-              </Grid>
+              <Heading size="md" color="white" mb="1">
+                Adaugă Profesor
+              </Heading>
+              <Text color="blue.200" fontSize="sm">
+                Completează detaliile
+              </Text>
             </Box>
 
-            <Box h="1px" bg="whiteAlpha.100" />
+            <Button
+              onClick={onClose}
+              minW="32px"
+              h="32px"
+              p="0"
+              borderRadius="full"
+              bg="whiteAlpha.200"
+              _hover={{ bg: "red.500" }}
+            >
+              <Icon as={FiX} color="white" />
+            </Button>
+          </Box>
 
-            {/* ZONA SELECT-uri CHAKRA V3 */}
-            <Box>
-              <Flex align="center" gap="2" color="purple.300" mb="4">
-                <Icon as={FiLayers} />
-                <Text fontWeight="bold" fontSize="sm">
-                  AFILIERE
-                </Text>
-              </Flex>
+          {/* BODY */}
+          <Box flex="1" overflowY="auto" p="6">
+            <Stack spacing="6">
+              {/* INFO PERSONALE */}
+              <Box>
+                <Flex align="center" gap="2" color="blue.300" mb="4">
+                  <Icon as={FiUser} />
+                  <Text fontWeight="bold" fontSize="sm">
+                    INFORMAȚII PERSONALE
+                  </Text>
+                </Flex>
 
-              <Box
-                bg="whiteAlpha.50"
-                p="4"
-                borderRadius="lg"
-                border="1px dashed"
-                borderColor="whiteAlpha.200"
-              >
-                <Grid
-                  templateColumns={{ base: "1fr", md: "2fr 1.5fr auto" }}
-                  gap="3"
-                  alignItems="end"
-                >
-                  {/* --- SELECT DEPARTAMENT --- */}
-                  <Box>
-                    <Text color="gray.400" fontSize="xs" mb="1">
-                      DEPARTAMENT
-                    </Text>
-                    <Select.Root
-                      collection={departmentsCollection} // Folosim colectia creata
-                      value={selectedDeptId}
-                      onValueChange={(e) => setSelectedDeptId(e.value)}
-                    >
-                      <Select.HiddenSelect />
-                      <Select.Control>
-                        <Select.Trigger
-                          px="3"
-                          py="2"
-                          bg="rgba(0,0,0,0.3)"
-                          border="1px solid"
-                          borderColor="whiteAlpha.300"
-                          borderRadius="md"
-                          width="100%"
-                          display="flex"
-                          justifyContent="space-between"
-                          alignItems="center"
-                          color="white"
-                        >
-                          <Select.ValueText placeholder="Alege departament..." />
-                          <Icon as={FiChevronDown} color="gray.500" />
-                        </Select.Trigger>
-                      </Select.Control>
-
-                      <Select.Positioner zIndex={10000}>
-                        <Select.Content
-                          bg="#1a202c"
-                          border="1px solid"
-                          borderColor="blue.700"
-                          borderRadius="md"
-                          p="2"
-                          zIndex={10000}
-                          w="100%"
-                        >
-                          {departmentsCollection.items.map((dept) => (
-                            <Select.Item
-                              key={dept.value}
-                              item={dept} // IMPORTANT: pasam obiectul intreg la item
-                              _hover={{ bg: "blue.600" }}
-                              p="2"
-                              borderRadius="sm"
-                              cursor="pointer"
-                              color="white"
-                            >
-                              <Select.ItemText>{dept.label}</Select.ItemText>
-                            </Select.Item>
-                          ))}
-                        </Select.Content>
-                      </Select.Positioner>
-                    </Select.Root>
-                  </Box>
-
-                  {/* --- SELECT ROL --- */}
-                  <Box>
-                    <Text color="gray.400" fontSize="xs" mb="1">
-                      ROL
-                    </Text>
-                    <Select.Root
-                      collection={rolesCollection} // Folosim colectia creata
-                      value={selectedRole}
-                      onValueChange={(e) => setSelectedRole(e.value)}
-                    >
-                      <Select.HiddenSelect />
-                      <Select.Control>
-                        <Select.Trigger
-                          px="3"
-                          py="2"
-                          bg="rgba(0,0,0,0.3)"
-                          border="1px solid"
-                          borderColor="whiteAlpha.300"
-                          borderRadius="md"
-                          width="100%"
-                          display="flex"
-                          justifyContent="space-between"
-                          alignItems="center"
-                          color="white"
-                        >
-                          <Select.ValueText placeholder="Alege rol..." />
-                          <Icon as={FiChevronDown} color="gray.500" />
-                        </Select.Trigger>
-                      </Select.Control>
-
-                      <Select.Positioner zIndex={10000}>
-                        <Select.Content
-                          bg="#1a202c"
-                          border="1px solid"
-                          borderColor="blue.700"
-                          borderRadius="md"
-                          p="2"
-                          zIndex={10000}
-                          w="100%"
-                        >
-                          {rolesCollection.items.map((role) => (
-                            <Select.Item
-                              key={role.value}
-                              item={role}
-                              _hover={{ bg: "blue.600" }}
-                              p="2"
-                              borderRadius="sm"
-                              cursor="pointer"
-                              color="white"
-                            >
-                              <Select.ItemText>{role.label}</Select.ItemText>
-                            </Select.Item>
-                          ))}
-                        </Select.Content>
-                      </Select.Positioner>
-                    </Select.Root>
-                  </Box>
-
-                  <Button
-                    onClick={handleAddDepartment}
-                    bg="purple.600"
+                <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap="4">
+                  <Input
+                    name="prenume"
+                    placeholder="Prenume"
+                    onChange={handleChange}
                     color="white"
-                    _hover={{ bg: "purple.500" }}
-                  >
-                    <Flex align="center" gap="2">
-                      <Icon as={FiPlus} /> Adaugă
-                    </Flex>
-                  </Button>
+                    borderColor="whiteAlpha.200"
+                    bg="whiteAlpha.50"
+                  />
+                  <Input
+                    name="nume"
+                    placeholder="Nume"
+                    onChange={handleChange}
+                    color="white"
+                    borderColor="whiteAlpha.200"
+                    bg="whiteAlpha.50"
+                  />
+                  <Input
+                    name="email"
+                    placeholder="Email"
+                    onChange={handleChange}
+                    color="white"
+                    borderColor="whiteAlpha.200"
+                    bg="whiteAlpha.50"
+                  />
+                  <Input
+                    name="telefon"
+                    placeholder="Telefon"
+                    onChange={handleChange}
+                    color="white"
+                    borderColor="whiteAlpha.200"
+                    bg="whiteAlpha.50"
+                  />
                 </Grid>
               </Box>
 
-              {/* LISTA DEPARTAMENTE */}
-              <Stack mt="4" spacing="2">
-                {assignedDepartments.map((dept) => (
-                  <Flex
-                    key={dept.id}
-                    bg="whiteAlpha.100"
-                    p="2"
-                    borderRadius="md"
-                    justify="space-between"
-                    align="center"
-                    borderLeft="3px solid"
-                    borderColor="blue.400"
+              <Box h="1px" bg="whiteAlpha.100" />
+
+              {/* ZONA SELECT-uri CHAKRA V3 */}
+              <Box>
+                <Flex align="center" gap="2" color="purple.300" mb="4">
+                  <Icon as={FiLayers} />
+                  <Text fontWeight="bold" fontSize="sm">
+                    AFILIERE
+                  </Text>
+                </Flex>
+
+                <Box
+                  bg="whiteAlpha.50"
+                  p="4"
+                  borderRadius="lg"
+                  border="1px dashed"
+                  borderColor="whiteAlpha.200"
+                >
+                  <Grid
+                    templateColumns={{ base: "1fr", md: "2fr 1.5fr auto" }}
+                    gap="3"
+                    alignItems="end"
                   >
-                    <Box ml="2">
-                      <Text color="white" fontSize="sm" fontWeight="bold">
-                        {dept.nume}
+                    {/* --- SELECT DEPARTAMENT --- */}
+                    <Box>
+                      <Text color="gray.400" fontSize="xs" mb="1">
+                        DEPARTAMENT
                       </Text>
-                      <Text color="gray.400" fontSize="xs">
-                        {dept.rol}
+                      <Select.Root
+                        collection={departmentsCollection} // Folosim colectia creata
+                        value={selectedDeptId}
+                        onValueChange={(e) => setSelectedDeptId(e.value)}
+                      >
+                        <Select.HiddenSelect />
+                        <Select.Control>
+                          <Select.Trigger
+                            px="3"
+                            py="2"
+                            bg="rgba(0,0,0,0.3)"
+                            border="1px solid"
+                            borderColor="whiteAlpha.300"
+                            borderRadius="md"
+                            width="100%"
+                            display="flex"
+                            justifyContent="space-between"
+                            alignItems="center"
+                            color="white"
+                          >
+                            <Select.ValueText placeholder="Alege departament..." />
+                            <Icon as={FiChevronDown} color="gray.500" />
+                          </Select.Trigger>
+                        </Select.Control>
+
+                        <Select.Positioner zIndex={10000}>
+                          <Select.Content
+                            bg="#1a202c"
+                            border="1px solid"
+                            borderColor="blue.700"
+                            borderRadius="md"
+                            p="2"
+                            zIndex={10000}
+                            w="100%"
+                          >
+                            {departmentsCollection.items.map((dept) => (
+                              <Select.Item
+                                key={dept.value}
+                                item={dept} // IMPORTANT: pasam obiectul intreg la item
+                                _hover={{ bg: "blue.600" }}
+                                p="2"
+                                borderRadius="sm"
+                                cursor="pointer"
+                                color="white"
+                              >
+                                <Select.ItemText>{dept.label}</Select.ItemText>
+                              </Select.Item>
+                            ))}
+                          </Select.Content>
+                        </Select.Positioner>
+                      </Select.Root>
+                    </Box>
+
+                    {/* --- SELECT ROL --- */}
+                    <Box>
+                      <Text color="gray.400" fontSize="xs" mb="1">
+                        ROL
                       </Text>
+                      <Select.Root
+                        collection={rolesCollection} // Folosim colectia creata
+                        value={selectedRole}
+                        onValueChange={(e) => setSelectedRole(e.value)}
+                      >
+                        <Select.HiddenSelect />
+                        <Select.Control>
+                          <Select.Trigger
+                            px="3"
+                            py="2"
+                            bg="rgba(0,0,0,0.3)"
+                            border="1px solid"
+                            borderColor="whiteAlpha.300"
+                            borderRadius="md"
+                            width="100%"
+                            display="flex"
+                            justifyContent="space-between"
+                            alignItems="center"
+                            color="white"
+                          >
+                            <Select.ValueText placeholder="Alege rol..." />
+                            <Icon as={FiChevronDown} color="gray.500" />
+                          </Select.Trigger>
+                        </Select.Control>
+
+                        <Select.Positioner zIndex={10000}>
+                          <Select.Content
+                            bg="#1a202c"
+                            border="1px solid"
+                            borderColor="blue.700"
+                            borderRadius="md"
+                            p="2"
+                            zIndex={10000}
+                            w="100%"
+                          >
+                            {rolesCollection.items.map((role) => (
+                              <Select.Item
+                                key={role.value}
+                                item={role}
+                                _hover={{ bg: "blue.600" }}
+                                p="2"
+                                borderRadius="sm"
+                                cursor="pointer"
+                                color="white"
+                              >
+                                <Select.ItemText>{role.label}</Select.ItemText>
+                              </Select.Item>
+                            ))}
+                          </Select.Content>
+                        </Select.Positioner>
+                      </Select.Root>
                     </Box>
 
                     <Button
-                      onClick={() => handleRemoveDepartment(dept.id)}
-                      minW="30px"
-                      h="30px"
-                      p="0"
-                      bg="transparent"
-                      color="red.400"
-                      _hover={{ bg: "whiteAlpha.100" }}
+                      onClick={handleAddDepartment}
+                      bg="purple.600"
+                      color="white"
+                      _hover={{ bg: "purple.500" }}
                     >
-                      <Icon as={FiTrash2} />
+                      <Flex align="center" gap="2">
+                        <Icon as={FiPlus} /> Adaugă
+                      </Flex>
                     </Button>
-                  </Flex>
-                ))}
-              </Stack>
-            </Box>
-          </Stack>
-        </Box>
+                  </Grid>
+                </Box>
 
-        {/* FOOTER */}
-        <Flex p="4" bg="blackAlpha.300" justify="flex-end" gap="3">
-          <Button onClick={onClose} variant="ghost" color="gray.400">
-            Anulează
-          </Button>
-          <Button
-            onClick={handleSave}
-            bg="blue.600"
-            color="white"
-            _hover={{ bg: "blue.500" }}
-          >
-            Salvează
-          </Button>
-        </Flex>
+                {/* LISTA DEPARTAMENTE */}
+                <Stack mt="4" spacing="2">
+                  {assignedDepartments.map((dept) => (
+                    <Flex
+                      key={dept.id}
+                      bg="whiteAlpha.100"
+                      p="2"
+                      borderRadius="md"
+                      justify="space-between"
+                      align="center"
+                      borderLeft="3px solid"
+                      borderColor="blue.400"
+                    >
+                      <Box ml="2">
+                        <Text color="white" fontSize="sm" fontWeight="bold">
+                          {dept.nume}
+                        </Text>
+                        <Text color="gray.400" fontSize="xs">
+                          {dept.rol}
+                        </Text>
+                      </Box>
+
+                      <Button
+                        onClick={() => handleRemoveDepartment(dept.id)}
+                        minW="30px"
+                        h="30px"
+                        p="0"
+                        bg="transparent"
+                        color="red.400"
+                        _hover={{ bg: "whiteAlpha.100" }}
+                      >
+                        <Icon as={FiTrash2} />
+                      </Button>
+                    </Flex>
+                  ))}
+                </Stack>
+              </Box>
+            </Stack>
+          </Box>
+
+          {/* FOOTER */}
+          <Flex p="4" bg="blackAlpha.300" justify="flex-end" gap="3">
+            <Button onClick={onClose} variant="ghost" color="gray.400">
+              Anulează
+            </Button>
+            <Button
+              onClick={handleSave}
+              bg="blue.600"
+              color="white"
+              _hover={{ bg: "blue.500" }}
+            >
+              Salvează
+            </Button>
+          </Flex>
+        </Box>
       </Box>
-    </Box>
+    </>
   );
 };
 
