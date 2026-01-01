@@ -44,6 +44,7 @@ const Departamente = () => {
   const [errorFeedback, setErrorFeedback] = useState(false);
   const [mesajErorare, setMesajErorare] = useState("");
   const [updateId, setUpdateId] = useState(null);
+  const [tipOperatiune, setTipOperatiune] = useState(null);
   useEffect(() => {
     async function getDepartamente() {
       try {
@@ -61,6 +62,7 @@ const Departamente = () => {
   }, [deleteDepartamente, updateDepartamente]);
 
   async function saveNewDepartment() {
+    setTipOperatiune("ADD");
     try {
       const res = await fetch("http://localhost:8080/departamente", {
         method: "POST",
@@ -106,6 +108,7 @@ const Departamente = () => {
   }
 
   async function editDepartament(id) {
+    setTipOperatiune("EDIT");
     try {
       const res = await fetch(`http://localhost:8080/departamente/${id}`, {
         method: "PUT",
@@ -118,14 +121,14 @@ const Departamente = () => {
         setIsModalEditOpen(false);
         setDateFormular({ nume: "", telefon: "", linkWeb: "" });
       } else {
-        const errorData = res.json();
-        console.error(errorData);
+        const errorData = await res.json();
+        console.error(errorData.message);
+        throw new Error(errorData.message);
       }
     } catch (error) {
       setErrorFeedback(true);
       setMesajErorare(error.message);
       setIsModalEditOpen(false);
-      setDateFormular({ nume: "", telefon: "", linkWeb: "" });
     }
   }
 
@@ -148,7 +151,10 @@ const Departamente = () => {
         </Box>
 
         <Button
-          onClick={() => setIsModalOpen(true)}
+          onClick={() => {
+            setIsModalOpen(true);
+            setDateFormular({ nume: "", telefon: "", linkWeb: "" });
+          }}
           bg="blue.600"
           color="white"
           _hover={{ bg: "blue.500", transform: "translateY(-2px)" }}
@@ -301,7 +307,8 @@ const Departamente = () => {
           onClose={() => setErrorFeedback(false)}
           onRetry={() => {
             setErrorFeedback(false);
-            setIsModalOpen(true);
+            if (tipOperatiune == "ADD") setIsModalOpen(true);
+            else setIsModalEditOpen(true);
           }}
         />
       )}

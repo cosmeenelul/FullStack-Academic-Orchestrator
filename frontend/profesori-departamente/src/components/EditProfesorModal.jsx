@@ -128,8 +128,18 @@ const EditProfesorModal = ({ isOpen, onClose, profesor, onSave }) => {
             to { opacity: 1; backdrop-filter: blur(5px); }
           }
           @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px) scale(0.95); }
+            from { opacity: 0; transform: translateY(30px) scale(0.95); }
             to { opacity: 1; transform: translateY(0) scale(1); }
+          }
+          .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+          }
+          .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+          }
+          .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
           }
         `}
       </style>
@@ -160,6 +170,7 @@ const EditProfesorModal = ({ isOpen, onClose, profesor, onSave }) => {
           onClick={(e) => e.stopPropagation()}
           display="flex"
           flexDirection="column"
+          animation="slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards"
         >
           {/* HEADER */}
           <Box
