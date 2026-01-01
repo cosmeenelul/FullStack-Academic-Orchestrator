@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Flex,
@@ -32,56 +32,55 @@ import DeleteConfirmationModal from "@/components/DeleteConfirmationModal";
 // import DeleteConfirmationModal from "@/components/DeleteConfirmationModal";
 
 const Profesori = () => {
-  // Mockup bazat pe ProfesorDTO.java și structura Set<ProfesorDepartamentDTO>
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateProfileModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const profesoriMock = [
+  const [listaProfesori, setListaProfesori] = useState([
     {
-      id: 1,
-      nume: "Popescu",
-      prenume: "Andrei",
-      email: "andrei.popescu@upb.ro",
-      telefon: "0722 123 456",
-      // Simulăm Set-ul de departamente
-      departamente: [
-        { id: 101, nume: "Ingineria Sistemelor", rol: "Director" },
-        { id: 102, nume: "Automatică", rol: "Membru" },
-      ],
+      id: null,
+      nume: "",
+      prenume: "",
+      email: "",
+      telefon: "",
+      departamente: [{ id: null, nume: "", rolDepartament: "" }],
     },
-    {
-      id: 2,
-      nume: "Ionescu",
-      prenume: "Maria",
-      email: "maria.ionescu@upb.ro",
-      telefon: "0744 987 654",
-      departamente: [{ id: 102, nume: "Automatică", rol: "Membru" }],
-    },
-    {
-      id: 3,
-      nume: "Vasilescu",
-      prenume: "Dan",
-      email: "dan.vasilescu@upb.ro",
-      telefon: "0755 111 222",
-      departamente: [
-        { id: 103, nume: "Telecomunicații", rol: "Membru" },
-        { id: 104, nume: "Electronică", rol: "Membru Consiliu" },
-      ],
-    },
-    {
-      id: 4,
-      nume: "Georgescu",
-      prenume: "Elena",
-      email: "elena.georgescu@upb.ro",
-      telefon: "0766 333 444",
-      departamente: [{ id: 101, nume: "Ingineria Sistemelor", rol: "Membru" }],
-    },
-  ];
+  ]);
+  useEffect(() => {
+    async function getProfesori() {
+      try {
+        const res = await fetch("http://localhost:8080/profesori");
+        const data = await res.json();
+        const profesoriProcesati = data.map((prof) => ({
+          id: prof.id,
+          nume: prof.nume,
+          prenume: prof.prenume,
+          email: prof.email,
+          telefon: prof.telefon,
+          departamente: prof.departamente
+            ? prof.departamente.map((d) => ({
+                nume: d.departament?.nume || "N/A",
+                rolDepartament: d.rolDepartament || "Membru",
+              }))
+            : [],
+        }));
+
+        setListaProfesori(profesoriProcesati);
+        if (res.ok) {
+          console.log(profesoriProcesati);
+        } else {
+          throw new Error(data.message);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    getProfesori();
+  }, []);
 
   return (
     <Box w="100%" minH="100vh" position="relative">
-      {/* --- HEADER + SEARCH AREA --- */}
       <Flex justify="space-between" align="flex-end" mb="8" wrap="wrap" gap="4">
         <Box>
           <Heading size="xl" color="white" mb="2">
@@ -93,7 +92,6 @@ const Profesori = () => {
         </Box>
 
         <Flex gap="4" align="center">
-          {/* Search Bar Smecher */}
           <Box position="relative" w="300px">
             <Box position="absolute" left="3" top="3" color="blue.400">
               <FiSearch />
@@ -130,8 +128,6 @@ const Profesori = () => {
         </Flex>
       </Flex>
 
-      {/* --- TABELUL DE PROFESORI --- */}
-
       <Box
         bg="rgba(13, 16, 30, 0.7)"
         backdropFilter="blur(12px)"
@@ -139,12 +135,10 @@ const Profesori = () => {
         borderColor="whiteAlpha.100"
         borderRadius="2xl"
         boxShadow="xl"
-        // MODIFICĂRILE CHEIE SUNT AICI:
-        p="0" // 1. Eliminăm spațiul interior ca tabelul să atingă marginile
-        overflow="hidden" // 2. Tăiem colțurile tabelului ca să se potrivească cu borderRadius-ul containerului
+        p="0"
+        overflow="hidden"
       >
         <Table.Root variant="simple" size="md">
-          {/* Header-ul va avea acum fundalul lipit de margini */}
           <Table.Header bg="rgba(0, 0, 0, 0.3)">
             <Table.Row borderColor="whiteAlpha.100">
               <Table.ColumnHeader
@@ -173,14 +167,13 @@ const Profesori = () => {
           </Table.Header>
 
           <Table.Body>
-            {profesoriMock.map((prof) => (
+            {listaProfesori.map((prof, profIdx) => (
               <Table.Row
-                key={prof.id}
+                key={prof.id || `prof-${profIdx}`}
                 _hover={{ bg: "whiteAlpha.50" }}
                 transition="0.2s"
                 borderColor="whiteAlpha.50"
               >
-                {/* 1. Nume și Avatar - Ajustăm padding-ul celulelor (pl="8") ca să nu fie textul lipit de margine */}
                 <Table.Cell pl="8" py="5">
                   <HStack gap="4">
                     <Avatar.Root size="md" variant="solid">
@@ -221,13 +214,17 @@ const Profesori = () => {
 
                 <Table.Cell py="5">
                   <Flex wrap="wrap" gap="2" maxW="350px">
-                    {prof.departamente.map((dept) => (
+                    {prof.departamente.map((dept, deptIdx) => (
                       <Badge
-                        key={dept.id}
+                        key={dept.id || `prof-dept-${deptIdx}`}
                         colorPalette={
-                          dept.rol === "Director" ? "purple" : "blue"
+                          dept.rolDepartament === "Director" ? "purple" : "blue"
                         }
-                        variant={dept.rol === "Director" ? "solid" : "subtle"}
+                        variant={
+                          dept.rolDepartament === "Director"
+                            ? "solid"
+                            : "subtle"
+                        }
                         borderRadius="full"
                         px="3"
                         py="1"
@@ -236,16 +233,18 @@ const Profesori = () => {
                         alignItems="center"
                         gap="1.5"
                       >
-                        {dept.rol === "Director" && <Icon as={FiAward} />}
+                        {dept.rolDepartament === "Director" && (
+                          <Icon as={FiAward} />
+                        )}
                         {dept.nume}
-                        {dept.rol !== "Membru" && (
+                        {dept.rolDepartament !== "Membru" && (
                           <Text
                             as="span"
                             opacity="0.8"
                             ml="1"
                             fontWeight="normal"
                           >
-                            | {dept.rol}
+                            | {dept.rolDepartament}
                           </Text>
                         )}
                       </Badge>
