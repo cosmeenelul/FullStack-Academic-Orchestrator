@@ -69,12 +69,12 @@ public class DepartamentSerciceImpl implements DepartamentService {
 	@Override
 	public DepartamentDTO updateById(Integer id, CreateDepartamentRequest createDepartamentRequest) {
 		Departament departament = departamentRepository.findById(id).orElseThrow(()->new RuntimeException("Acest departament nu exista!"));
-		departament.setNume(createDepartamentRequest.getNume());
-		departament.setTelefon(createDepartamentRequest.getTelefon());
-		departament.setLinkWeb(createDepartamentRequest.getLinkWeb());
 
 		if(!createDepartamentRequest.getTelefon().equals(departament.getTelefon()))
 			verifyTelefon(createDepartamentRequest.getTelefon());
+		departament.setNume(createDepartamentRequest.getNume());
+		departament.setTelefon(createDepartamentRequest.getTelefon());
+		departament.setLinkWeb(createDepartamentRequest.getLinkWeb());
 
 		departamentRepository.save(departament);
 

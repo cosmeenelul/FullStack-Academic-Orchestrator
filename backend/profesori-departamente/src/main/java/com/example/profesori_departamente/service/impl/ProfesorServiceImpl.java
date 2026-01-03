@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -39,12 +40,13 @@ public class ProfesorServiceImpl implements ProfesorService {
 	@Transactional
 	public CreateProfesorResponse save(CreateProfesorRequest createProfesorRequest) {
 
+
+
 		Profesor profesor = processProfesorCreation(createProfesorRequest.getNume(),
 				createProfesorRequest.getPrenume(),
 				createProfesorRequest.getTelefon(),
 				createProfesorRequest.getEmail(),
-				createProfesorRequest.getIdDepartamente(),
-				createProfesorRequest.getRolDepartament());
+				createProfesorRequest.getDepartamente());
 		ProfesorDTO profesorDTO = profesorMapper.toDTO(profesor);
 		return new CreateProfesorResponse(profesorDTO);
 	}
@@ -52,7 +54,12 @@ public class ProfesorServiceImpl implements ProfesorService {
 	@Override
 	@Transactional
 	public CreateProfesorResponse updateById(Integer idProfesor,CreateProfesorRequest createProfesorRequest) {
-		return processProfesorUpdate(idProfesor, createProfesorRequest.getNume(), createProfesorRequest.getPrenume(),createProfesorRequest.getTelefon(),createProfesorRequest.getEmail(),createProfesorRequest.getIdDepartamente(),createProfesorRequest.getRolDepartament());
+		return processProfesorUpdate(idProfesor,
+				createProfesorRequest.getNume(),
+				createProfesorRequest.getPrenume(),
+				createProfesorRequest.getTelefon(),
+				createProfesorRequest.getEmail(),
+				createProfesorRequest.getDepartamente());
 	}
 
 	@Override
@@ -86,11 +93,14 @@ public class ProfesorServiceImpl implements ProfesorService {
 			throw new RuntimeException("User already exists!");
 	}
 
-	private Profesor processProfesorCreation(String nume, String prenume, String telefon, String email, List<Integer> idDepartamente, RolDepartament rolDepartament) {
+	private Profesor processProfesorCreation(String nume, String prenume, String telefon, String email, Map<Integer, RolDepartament> departamente) {
 		userAlreadyExists(telefon);
 
-		for(Integer idDepartament : idDepartamente)
-			validateMemberDepartmentRole(rolDepartament,idDepartament);
+		departamente.forEach((cheie, val)->{
+			if(val.equals(RolDepartament.Director))
+				validateMemberDepartmentRole(RolDepartament.Director,cheie);
+		});
+
 
 		Profesor profesorSalvat = profesorRepository.save(Profesor.builder()
 				.nume(nume)
@@ -99,7 +109,7 @@ public class ProfesorServiceImpl implements ProfesorService {
 				.telefon(telefon)
 				.build());
 
-		for (Integer idDept : idDepartamente) {
+		departamente.forEach((idDept, rolDept)-> {
 			Departament departament = loadDepartament(idDept);
 
 			ProfesorDepartamentId profesorDepartamentId = new ProfesorDepartamentId(profesorSalvat.getId(), idDept);
@@ -108,11 +118,11 @@ public class ProfesorServiceImpl implements ProfesorService {
 					profesorDepartamentId,
 					profesorSalvat,
 					departament,
-					rolDepartament
+					rolDept
 			);
 
 			profesorSalvat.getDepartamente().add(profesorDepartament);
-		}
+		});
 
 		return profesorSalvat;
 	}
@@ -121,7 +131,7 @@ public class ProfesorServiceImpl implements ProfesorService {
 		return departamentRepository.findById(idDepartament).orElseThrow(()->new RuntimeException("Nu exista departamentul"));
 	}
 
-	private CreateProfesorResponse processProfesorUpdate(Integer idProfesor,String nume, String prenume, String telefon, String email, List<Integer> idDepartamente, RolDepartament rolDepartament){
+	private CreateProfesorResponse processProfesorUpdate(Integer idProfesor,String nume, String prenume, String telefon, String email, Map<Integer,RolDepartament> departamente){
 
 		Profesor profesor = profesorRepository.findById(idProfesor).orElseThrow(()->new RuntimeException("Profesorul nu a fost gasit in baza de date!"));
 
@@ -129,13 +139,16 @@ public class ProfesorServiceImpl implements ProfesorService {
 			userAlreadyExists(telefon);
 
 
-		for(Integer idDepartament : idDepartamente)
-			validateMemberDepartmentRole(rolDepartament,idDepartament);
+		departamente.forEach((cheie, val)->{
+			if(val.equals(RolDepartament.Director))
+				validateMemberDepartmentRole(RolDepartament.Director,cheie);
+		});
 
 		profesor.getDepartamente().removeIf(legatura ->
 				!legatura.getRolDepartament().equals(RolDepartament.Director)
 		);
-		for(Integer idDepartament : idDepartamente){
+
+		departamente.forEach((idDepartament, rolDepartament)->{
 
 			Departament departament = loadDepartament(idDepartament);
 
@@ -143,7 +156,7 @@ public class ProfesorServiceImpl implements ProfesorService {
 			ProfesorDepartament profesorDepartament = new ProfesorDepartament(profesorDepartamentId,profesor,departament,rolDepartament);
 
 			profesor.getDepartamente().add(profesorDepartament);
-		}
+		});
 
 		profesor.setNume(nume);
 		profesor.setPrenume(prenume);

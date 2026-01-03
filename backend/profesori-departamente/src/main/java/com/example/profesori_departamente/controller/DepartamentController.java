@@ -11,6 +11,7 @@ import java.util.List;
 @RestController
 @RequestMapping(path = "/departamente")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:5173")
 public class DepartamentController {
 	private final DepartamentService departamentService;
 
