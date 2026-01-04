@@ -21,8 +21,15 @@ import {
   FiChevronDown,
 } from "react-icons/fi";
 
-const EditProfesorModal = ({ isOpen, onClose, profesor, onSave }) => {
-  // --- 1. CONFIGURARE COLECȚII (EXACT CA LA CREARE) ---
+const EditProfesorModal = ({
+  isOpen,
+  onClose,
+  formData,
+  setFormData,
+  onSave,
+  departamente,
+  setDepartamente,
+}) => {
   const departmentsCollection = createListCollection({
     items: [
       { label: "Ingineria Sistemelor", value: "101" },

@@ -67,6 +67,7 @@ const Profesori = () => {
   const [errorFeedback, setErrorFeedback] = useState(false);
   const [totalSaves, setTotalSaves] = useState(0);
   const [mesajEroare, setMesajEroare] = useState("");
+  const [tipOperatiune, setTipOperatiune] = useState(null);
   useEffect(() => {
     async function getProfesori() {
       try {
@@ -110,12 +111,12 @@ const Profesori = () => {
       else throw new Error(data.message);
     } catch (error) {
       console.log(error);
-      setMesajEroare(error);
       setErrorFeedback(true);
     }
   }
 
   async function saveProfesor(payload) {
+    setTipOperatiune("ADD");
     try {
       const res = await fetch("http://localhost:8080/profesori", {
         method: "POST",
@@ -126,14 +127,21 @@ const Profesori = () => {
       if (res.ok) {
         setSuccessFeedback(true);
         setTotalSaves((item) => item + 1);
+        setFormData({
+          nume: "",
+          prenume: "",
+          email: "",
+          telefon: "",
+        });
         console.log(data);
       } else {
         throw new Error(data.message);
       }
     } catch (error) {
-      console.log(error);
+      console.log(error.message);
       setErrorFeedback(true);
       setIsCreateModalOpen();
+      setMesajEroare(error.message);
     }
   }
   const handleSave = () => {
@@ -377,7 +385,15 @@ const Profesori = () => {
           isOpen={isCreateModalOpen}
           departamente={depts}
           setDepartamente={setDepts}
-          onClose={() => setIsCreateModalOpen(false)}
+          onClose={() => {
+            setFormData({
+              nume: "",
+              prenume: "",
+              email: "",
+              telefon: "",
+            });
+            setIsCreateModalOpen(false);
+          }}
         />
       )}
       {isEditModalOpen && (
@@ -412,11 +428,11 @@ const Profesori = () => {
         <ErrorFeedback
           message={mesajEroare}
           onClose={() => setErrorFeedback(false)}
-          // onRetry={() => {
-          //   setErrorFeedback(false);
-          //   if (tipOperatiune == "ADD") setIsModalOpen(true);
-          //   else setIsModalEditOpen(true);
-          // }}
+          onRetry={() => {
+            setErrorFeedback(false);
+            if (tipOperatiune == "ADD") setIsCreateModalOpen(true);
+            else setIsEditModalOpen(true);
+          }}
         />
       )}
     </Box>

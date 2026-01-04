@@ -17,11 +17,9 @@ import {
   FiPlus,
   FiTrash2,
   FiUser,
-  FiMail,
-  FiPhone,
-  FiBriefcase,
   FiLayers,
   FiChevronDown,
+  FiAlertCircle, // Iconita pentru eroare
 } from "react-icons/fi";
 
 const ProfesorModal = ({
@@ -37,6 +35,8 @@ const ProfesorModal = ({
   const [selectedRole, setSelectedRole] = useState(["Membru"]);
   const [idDepartamente, setIdDepartamente] = useState([]);
   const [listaDepartamente, setListaDepatamente] = useState([]);
+  const [errors, setErrors] = useState({});
+
   const departmentsCollection = useMemo(() => {
     return createListCollection({
       items: listaDepartamente.map((dept) => ({
@@ -70,6 +70,12 @@ const ProfesorModal = ({
     }
     getDepartamente();
   }, []);
+
+  useEffect(() => {
+    if (isOpen) {
+      setErrors({});
+    }
+  }, [isOpen]);
 
   const handleAddDepartment = () => {
     const deptId = selectedDeptId[0];
@@ -108,7 +114,40 @@ const ProfesorModal = ({
   };
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: false }));
+    }
+  };
+
+  const handleSaveClick = () => {
+    const newErrors = {};
+    let isValid = true;
+
+    if (!formData.prenume?.trim()) {
+      newErrors.prenume = true;
+      isValid = false;
+    }
+    if (!formData.nume?.trim()) {
+      newErrors.nume = true;
+      isValid = false;
+    }
+    if (!formData.email?.trim()) {
+      newErrors.email = true;
+      isValid = false;
+    }
+    if (!formData.telefon?.trim()) {
+      newErrors.telefon = true;
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+
+    if (isValid) {
+      onSave();
+    }
   };
 
   if (!isOpen) return null;
@@ -207,37 +246,54 @@ const ProfesorModal = ({
                 </Flex>
 
                 <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap="4">
+                  {/* --- INPUTURI CU VALIDARE --- */}
                   <Input
                     name="prenume"
                     placeholder="Prenume"
+                    value={formData.prenume}
                     onChange={handleChange}
                     color="white"
-                    borderColor="whiteAlpha.200"
                     bg="whiteAlpha.50"
+                    borderColor={errors.prenume ? "red.500" : "whiteAlpha.200"} // Border Rosu
+                    _focus={{
+                      borderColor: errors.prenume ? "red.500" : "blue.500",
+                    }}
                   />
                   <Input
                     name="nume"
                     placeholder="Nume"
+                    value={formData.nume}
                     onChange={handleChange}
                     color="white"
-                    borderColor="whiteAlpha.200"
                     bg="whiteAlpha.50"
+                    borderColor={errors.nume ? "red.500" : "whiteAlpha.200"} // Border Rosu
+                    _focus={{
+                      borderColor: errors.nume ? "red.500" : "blue.500",
+                    }}
                   />
                   <Input
                     name="email"
                     placeholder="Email"
+                    value={formData.email}
                     onChange={handleChange}
                     color="white"
-                    borderColor="whiteAlpha.200"
                     bg="whiteAlpha.50"
+                    borderColor={errors.email ? "red.500" : "whiteAlpha.200"} // Border Rosu
+                    _focus={{
+                      borderColor: errors.email ? "red.500" : "blue.500",
+                    }}
                   />
                   <Input
                     name="telefon"
                     placeholder="Telefon"
+                    value={formData.telefon}
                     onChange={handleChange}
                     color="white"
-                    borderColor="whiteAlpha.200"
                     bg="whiteAlpha.50"
+                    borderColor={errors.telefon ? "red.500" : "whiteAlpha.200"} // Border Rosu
+                    _focus={{
+                      borderColor: errors.telefon ? "red.500" : "blue.500",
+                    }}
                   />
                 </Grid>
               </Box>
@@ -270,7 +326,7 @@ const ProfesorModal = ({
                         DEPARTAMENT
                       </Text>
                       <Select.Root
-                        collection={departmentsCollection} // Folosim colectia creata
+                        collection={departmentsCollection}
                         value={selectedDeptId}
                         onValueChange={(e) => setSelectedDeptId(e.value)}
                       >
@@ -307,7 +363,7 @@ const ProfesorModal = ({
                             {departmentsCollection.items.map((dept) => (
                               <Select.Item
                                 key={dept.value}
-                                item={dept} // IMPORTANT: pasam obiectul intreg la item
+                                item={dept}
                                 _hover={{ bg: "blue.600" }}
                                 p="2"
                                 borderRadius="sm"
@@ -327,7 +383,7 @@ const ProfesorModal = ({
                         ROL
                       </Text>
                       <Select.Root
-                        collection={rolesCollection} // Folosim colectia creata
+                        collection={rolesCollection}
                         value={selectedRole}
                         onValueChange={(e) => setSelectedRole(e.value)}
                       >
@@ -433,12 +489,29 @@ const ProfesorModal = ({
           </Box>
 
           {/* FOOTER */}
-          <Flex p="4" bg="blackAlpha.300" justify="flex-end" gap="3">
+          <Flex
+            p="4"
+            bg="blackAlpha.300"
+            justify="flex-end"
+            align="center"
+            gap="3"
+          >
+            {/* MESAJ DE EROARE */}
+            {Object.keys(errors).length > 0 && (
+              <Flex align="center" gap="2" color="red.400" mr="auto">
+                <Icon as={FiAlertCircle} />
+                <Text fontSize="xs" fontWeight="bold">
+                  Completează toate câmpurile!
+                </Text>
+              </Flex>
+            )}
+
             <Button onClick={onClose} variant="ghost" color="gray.400">
               Anulează
             </Button>
+            {/* Schimbat onSave cu handleSaveClick */}
             <Button
-              onClick={onSave}
+              onClick={handleSaveClick}
               bg="blue.600"
               color="white"
               _hover={{ bg: "blue.500" }}
