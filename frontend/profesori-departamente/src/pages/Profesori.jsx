@@ -60,7 +60,7 @@ const Profesori = () => {
     telefon: "",
     departamente: [{ id: null, nume: "", rolDepartament: "" }],
   });
-  const [departamente, setDepartamente] = useState([]);
+  const [depts, setDepts] = useState([]);
   useEffect(() => {
     async function getProfesori() {
       try {
@@ -107,14 +107,15 @@ const Profesori = () => {
     }
   }
   const handleSave = () => {
-    const mapDepartamente = {};
+    const departamente = {};
 
-    departamente.forEach((dept) => {
-      mapDepartamente[dept.id] = dept.rolDepartament;
+    depts.forEach((dept) => {
+      departamente[dept.id] = dept.rolDepartament;
     });
 
     // console.log("Saving:", { ...formData, idDepartamente });
-    console.log(mapDepartamente);
+    const payload = { ...formData, departamente };
+    console.log(payload);
     setIsCreateProfileModalOpen(false);
   };
   return (
@@ -344,8 +345,8 @@ const Profesori = () => {
           setFormData={setFormData}
           onSave={handleSave}
           isOpen={isCreateModalOpen}
-          departamente={departamente}
-          setDepartamente={setDepartamente}
+          departamente={depts}
+          setDepartamente={setDepts}
           onClose={() => setIsCreateProfileModalOpen(false)}
         />
       )}

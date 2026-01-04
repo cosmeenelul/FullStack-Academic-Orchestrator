@@ -104,6 +104,7 @@ const ProfesorModal = ({
 
   const handleRemoveDepartment = (idToRemove) => {
     setIdDepartamente(idDepartamente.filter((d) => d.id !== idToRemove));
+    setDepartamente(departamente.filter((d) => d.id !== idToRemove));
   };
 
   const handleChange = (e) => {
