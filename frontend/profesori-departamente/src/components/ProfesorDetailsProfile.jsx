@@ -13,35 +13,8 @@ import {
 } from "@chakra-ui/react";
 import { FiX, FiMail, FiPhone, FiBriefcase, FiAward } from "react-icons/fi";
 
-const ProfesorDetailsModal = ({ isOpen, onClose }) => {
+const ProfesorDetailsModal = ({ isOpen, onClose, profesor }) => {
   if (!isOpen) return null;
-
-  const mockProfesor = {
-    id: 99,
-    nume: "Popescu",
-    prenume: "Alexandru",
-    email: "alexandru.popescu@upb.ro",
-    telefon: "0722 999 888",
-    departamente: [
-      {
-        departament: { nume: "Inteligență Artificială" },
-        rolDepartament: "DIRECTOR",
-      },
-      {
-        departament: { nume: "Inginerie Software" },
-        rolDepartament: "MEMBRU_CONSILIU",
-      },
-      {
-        departament: { nume: "Automatică și Calculatoare" },
-        rolDepartament: "MEMBRU",
-      },
-      {
-        departament: { nume: "Electronică Aplicată" },
-        rolDepartament: "MEMBRU",
-      },
-      { departament: { nume: "Robotică" }, rolDepartament: "MEMBRU" },
-    ],
-  };
 
   return (
     <>
@@ -68,7 +41,6 @@ const ProfesorDetailsModal = ({ isOpen, onClose }) => {
         `}
       </style>
 
-      {/* --- OVERLAY --- */}
       <Box
         position="fixed"
         top="0"
@@ -84,7 +56,6 @@ const ProfesorDetailsModal = ({ isOpen, onClose }) => {
         onClick={onClose}
         p="4"
       >
-        {/* --- CARDUL MODAL --- */}
         <Box
           bg="#0f172a"
           w="600px"
@@ -101,14 +72,12 @@ const ProfesorDetailsModal = ({ isOpen, onClose }) => {
           animation="slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards"
           overflow="hidden"
         >
-          {/* --- BUTONUL X (CORECAT PENTRU CONTRAST) --- */}
           <IconButton
             onClick={onClose}
             aria-label="Close modal"
             position="absolute"
             top="4"
             right="4"
-            // AICI AM SCHIMBAT: Folosim whiteAlpha ca să fie deschis la culoare
             bg="whiteAlpha.200"
             backdropFilter="blur(4px)"
             border="1px solid"
@@ -153,14 +122,14 @@ const ProfesorDetailsModal = ({ isOpen, onClose }) => {
                     fontSize="3xl"
                     fontWeight="bold"
                   >
-                    {mockProfesor.prenume[0]}
-                    {mockProfesor.nume[0]}
+                    {profesor.prenume[0]}
+                    {profesor.nume[0]}
                   </Avatar.Fallback>
                 </Avatar.Root>
               </Box>
 
               <Heading size="xl" color="white" mt="4" textAlign="center">
-                {mockProfesor.prenume} {mockProfesor.nume}
+                {profesor.prenume} {profesor.nume}
               </Heading>
               <Badge
                 mt="2"
@@ -170,14 +139,12 @@ const ProfesorDetailsModal = ({ isOpen, onClose }) => {
                 py="1"
                 borderRadius="full"
               >
-                ID Profesor: #{mockProfesor.id}
+                ID Profesor: #{profesor.id}
               </Badge>
             </Flex>
           </Box>
 
-          {/* --- ZONA SCROLLABILĂ (Content) --- */}
           <Box p="8" overflowY="auto" className="custom-scrollbar" flex="1">
-            {/* Grid Contact Info */}
             <Grid
               templateColumns={{ base: "1fr", md: "1fr 1fr" }}
               gap="4"
@@ -207,7 +174,7 @@ const ProfesorDetailsModal = ({ isOpen, onClose }) => {
                     fontWeight="medium"
                     isTruncated
                   >
-                    {mockProfesor.email}
+                    {profesor.email}
                   </Text>
                 </Box>
               </Flex>
@@ -231,7 +198,7 @@ const ProfesorDetailsModal = ({ isOpen, onClose }) => {
                     TELEFON
                   </Text>
                   <Text color="white" fontSize="sm" fontWeight="medium">
-                    {mockProfesor.telefon}
+                    {profesor.telefon}
                   </Text>
                 </Box>
               </Flex>
@@ -256,7 +223,7 @@ const ProfesorDetailsModal = ({ isOpen, onClose }) => {
               </Stack>
 
               <Stack gap="3" pb="4">
-                {mockProfesor.departamente.map((item, index) => (
+                {profesor.departamente.map((item, index) => (
                   <Flex
                     key={index}
                     bg="rgba(13, 16, 30, 0.6)"
@@ -266,7 +233,7 @@ const ProfesorDetailsModal = ({ isOpen, onClose }) => {
                     justify="space-between"
                     borderLeft="4px solid"
                     borderColor={
-                      item.rolDepartament === "DIRECTOR"
+                      item.rolDepartament === "Director"
                         ? "purple.500"
                         : "blue.500"
                     }
@@ -281,13 +248,13 @@ const ProfesorDetailsModal = ({ isOpen, onClose }) => {
                         DEPARTAMENT
                       </Text>
                       <Text color="white" fontWeight="semibold">
-                        {item.departament.nume}
+                        {item.nume}
                       </Text>
                     </Box>
 
                     <Badge
                       colorPalette={
-                        item.rolDepartament === "DIRECTOR" ? "purple" : "blue"
+                        item.rolDepartament === "Director" ? "purple" : "blue"
                       }
                       variant="subtle"
                       px="3"
@@ -297,7 +264,7 @@ const ProfesorDetailsModal = ({ isOpen, onClose }) => {
                       alignItems="center"
                       gap="2"
                     >
-                      {item.rolDepartament === "DIRECTOR" && (
+                      {item.rolDepartament === "Director" && (
                         <Icon as={FiAward} />
                       )}
                       {item.rolDepartament}

@@ -36,6 +36,12 @@ const Profesori = () => {
   const [isCreateModalOpen, setIsCreateProfileModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    nume: "",
+    prenume: "",
+    email: "",
+    telefon: "",
+  });
   const [listaProfesori, setListaProfesori] = useState([
     {
       id: null,
@@ -46,6 +52,15 @@ const Profesori = () => {
       departamente: [{ id: null, nume: "", rolDepartament: "" }],
     },
   ]);
+  const [currentProfesorDetails, setCurrentProfesorDetails] = useState({
+    id: null,
+    nume: "",
+    prenume: "",
+    email: "",
+    telefon: "",
+    departamente: [{ id: null, nume: "", rolDepartament: "" }],
+  });
+  const [departamente, setDepartamente] = useState([]);
   useEffect(() => {
     async function getProfesori() {
       try {
@@ -79,6 +94,29 @@ const Profesori = () => {
     getProfesori();
   }, []);
 
+  async function getProfesorById(idProfesor) {
+    try {
+      const res = await fetch(
+        `http://localhost:8080/profesori/profil/${idProfesor}`
+      );
+      const data = await res.json();
+      if (res.ok) console.log(data);
+      else throw new Error(data.message);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  const handleSave = () => {
+    const mapDepartamente = {};
+
+    departamente.forEach((dept) => {
+      mapDepartamente[dept.id] = dept.rolDepartament;
+    });
+
+    // console.log("Saving:", { ...formData, idDepartamente });
+    console.log(mapDepartamente);
+    setIsCreateProfileModalOpen(false);
+  };
   return (
     <Box w="100%" minH="100vh" position="relative">
       <Flex justify="space-between" align="flex-end" mb="8" wrap="wrap" gap="4">
@@ -176,14 +214,14 @@ const Profesori = () => {
               >
                 <Table.Cell pl="8" py="5">
                   <HStack gap="4">
-                    <Avatar.Root size="md" variant="solid">
-                      <Avatar.Fallback
-                        bgGradient="to-br"
-                        gradientFrom="blue.500"
-                        gradientTo="purple.600"
-                        color="white"
-                        fontWeight="bold"
-                      >
+                    <Avatar.Root
+                      size="xl"
+                      variant="solid"
+                      bgGradient="to-br"
+                      gradientFrom="blue.500"
+                      gradientTo="purple.600"
+                    >
+                      <Avatar.Fallback color="white" fontWeight="bold">
                         {prof.nume[0]}
                         {prof.prenume[0]}
                       </Avatar.Fallback>
@@ -237,26 +275,27 @@ const Profesori = () => {
                           <Icon as={FiAward} />
                         )}
                         {dept.nume}
-                        {dept.rolDepartament !== "Membru" && (
-                          <Text
-                            as="span"
-                            opacity="0.8"
-                            ml="1"
-                            fontWeight="normal"
-                          >
-                            | {dept.rolDepartament}
-                          </Text>
-                        )}
+                        <Text
+                          as="span"
+                          opacity="0.8"
+                          ml="1"
+                          fontWeight="normal"
+                        >
+                          | {dept.rolDepartament}
+                        </Text>
                       </Badge>
                     ))}
                   </Flex>
                 </Table.Cell>
 
-                {/* Ajustăm padding-ul la ultima celulă (pr="8") */}
                 <Table.Cell textAlign="right" pr="8" py="5">
                   <HStack justify="flex-end" gap="1">
                     <IconButton
-                      onClick={() => setIsProfileOpen(true)}
+                      onClick={() => {
+                        setIsProfileOpen(true);
+                        getProfesorById(prof.id);
+                        setCurrentProfesorDetails(prof);
+                      }}
                       aria-label="More"
                       variant="ghost"
                       color="blue.200"
@@ -296,11 +335,17 @@ const Profesori = () => {
         <ProfesorDetailsModal
           isOpen={isProfileOpen}
           onClose={() => setIsProfileOpen(false)}
+          profesor={currentProfesorDetails}
         />
       )}
       {isCreateModalOpen && (
         <ProfesorModal
+          formData={formData}
+          setFormData={setFormData}
+          onSave={handleSave}
           isOpen={isCreateModalOpen}
+          departamente={departamente}
+          setDepartamente={setDepartamente}
           onClose={() => setIsCreateProfileModalOpen(false)}
         />
       )}

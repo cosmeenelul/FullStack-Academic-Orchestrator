@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Box,
   Flex,
@@ -10,7 +10,7 @@ import {
   Grid,
   Icon,
   Select,
-  createListCollection, // <--- IMPORT CRITIC
+  createListCollection,
 } from "@chakra-ui/react";
 import {
   FiX,
@@ -24,29 +24,27 @@ import {
   FiChevronDown,
 } from "react-icons/fi";
 
-const ProfesorModal = ({ isOpen, onClose }) => {
-  // 1. STATE-URI
-  const [formData, setFormData] = useState({
-    nume: "",
-    prenume: "",
-    email: "",
-    telefon: "",
-  });
-
+const ProfesorModal = ({
+  isOpen,
+  onClose,
+  formData,
+  setFormData,
+  onSave,
+  departamente,
+  setDepartamente,
+}) => {
   const [selectedDeptId, setSelectedDeptId] = useState([]);
-  const [selectedRole, setSelectedRole] = useState(["MEMBRU"]);
-  const [assignedDepartments, setAssignedDepartments] = useState([]);
-
-  // 2. DATE (List Collections)
-  // AICI ESTE FIX-UL: Împachetăm array-urile în createListCollection
-  const departmentsCollection = createListCollection({
-    items: [
-      { label: "Ingineria Sistemelor", value: "101" },
-      { label: "Automatică și Calculatoare", value: "102" },
-      { label: "Electronică Aplicată", value: "103" },
-      { label: "Telecomunicații", value: "104" },
-    ],
-  });
+  const [selectedRole, setSelectedRole] = useState(["Membru"]);
+  const [idDepartamente, setIdDepartamente] = useState([]);
+  const [listaDepartamente, setListaDepatamente] = useState([]);
+  const departmentsCollection = useMemo(() => {
+    return createListCollection({
+      items: listaDepartamente.map((dept) => ({
+        label: dept.nume,
+        value: dept.id,
+      })),
+    });
+  }, [listaDepartamente]);
 
   const rolesCollection = createListCollection({
     items: [
@@ -55,19 +53,33 @@ const ProfesorModal = ({ isOpen, onClose }) => {
     ],
   });
 
-  // 3. HANDLERS
+  useEffect(() => {
+    async function getDepartamente() {
+      try {
+        const res = await fetch("http://localhost:8080/departamente");
+        const data = await res.json();
+
+        if (res.ok) {
+          console.log(data);
+          setListaDepatamente(data);
+        } else
+          throw new Error("Problema la fetch departamente in modal profesor");
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    getDepartamente();
+  }, []);
+
   const handleAddDepartment = () => {
     const deptId = selectedDeptId[0];
     const roleVal = selectedRole[0];
 
     if (!deptId) return;
 
-    // Căutăm în items-ul original, nu în colecție direct
     const deptObj = departmentsCollection.items.find((d) => d.value === deptId);
 
-    const alreadyExists = assignedDepartments.find(
-      (d) => d.id === parseInt(deptId)
-    );
+    const alreadyExists = idDepartamente.find((d) => d.id === parseInt(deptId));
     if (alreadyExists) {
       alert("Acest departament este deja adăugat!");
       return;
@@ -78,25 +90,24 @@ const ProfesorModal = ({ isOpen, onClose }) => {
       nume: deptObj.label,
       rol: roleVal,
     };
+    const departament = {
+      id: newAssignment.id,
+      rolDepartament: newAssignment.rol,
+    };
 
-    setAssignedDepartments([...assignedDepartments, newAssignment]);
+    setDepartamente([...departamente, departament]);
+
+    setIdDepartamente([...idDepartamente, newAssignment]);
     setSelectedDeptId([]);
-    setSelectedRole(["MEMBRU"]);
+    setSelectedRole(["Membru"]);
   };
 
   const handleRemoveDepartment = (idToRemove) => {
-    setAssignedDepartments(
-      assignedDepartments.filter((d) => d.id !== idToRemove)
-    );
+    setIdDepartamente(idDepartamente.filter((d) => d.id !== idToRemove));
   };
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSave = () => {
-    console.log("Saving:", { ...formData, assignedDepartments });
-    onClose();
   };
 
   if (!isOpen) return null;
@@ -184,10 +195,8 @@ const ProfesorModal = ({ isOpen, onClose }) => {
             </Button>
           </Box>
 
-          {/* BODY */}
           <Box flex="1" overflowY="auto" p="6">
             <Stack spacing="6">
-              {/* INFO PERSONALE */}
               <Box>
                 <Flex align="center" gap="2" color="blue.300" mb="4">
                   <Icon as={FiUser} />
@@ -234,7 +243,6 @@ const ProfesorModal = ({ isOpen, onClose }) => {
 
               <Box h="1px" bg="whiteAlpha.100" />
 
-              {/* ZONA SELECT-uri CHAKRA V3 */}
               <Box>
                 <Flex align="center" gap="2" color="purple.300" mb="4">
                   <Icon as={FiLayers} />
@@ -313,7 +321,6 @@ const ProfesorModal = ({ isOpen, onClose }) => {
                       </Select.Root>
                     </Box>
 
-                    {/* --- SELECT ROL --- */}
                     <Box>
                       <Text color="gray.400" fontSize="xs" mb="1">
                         ROL
@@ -386,7 +393,7 @@ const ProfesorModal = ({ isOpen, onClose }) => {
 
                 {/* LISTA DEPARTAMENTE */}
                 <Stack mt="4" spacing="2">
-                  {assignedDepartments.map((dept) => (
+                  {idDepartamente.map((dept) => (
                     <Flex
                       key={dept.id}
                       bg="whiteAlpha.100"
@@ -430,7 +437,7 @@ const ProfesorModal = ({ isOpen, onClose }) => {
               Anulează
             </Button>
             <Button
-              onClick={handleSave}
+              onClick={onSave}
               bg="blue.600"
               color="white"
               _hover={{ bg: "blue.500" }}
