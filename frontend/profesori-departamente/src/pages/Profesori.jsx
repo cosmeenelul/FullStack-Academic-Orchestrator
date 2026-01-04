@@ -28,12 +28,14 @@ import ProfesorDetailsModal from "@/components/ProfesorDetailsProfile";
 import ProfesorModal from "@/components/ProfesorModal";
 import EditProfesorModal from "@/components/EditProfesorModal";
 import DeleteConfirmationModal from "@/components/DeleteConfirmationModal";
+import SuccessFeedback from "@/components/SuccessFeedback";
+import ErrorFeedback from "@/components/ErrorFeedback";
 // Putem importa componentele de Modal create anterior dacă vrei să le refolosești
 // import DeleteConfirmationModal from "@/components/DeleteConfirmationModal";
 
 const Profesori = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [isCreateModalOpen, setIsCreateProfileModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [formData, setFormData] = useState({
@@ -61,6 +63,10 @@ const Profesori = () => {
     departamente: [{ id: null, nume: "", rolDepartament: "" }],
   });
   const [depts, setDepts] = useState([]);
+  const [successFeedback, setSuccessFeedback] = useState(false);
+  const [errorFeedback, setErrorFeedback] = useState(false);
+  const [totalSaves, setTotalSaves] = useState(0);
+  const [mesajEroare, setMesajEroare] = useState("");
   useEffect(() => {
     async function getProfesori() {
       try {
@@ -92,7 +98,7 @@ const Profesori = () => {
     }
 
     getProfesori();
-  }, []);
+  }, [totalSaves]);
 
   async function getProfesorById(idProfesor) {
     try {
@@ -104,6 +110,30 @@ const Profesori = () => {
       else throw new Error(data.message);
     } catch (error) {
       console.log(error);
+      setMesajEroare(error);
+      setErrorFeedback(true);
+    }
+  }
+
+  async function saveProfesor(payload) {
+    try {
+      const res = await fetch("http://localhost:8080/profesori", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setSuccessFeedback(true);
+        setTotalSaves((item) => item + 1);
+        console.log(data);
+      } else {
+        throw new Error(data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      setErrorFeedback(true);
+      setIsCreateModalOpen();
     }
   }
   const handleSave = () => {
@@ -113,11 +143,11 @@ const Profesori = () => {
       departamente[dept.id] = dept.rolDepartament;
     });
 
-    // console.log("Saving:", { ...formData, idDepartamente });
     const payload = { ...formData, departamente };
-    console.log(payload);
-    setIsCreateProfileModalOpen(false);
+    saveProfesor(payload);
+    setIsCreateModalOpen(false);
   };
+
   return (
     <Box w="100%" minH="100vh" position="relative">
       <Flex justify="space-between" align="flex-end" mb="8" wrap="wrap" gap="4">
@@ -160,7 +190,7 @@ const Profesori = () => {
             borderRadius="xl"
             boxShadow="0 0 15px rgba(49, 130, 206, 0.5)"
             leftIcon={<FiPlus />}
-            onClick={() => setIsCreateProfileModalOpen(true)}
+            onClick={() => setIsCreateModalOpen(true)}
           >
             Adaugă Profesor
           </Button>
@@ -347,7 +377,7 @@ const Profesori = () => {
           isOpen={isCreateModalOpen}
           departamente={depts}
           setDepartamente={setDepts}
-          onClose={() => setIsCreateProfileModalOpen(false)}
+          onClose={() => setIsCreateModalOpen(false)}
         />
       )}
       {isEditModalOpen && (
@@ -370,6 +400,23 @@ const Profesori = () => {
           atentie={
             "Această acțiune va șterge profesorul din baza de date, această acțiune este ireversibila !"
           }
+        />
+      )}
+      {successFeedback && (
+        <SuccessFeedback
+          onClose={() => setSuccessFeedback(false)}
+          message="Modificările au fost realizate cu succes!"
+        />
+      )}
+      {errorFeedback && (
+        <ErrorFeedback
+          message={mesajEroare}
+          onClose={() => setErrorFeedback(false)}
+          // onRetry={() => {
+          //   setErrorFeedback(false);
+          //   if (tipOperatiune == "ADD") setIsModalOpen(true);
+          //   else setIsModalEditOpen(true);
+          // }}
         />
       )}
     </Box>
