@@ -30,20 +30,23 @@ import EditProfesorModal from "@/components/EditProfesorModal";
 import DeleteConfirmationModal from "@/components/DeleteConfirmationModal";
 import SuccessFeedback from "@/components/SuccessFeedback";
 import ErrorFeedback from "@/components/ErrorFeedback";
-// Putem importa componentele de Modal create anterior dacă vrei să le refolosești
-// import DeleteConfirmationModal from "@/components/DeleteConfirmationModal";
 
 const Profesori = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
   const [formData, setFormData] = useState({
     nume: "",
     prenume: "",
     email: "",
     telefon: "",
   });
+
+  // State pentru ID-ul profesorului editat
+  const [currentEditId, setCurrentEditId] = useState(null);
+
   const [listaProfesori, setListaProfesori] = useState([
     {
       id: null,
@@ -68,6 +71,7 @@ const Profesori = () => {
   const [totalSaves, setTotalSaves] = useState(0);
   const [mesajEroare, setMesajEroare] = useState("");
   const [tipOperatiune, setTipOperatiune] = useState(null);
+
   useEffect(() => {
     async function getProfesori() {
       try {
@@ -81,6 +85,7 @@ const Profesori = () => {
           telefon: prof.telefon,
           departamente: prof.departamente
             ? prof.departamente.map((d) => ({
+                id: d.departament?.id, // Important pentru Edit (id real al dept)
                 nume: d.departament?.nume || "N/A",
                 rolDepartament: d.rolDepartament || "Membru",
               }))
@@ -133,27 +138,91 @@ const Profesori = () => {
           email: "",
           telefon: "",
         });
-        console.log(data);
+        setDepts([]); // Resetam departamentele
       } else {
         throw new Error(data.message);
       }
     } catch (error) {
       console.log(error.message);
       setErrorFeedback(true);
-      setIsCreateModalOpen();
       setMesajEroare(error.message);
     }
   }
-  const handleSave = () => {
-    const departamente = {};
 
+  async function editProfesor(payload) {
+    setTipOperatiune("EDIT");
+    try {
+      const res = await fetch(
+        `http://localhost:8080/profesori/${currentEditId}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }
+      );
+      const data = await res.json();
+      if (res.ok) {
+        setSuccessFeedback(true);
+        setTotalSaves((item) => item + 1);
+        setFormData({
+          nume: "",
+          prenume: "",
+          email: "",
+          telefon: "",
+        });
+        setDepts([]);
+        setCurrentEditId(null);
+      } else {
+        throw new Error(data.message);
+      }
+    } catch (error) {
+      console.log(error.message);
+      setErrorFeedback(true);
+      setMesajEroare(error.message);
+    }
+  }
+
+  function handleSave() {
+    const departamenteMap = {};
     depts.forEach((dept) => {
-      departamente[dept.id] = dept.rolDepartament;
+      departamenteMap[dept.id] = dept.rolDepartament;
     });
 
-    const payload = { ...formData, departamente };
+    const payload = { ...formData, departamente: departamenteMap };
     saveProfesor(payload);
     setIsCreateModalOpen(false);
+  }
+
+  const handleEditSave = () => {
+    const departamenteMap = {};
+    depts.forEach((dept) => {
+      if (dept.id) {
+        if (dept.rolDepartament === "Director") {
+          return;
+        }
+        departamenteMap[dept.id] = dept.rolDepartament;
+      }
+    });
+
+    const payload = { ...formData, departamente: departamenteMap };
+    console.log("Payload trimis la PUT (fără directori):", payload);
+    editProfesor(payload);
+    setIsEditModalOpen(false);
+  };
+
+  const handleEditClick = (prof) => {
+    setCurrentEditId(prof.id);
+
+    setFormData({
+      nume: prof.nume,
+      prenume: prof.prenume,
+      email: prof.email,
+      telefon: prof.telefon,
+    });
+
+    setDepts(prof.departamente ? [...prof.departamente] : []);
+
+    setIsEditModalOpen(true);
   };
 
   return (
@@ -198,7 +267,11 @@ const Profesori = () => {
             borderRadius="xl"
             boxShadow="0 0 15px rgba(49, 130, 206, 0.5)"
             leftIcon={<FiPlus />}
-            onClick={() => setIsCreateModalOpen(true)}
+            onClick={() => {
+              setFormData({ nume: "", prenume: "", email: "", telefon: "" });
+              setDepts([]);
+              setIsCreateModalOpen(true);
+            }}
           >
             Adaugă Profesor
           </Button>
@@ -261,8 +334,8 @@ const Profesori = () => {
                       gradientTo="purple.600"
                     >
                       <Avatar.Fallback color="white" fontWeight="bold">
-                        {prof.nume[0]}
-                        {prof.prenume[0]}
+                        {prof.nume?.[0]}
+                        {prof.prenume?.[0]}
                       </Avatar.Fallback>
                     </Avatar.Root>
                     <Box>
@@ -344,7 +417,7 @@ const Profesori = () => {
                       <FiMoreHorizontal />
                     </IconButton>
                     <IconButton
-                      onClick={() => setIsEditModalOpen(true)}
+                      onClick={() => handleEditClick(prof)}
                       aria-label="Edit"
                       variant="ghost"
                       color="yellow.400"
@@ -396,12 +469,23 @@ const Profesori = () => {
           }}
         />
       )}
+
       {isEditModalOpen && (
         <EditProfesorModal
           isOpen={isEditModalOpen}
-          onClose={() => setIsEditModalOpen(false)}
+          onClose={() => {
+            setIsEditModalOpen(false);
+            setFormData({ nume: "", prenume: "", email: "", telefon: "" });
+            setDepts([]);
+          }}
+          formData={formData}
+          setFormData={setFormData}
+          onSave={handleEditSave}
+          departamente={depts}
+          setDepartamente={setDepts}
         />
       )}
+
       {isDeleteModalOpen && (
         <DeleteConfirmationModal
           isOpen={isDeleteModalOpen}

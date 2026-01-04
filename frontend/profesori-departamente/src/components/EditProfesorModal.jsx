@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   Box,
   Flex,
@@ -19,6 +19,7 @@ import {
   FiUser,
   FiLayers,
   FiChevronDown,
+  FiAlertCircle, // Import iconita eroare
 } from "react-icons/fi";
 
 const EditProfesorModal = ({
@@ -27,60 +28,71 @@ const EditProfesorModal = ({
   formData,
   setFormData,
   onSave,
-  departamente,
-  setDepartamente,
+  departamente, // Lista departamentelor asignate (state din parinte)
+  setDepartamente, // Setter pentru departamente asignate
 }) => {
-  const departmentsCollection = createListCollection({
-    items: [
-      { label: "Ingineria Sistemelor", value: "101" },
-      { label: "Automatică și Calculatoare", value: "102" },
-      { label: "Electronică Aplicată", value: "103" },
-      { label: "Telecomunicații", value: "104" },
-      { label: "Fizică", value: "105" },
-    ],
-  });
+  const [listaDepartamente, setListaDepatamente] = useState([]);
 
-  // Colecția pentru ROL (Doar Membru, conform cerinței)
-  const rolesCollection = createListCollection({
-    items: [{ label: "Membru", value: "MEMBRU" }],
-  });
+  // --- 1. STATE PENTRU ERORI (Logica adaugata) ---
+  const [errors, setErrors] = useState({});
 
-  // --- 2. STATE-URI ---
-  const [formData, setFormData] = useState({
-    nume: "",
-    prenume: "",
-    email: "",
-    telefon: "",
-  });
+  // State local pentru ID departamente (pentru afisare in lista din modal)
+  // Nota: In ProfesorModal exista distinctia intre idDepartamente (local) si departamente (prop).
+  // Aici vom sincroniza prop-ul 'departamente' cu afisarea.
 
-  const [assignedDepartments, setAssignedDepartments] = useState([]);
-
-  // State-uri pentru Select (Array pentru Chakra v3)
   const [selectedDeptId, setSelectedDeptId] = useState([]);
+  // Rolul este fix "Membru" conform cerintei
   const [selectedRole, setSelectedRole] = useState(["Membru"]);
 
-  // --- 3. POPULARE DATE ---
-  useEffect(() => {
-    if (isOpen && profesor) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setFormData({
-        nume: profesor.nume || "",
-        prenume: profesor.prenume || "",
-        email: profesor.email || "",
-        telefon: profesor.telefon || "",
-      });
-      setAssignedDepartments(profesor.departamente || []);
-    }
-  }, [isOpen, profesor]);
+  const departmentsCollection = useMemo(() => {
+    return createListCollection({
+      items: listaDepartamente.map((dept) => ({
+        label: dept.nume,
+        value: dept.id,
+      })),
+    });
+  }, [listaDepartamente]);
 
-  // --- 4. HANDLERS ---
+  const rolesCollection = createListCollection({
+    items: [{ label: "Membru", value: "Membru" }],
+  });
+
+  // Fetch lista tuturor departamentelor disponibile pentru dropdown
+  useEffect(() => {
+    async function getDepartamente() {
+      try {
+        const res = await fetch("http://localhost:8080/departamente");
+        const data = await res.json();
+        if (res.ok) {
+          setListaDepatamente(data);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    getDepartamente();
+  }, []);
+
+  // Resetare erori la deschidere
+  useEffect(() => {
+    if (isOpen) {
+      setErrors({});
+    }
+  }, [isOpen]);
+
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+
+    // Sterge eroarea cand utilizatorul scrie
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: false }));
+    }
   };
 
   const handleAddDepartment = () => {
     const deptIdVal = selectedDeptId[0];
-    const roleVal = selectedRole[0];
+    const roleVal = "Membru";
 
     if (!deptIdVal) return;
 
@@ -88,7 +100,8 @@ const EditProfesorModal = ({
       (d) => d.value === deptIdVal
     );
 
-    const alreadyExists = assignedDepartments.find(
+    // Verificam daca exista deja in lista primita ca prop
+    const alreadyExists = departamente.find(
       (d) => d.id === parseInt(deptIdVal)
     );
 
@@ -100,28 +113,44 @@ const EditProfesorModal = ({
     const newAssignment = {
       id: parseInt(deptObj.value),
       nume: deptObj.label,
-      rol: roleVal,
+      rolDepartament: roleVal, // Folosim aceeasi cheie ca in ProfesorModal
     };
 
-    setAssignedDepartments([...assignedDepartments, newAssignment]);
+    // Actualizam prop-ul din parinte
+    setDepartamente([...departamente, newAssignment]);
     setSelectedDeptId([]);
   };
 
   const handleRemoveDepartment = (idToRemove) => {
-    setAssignedDepartments(
-      assignedDepartments.filter((d) => d.id !== idToRemove)
-    );
+    setDepartamente(departamente.filter((d) => d.id !== idToRemove));
   };
 
   const handleSaveClick = () => {
-    const updatedData = {
-      id: profesor?.id,
-      ...formData,
-      departamente: assignedDepartments,
-    };
-    console.log("Saving Edit Data:", updatedData);
-    onSave(updatedData);
-    onClose();
+    const newErrors = {};
+    let isValid = true;
+
+    if (!formData.prenume?.trim()) {
+      newErrors.prenume = true;
+      isValid = false;
+    }
+    if (!formData.nume?.trim()) {
+      newErrors.nume = true;
+      isValid = false;
+    }
+    if (!formData.email?.trim()) {
+      newErrors.email = true;
+      isValid = false;
+    }
+    if (!formData.telefon?.trim()) {
+      newErrors.telefon = true;
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+
+    if (isValid) {
+      onSave(); // Apelam functia de salvare din parinte daca totul e ok
+    }
   };
 
   if (!isOpen) return null;
@@ -228,9 +257,11 @@ const EditProfesorModal = ({
                     onChange={handleChange}
                     placeholder="Prenume"
                     color="white"
-                    borderColor="whiteAlpha.200"
                     bg="whiteAlpha.50"
-                    _focus={{ borderColor: "orange.400" }}
+                    borderColor={errors.prenume ? "red.500" : "whiteAlpha.200"}
+                    _focus={{
+                      borderColor: errors.prenume ? "red.500" : "orange.400",
+                    }}
                   />
                   <Input
                     name="nume"
@@ -238,9 +269,11 @@ const EditProfesorModal = ({
                     onChange={handleChange}
                     placeholder="Nume"
                     color="white"
-                    borderColor="whiteAlpha.200"
                     bg="whiteAlpha.50"
-                    _focus={{ borderColor: "orange.400" }}
+                    borderColor={errors.nume ? "red.500" : "whiteAlpha.200"}
+                    _focus={{
+                      borderColor: errors.nume ? "red.500" : "orange.400",
+                    }}
                   />
                   <Input
                     name="email"
@@ -248,9 +281,11 @@ const EditProfesorModal = ({
                     onChange={handleChange}
                     placeholder="Email"
                     color="white"
-                    borderColor="whiteAlpha.200"
                     bg="whiteAlpha.50"
-                    _focus={{ borderColor: "orange.400" }}
+                    borderColor={errors.email ? "red.500" : "whiteAlpha.200"}
+                    _focus={{
+                      borderColor: errors.email ? "red.500" : "orange.400",
+                    }}
                   />
                   <Input
                     name="telefon"
@@ -258,9 +293,11 @@ const EditProfesorModal = ({
                     onChange={handleChange}
                     placeholder="Telefon"
                     color="white"
-                    borderColor="whiteAlpha.200"
                     bg="whiteAlpha.50"
-                    _focus={{ borderColor: "orange.400" }}
+                    borderColor={errors.telefon ? "red.500" : "whiteAlpha.200"}
+                    _focus={{
+                      borderColor: errors.telefon ? "red.500" : "orange.400",
+                    }}
                   />
                 </Grid>
               </Box>
@@ -288,7 +325,7 @@ const EditProfesorModal = ({
                     gap="3"
                     alignItems="end"
                   >
-                    {/* --- SELECT DEPARTAMENT (Cu Force Bottom) --- */}
+                    {/* --- SELECT DEPARTAMENT --- */}
                     <Box>
                       <Text color="gray.400" fontSize="xs" mb="1">
                         DEPARTAMENT
@@ -328,7 +365,7 @@ const EditProfesorModal = ({
                             borderRadius="md"
                             p="2"
                             zIndex={10000}
-                            width="var(--reference-width)"
+                            w="100%"
                           >
                             {departmentsCollection.items.map((dept) => (
                               <Select.Item
@@ -397,7 +434,7 @@ const EditProfesorModal = ({
 
                 {/* LISTA DEPARTAMENTE */}
                 <Stack mt="4" spacing="2">
-                  {assignedDepartments.map((dept, idx) => (
+                  {departamente.map((dept, idx) => (
                     <Flex
                       key={dept.id || idx}
                       bg="whiteAlpha.100"
@@ -413,7 +450,8 @@ const EditProfesorModal = ({
                           {dept.nume}
                         </Text>
                         <Text color="gray.400" fontSize="xs">
-                          {dept.rol}
+                          {dept.rolDepartament}{" "}
+                          {/* Am unificat cheia cu cea din ProfesorModal */}
                         </Text>
                       </Box>
 
@@ -435,8 +473,24 @@ const EditProfesorModal = ({
             </Stack>
           </Box>
 
-          {/* FOOTER */}
-          <Flex p="4" bg="blackAlpha.300" justify="flex-end" gap="3">
+          {/* FOOTER CU VALIDARE MESAJ */}
+          <Flex
+            p="4"
+            bg="blackAlpha.300"
+            justify="flex-end"
+            gap="3"
+            align="center"
+          >
+            {/* Mesaj de eroare similar cu ProfesorModal */}
+            {Object.keys(errors).length > 0 && (
+              <Flex align="center" gap="2" color="red.400" mr="auto">
+                <Icon as={FiAlertCircle} />
+                <Text fontSize="xs" fontWeight="bold">
+                  Completează toate câmpurile!
+                </Text>
+              </Flex>
+            )}
+
             <Button onClick={onClose} variant="ghost" color="gray.400">
               Anulează
             </Button>
