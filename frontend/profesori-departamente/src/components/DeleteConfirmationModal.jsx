@@ -15,7 +15,7 @@ const DeleteConfirmationModal = ({
 
   return (
     <>
-      {/* Reutilizăm aceleași animații pentru consistență */}
+     
       <style>
         {`
           @keyframes fadeIn {
@@ -50,12 +50,12 @@ const DeleteConfirmationModal = ({
         onClick={onClose}
       >
         <Box
-          bg="#1a202c" // Darker background
+          bg="#1a202c"
           w="450px"
           maxW="90%"
           borderRadius="xl"
           border="1px solid"
-          borderColor="red.900" // Bordură roșie subtilă
+          borderColor="red.900"
           boxShadow="0 0 40px rgba(229, 62, 62, 0.2)"
           p="8"
           textAlign="center"
@@ -63,7 +63,6 @@ const DeleteConfirmationModal = ({
           onClick={(e) => e.stopPropagation()}
           animation="popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards"
         >
-          {/* Iconița de Warning animată */}
           <Flex justify="center" align="center" mb="6">
             <Box
               p="4"

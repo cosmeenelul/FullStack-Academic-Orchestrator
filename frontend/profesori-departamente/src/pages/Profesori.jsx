@@ -13,6 +13,7 @@ import {
   Stack,
   HStack,
   Icon,
+  Spinner,
 } from "@chakra-ui/react";
 import {
   FiPlus,
@@ -30,13 +31,12 @@ import EditProfesorModal from "@/components/EditProfesorModal";
 import DeleteConfirmationModal from "@/components/DeleteConfirmationModal";
 import SuccessFeedback from "@/components/SuccessFeedback";
 import ErrorFeedback from "@/components/ErrorFeedback";
-
 const Profesori = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-
+  const [numeProfesorDelete, setNumeProfesorDelete] = useState("");
   const [formData, setFormData] = useState({
     nume: "",
     prenume: "",
@@ -71,9 +71,11 @@ const Profesori = () => {
   const [totalSaves, setTotalSaves] = useState(0);
   const [mesajEroare, setMesajEroare] = useState("");
   const [tipOperatiune, setTipOperatiune] = useState(null);
-
+  const [spinnerOpen, setSpinnerOpen] = useState(false);
+  const [idDelete, setIdDelete] = useState(null);
   useEffect(() => {
     async function getProfesori() {
+      setSpinnerOpen(true);
       try {
         const res = await fetch("http://localhost:8080/profesori");
         const data = await res.json();
@@ -100,6 +102,8 @@ const Profesori = () => {
         }
       } catch (error) {
         console.log(error);
+      } finally {
+        setSpinnerOpen(false);
       }
     }
 
@@ -225,6 +229,24 @@ const Profesori = () => {
     setIsEditModalOpen(true);
   };
 
+  async function deleteById(id) {
+    try {
+      const res = await fetch(`http://localhost:8080/profesori/${id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (res.ok) {
+        console.log(data);
+        console.log("Succes la stergere");
+        setSuccessFeedback(true);
+      } else {
+        throw new Error(data.message);
+      }
+    } catch (error) {
+      setErrorFeedback(true);
+      setMesajEroare(error.message);
+    }
+  }
   return (
     <Box w="100%" minH="100vh" position="relative">
       <Flex justify="space-between" align="flex-end" mb="8" wrap="wrap" gap="4">
@@ -277,172 +299,193 @@ const Profesori = () => {
           </Button>
         </Flex>
       </Flex>
-
-      <Box
-        bg="rgba(13, 16, 30, 0.7)"
-        backdropFilter="blur(12px)"
-        border="1px solid"
-        borderColor="whiteAlpha.100"
-        borderRadius="2xl"
-        boxShadow="xl"
-        p="0"
-        overflow="hidden"
-      >
-        <Table.Root variant="simple" size="md">
-          <Table.Header bg="rgba(0, 0, 0, 0.3)">
-            <Table.Row borderColor="whiteAlpha.100">
-              <Table.ColumnHeader
-                color="blue.300"
-                fontWeight="bold"
-                py="6"
-                pl="8"
-              >
-                PROFESOR
-              </Table.ColumnHeader>
-              <Table.ColumnHeader color="blue.300" fontWeight="bold" py="6">
-                CONTACT
-              </Table.ColumnHeader>
-              <Table.ColumnHeader color="blue.300" fontWeight="bold" py="6">
-                DEPARTAMENTE & ROLURI
-              </Table.ColumnHeader>
-              <Table.ColumnHeader
-                textAlign="right"
-                color="blue.300"
-                py="6"
-                pr="8"
-              >
-                ACȚIUNI
-              </Table.ColumnHeader>
-            </Table.Row>
-          </Table.Header>
-
-          <Table.Body>
-            {listaProfesori.map((prof, profIdx) => (
-              <Table.Row
-                key={prof.id || `prof-${profIdx}`}
-                _hover={{ bg: "whiteAlpha.50" }}
-                transition="0.2s"
-                borderColor="whiteAlpha.50"
-              >
-                <Table.Cell pl="8" py="5">
-                  <HStack gap="4">
-                    <Avatar.Root
-                      size="xl"
-                      variant="solid"
-                      bgGradient="to-br"
-                      gradientFrom="blue.500"
-                      gradientTo="purple.600"
-                    >
-                      <Avatar.Fallback color="white" fontWeight="bold">
-                        {prof.nume?.[0]}
-                        {prof.prenume?.[0]}
-                      </Avatar.Fallback>
-                    </Avatar.Root>
-                    <Box>
-                      <Text fontWeight="bold" color="white" fontSize="md">
-                        {prof.nume} {prof.prenume}
-                      </Text>
-                      <Text fontSize="xs" color="gray.400" mt="-1">
-                        ID: #{prof.id}
-                      </Text>
-                    </Box>
-                  </HStack>
-                </Table.Cell>
-
-                <Table.Cell py="5">
-                  <Stack gap="1">
-                    <Flex align="center" gap="2" color="gray.300">
-                      <Icon as={FiMail} color="blue.400" boxSize="3.5" />
-                      <Text fontSize="sm">{prof.email}</Text>
-                    </Flex>
-                    <Flex align="center" gap="2" color="gray.400">
-                      <Icon as={FiPhone} color="green.400" boxSize="3.5" />
-                      <Text fontSize="xs">{prof.telefon}</Text>
-                    </Flex>
-                  </Stack>
-                </Table.Cell>
-
-                <Table.Cell py="5">
-                  <Flex wrap="wrap" gap="2" maxW="350px">
-                    {prof.departamente.map((dept, deptIdx) => (
-                      <Badge
-                        key={dept.id || `prof-dept-${deptIdx}`}
-                        colorPalette={
-                          dept.rolDepartament === "Director" ? "purple" : "blue"
-                        }
-                        variant={
-                          dept.rolDepartament === "Director"
-                            ? "solid"
-                            : "subtle"
-                        }
-                        borderRadius="full"
-                        px="3"
-                        py="1"
-                        textTransform="none"
-                        display="flex"
-                        alignItems="center"
-                        gap="1.5"
-                      >
-                        {dept.rolDepartament === "Director" && (
-                          <Icon as={FiAward} />
-                        )}
-                        {dept.nume}
-                        <Text
-                          as="span"
-                          opacity="0.8"
-                          ml="1"
-                          fontWeight="normal"
-                        >
-                          | {dept.rolDepartament}
-                        </Text>
-                      </Badge>
-                    ))}
-                  </Flex>
-                </Table.Cell>
-
-                <Table.Cell textAlign="right" pr="8" py="5">
-                  <HStack justify="flex-end" gap="1">
-                    <IconButton
-                      onClick={() => {
-                        setIsProfileOpen(true);
-                        getProfesorById(prof.id);
-                        setCurrentProfesorDetails(prof);
-                      }}
-                      aria-label="More"
-                      variant="ghost"
-                      color="blue.200"
-                      size="sm"
-                      _hover={{ bg: "blue.900", color: "white" }}
-                    >
-                      <FiMoreHorizontal />
-                    </IconButton>
-                    <IconButton
-                      onClick={() => handleEditClick(prof)}
-                      aria-label="Edit"
-                      variant="ghost"
-                      color="yellow.400"
-                      size="sm"
-                      _hover={{ bg: "yellow.900", color: "yellow.200" }}
-                    >
-                      <FiEdit2 />
-                    </IconButton>
-                    <IconButton
-                      onClick={() => setIsDeleteModalOpen(true)}
-                      aria-label="Delete"
-                      variant="ghost"
-                      color="red.400"
-                      size="sm"
-                      _hover={{ bg: "red.900", color: "red.200" }}
-                    >
-                      <FiTrash2 />
-                    </IconButton>
-                  </HStack>
-                </Table.Cell>
+      {spinnerOpen ? (
+        <Flex justify="center" align="center" minH="400px" w="100%">
+          <Stack align="center" gap="4">
+            <Spinner
+              size="xl"
+              thickness="4px"
+              speed="0.65s"
+              emptyColor="whiteAlpha.200"
+              color="blue.500"
+            />
+            <Text color="blue.300" fontWeight="medium">
+              Loading...
+            </Text>
+          </Stack>
+        </Flex>
+      ) : (
+        <Box
+          bg="rgba(13, 16, 30, 0.7)"
+          backdropFilter="blur(12px)"
+          border="1px solid"
+          borderColor="whiteAlpha.100"
+          borderRadius="2xl"
+          boxShadow="xl"
+          p="0"
+          overflow="hidden"
+        >
+          <Table.Root variant="simple" size="md">
+            <Table.Header bg="rgba(0, 0, 0, 0.3)">
+              <Table.Row borderColor="whiteAlpha.100">
+                <Table.ColumnHeader
+                  color="blue.300"
+                  fontWeight="bold"
+                  py="6"
+                  pl="8"
+                >
+                  PROFESOR
+                </Table.ColumnHeader>
+                <Table.ColumnHeader color="blue.300" fontWeight="bold" py="6">
+                  CONTACT
+                </Table.ColumnHeader>
+                <Table.ColumnHeader color="blue.300" fontWeight="bold" py="6">
+                  DEPARTAMENTE & ROLURI
+                </Table.ColumnHeader>
+                <Table.ColumnHeader
+                  textAlign="right"
+                  color="blue.300"
+                  py="6"
+                  pr="8"
+                >
+                  ACȚIUNI
+                </Table.ColumnHeader>
               </Table.Row>
-            ))}
-          </Table.Body>
-        </Table.Root>
-      </Box>
+            </Table.Header>
+
+            <Table.Body>
+              {listaProfesori.map((prof, profIdx) => (
+                <Table.Row
+                  key={prof.id || `prof-${profIdx}`}
+                  _hover={{ bg: "whiteAlpha.50" }}
+                  transition="0.2s"
+                  borderColor="whiteAlpha.50"
+                >
+                  <Table.Cell pl="8" py="5">
+                    <HStack gap="4">
+                      <Avatar.Root
+                        size="xl"
+                        variant="solid"
+                        bgGradient="to-br"
+                        gradientFrom="blue.500"
+                        gradientTo="purple.600"
+                      >
+                        <Avatar.Fallback color="white" fontWeight="bold">
+                          {prof.nume?.[0]}
+                          {prof.prenume?.[0]}
+                        </Avatar.Fallback>
+                      </Avatar.Root>
+                      <Box>
+                        <Text fontWeight="bold" color="white" fontSize="md">
+                          {prof.nume} {prof.prenume}
+                        </Text>
+                        <Text fontSize="xs" color="gray.400" mt="-1">
+                          ID: #{prof.id}
+                        </Text>
+                      </Box>
+                    </HStack>
+                  </Table.Cell>
+
+                  <Table.Cell py="5">
+                    <Stack gap="1">
+                      <Flex align="center" gap="2" color="gray.300">
+                        <Icon as={FiMail} color="blue.400" boxSize="3.5" />
+                        <Text fontSize="sm">{prof.email}</Text>
+                      </Flex>
+                      <Flex align="center" gap="2" color="gray.400">
+                        <Icon as={FiPhone} color="green.400" boxSize="3.5" />
+                        <Text fontSize="xs">{prof.telefon}</Text>
+                      </Flex>
+                    </Stack>
+                  </Table.Cell>
+
+                  <Table.Cell py="5">
+                    <Flex wrap="wrap" gap="2" maxW="350px">
+                      {prof.departamente.map((dept, deptIdx) => (
+                        <Badge
+                          key={dept.id || `prof-dept-${deptIdx}`}
+                          colorPalette={
+                            dept.rolDepartament === "Director"
+                              ? "purple"
+                              : "blue"
+                          }
+                          variant={
+                            dept.rolDepartament === "Director"
+                              ? "solid"
+                              : "subtle"
+                          }
+                          borderRadius="full"
+                          px="3"
+                          py="1"
+                          textTransform="none"
+                          display="flex"
+                          alignItems="center"
+                          gap="1.5"
+                        >
+                          {dept.rolDepartament === "Director" && (
+                            <Icon as={FiAward} />
+                          )}
+                          {dept.nume}
+                          <Text
+                            as="span"
+                            opacity="0.8"
+                            ml="1"
+                            fontWeight="normal"
+                          >
+                            | {dept.rolDepartament}
+                          </Text>
+                        </Badge>
+                      ))}
+                    </Flex>
+                  </Table.Cell>
+
+                  <Table.Cell textAlign="right" pr="8" py="5">
+                    <HStack justify="flex-end" gap="1">
+                      <IconButton
+                        onClick={() => {
+                          setIsProfileOpen(true);
+                          getProfesorById(prof.id);
+                          setCurrentProfesorDetails(prof);
+                        }}
+                        aria-label="More"
+                        variant="ghost"
+                        color="blue.200"
+                        size="sm"
+                        _hover={{ bg: "blue.900", color: "white" }}
+                      >
+                        <FiMoreHorizontal />
+                      </IconButton>
+                      <IconButton
+                        onClick={() => handleEditClick(prof)}
+                        aria-label="Edit"
+                        variant="ghost"
+                        color="yellow.400"
+                        size="sm"
+                        _hover={{ bg: "yellow.900", color: "yellow.200" }}
+                      >
+                        <FiEdit2 />
+                      </IconButton>
+                      <IconButton
+                        onClick={() => {
+                          setIsDeleteModalOpen(true);
+                          setIdDelete(prof.id);
+                        }}
+                        aria-label="Delete"
+                        variant="ghost"
+                        color="red.400"
+                        size="sm"
+                        _hover={{ bg: "red.900", color: "red.200" }}
+                      >
+                        <FiTrash2 />
+                      </IconButton>
+                    </HStack>
+                  </Table.Cell>
+                </Table.Row>
+              ))}
+            </Table.Body>
+          </Table.Root>
+        </Box>
+      )}
       {isProfileOpen && (
         <ProfesorDetailsModal
           isOpen={isProfileOpen}
@@ -491,7 +534,7 @@ const Profesori = () => {
           isOpen={isDeleteModalOpen}
           onClose={() => setIsDeleteModalOpen(false)}
           onConfirm={() => {
-            DeleteConfirm();
+            deleteById(idDelete);
             setIsDeleteModalOpen(false);
           }}
           departmentName={"Nume Profesor"}
@@ -521,9 +564,6 @@ const Profesori = () => {
       )}
     </Box>
   );
-  function DeleteConfirm() {
-    console.log("Sters profesor");
-  }
 };
 
 export default Profesori;
