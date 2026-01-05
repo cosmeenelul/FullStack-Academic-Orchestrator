@@ -24,6 +24,7 @@ import {
   FiMail,
   FiMoreHorizontal,
   FiAward,
+  FiRefreshCw, // Import iconita noua
 } from "react-icons/fi";
 import ProfesorDetailsModal from "@/components/ProfesorDetailsProfile";
 import ProfesorModal from "@/components/ProfesorModal";
@@ -31,11 +32,17 @@ import EditProfesorModal from "@/components/EditProfesorModal";
 import DeleteConfirmationModal from "@/components/DeleteConfirmationModal";
 import SuccessFeedback from "@/components/SuccessFeedback";
 import ErrorFeedback from "@/components/ErrorFeedback";
+// 1. IMPORT MODALUL NOU
+import ChangeDirectorModal from "@/components/ChangeDirectorModal";
+
 const Profesori = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  // 2. STATE PENTRU MODALUL NOU
+  const [isDirectorModalOpen, setIsDirectorModalOpen] = useState(false);
+
   const [numeProfesorDelete, setNumeProfesorDelete] = useState("");
   const [formData, setFormData] = useState({
     nume: "",
@@ -44,27 +51,9 @@ const Profesori = () => {
     telefon: "",
   });
 
-  // State pentru ID-ul profesorului editat
   const [currentEditId, setCurrentEditId] = useState(null);
-
-  const [listaProfesori, setListaProfesori] = useState([
-    {
-      id: null,
-      nume: "",
-      prenume: "",
-      email: "",
-      telefon: "",
-      departamente: [{ id: null, nume: "", rolDepartament: "" }],
-    },
-  ]);
-  const [currentProfesorDetails, setCurrentProfesorDetails] = useState({
-    id: null,
-    nume: "",
-    prenume: "",
-    email: "",
-    telefon: "",
-    departamente: [{ id: null, nume: "", rolDepartament: "" }],
-  });
+  const [listaProfesori, setListaProfesori] = useState([]);
+  const [currentProfesorDetails, setCurrentProfesorDetails] = useState(null);
   const [depts, setDepts] = useState([]);
   const [successFeedback, setSuccessFeedback] = useState(false);
   const [errorFeedback, setErrorFeedback] = useState(false);
@@ -73,6 +62,8 @@ const Profesori = () => {
   const [tipOperatiune, setTipOperatiune] = useState(null);
   const [spinnerOpen, setSpinnerOpen] = useState(false);
   const [idDelete, setIdDelete] = useState(null);
+  const [deleteCounter, setDeleteCounter] = useState(0);
+
   useEffect(() => {
     async function getProfesori() {
       setSpinnerOpen(true);
@@ -87,7 +78,7 @@ const Profesori = () => {
           telefon: prof.telefon,
           departamente: prof.departamente
             ? prof.departamente.map((d) => ({
-                id: d.departament?.id, // Important pentru Edit (id real al dept)
+                id: d.departament?.id,
                 nume: d.departament?.nume || "N/A",
                 rolDepartament: d.rolDepartament || "Membru",
               }))
@@ -95,11 +86,6 @@ const Profesori = () => {
         }));
 
         setListaProfesori(profesoriProcesati);
-        if (res.ok) {
-          console.log(profesoriProcesati);
-        } else {
-          throw new Error(data.message);
-        }
       } catch (error) {
         console.log(error);
       } finally {
@@ -108,8 +94,9 @@ const Profesori = () => {
     }
 
     getProfesori();
-  }, [totalSaves]);
+  }, [totalSaves, deleteCounter]);
 
+  // ... (funcțiile existente getProfesorById, saveProfesor etc. rămân neschimbate) ...
   async function getProfesorById(idProfesor) {
     try {
       const res = await fetch(
@@ -136,13 +123,8 @@ const Profesori = () => {
       if (res.ok) {
         setSuccessFeedback(true);
         setTotalSaves((item) => item + 1);
-        setFormData({
-          nume: "",
-          prenume: "",
-          email: "",
-          telefon: "",
-        });
-        setDepts([]); // Resetam departamentele
+        setFormData({ nume: "", prenume: "", email: "", telefon: "" });
+        setDepts([]);
       } else {
         throw new Error(data.message);
       }
@@ -168,12 +150,7 @@ const Profesori = () => {
       if (res.ok) {
         setSuccessFeedback(true);
         setTotalSaves((item) => item + 1);
-        setFormData({
-          nume: "",
-          prenume: "",
-          email: "",
-          telefon: "",
-        });
+        setFormData({ nume: "", prenume: "", email: "", telefon: "" });
         setDepts([]);
         setCurrentEditId(null);
       } else {
@@ -191,7 +168,6 @@ const Profesori = () => {
     depts.forEach((dept) => {
       departamenteMap[dept.id] = dept.rolDepartament;
     });
-
     const payload = { ...formData, departamente: departamenteMap };
     saveProfesor(payload);
     setIsCreateModalOpen(false);
@@ -201,31 +177,24 @@ const Profesori = () => {
     const departamenteMap = {};
     depts.forEach((dept) => {
       if (dept.id) {
-        if (dept.rolDepartament === "Director") {
-          return;
-        }
+        if (dept.rolDepartament === "Director") return;
         departamenteMap[dept.id] = dept.rolDepartament;
       }
     });
-
     const payload = { ...formData, departamente: departamenteMap };
-    console.log("Payload trimis la PUT (fără directori):", payload);
     editProfesor(payload);
     setIsEditModalOpen(false);
   };
 
   const handleEditClick = (prof) => {
     setCurrentEditId(prof.id);
-
     setFormData({
       nume: prof.nume,
       prenume: prof.prenume,
       email: prof.email,
       telefon: prof.telefon,
     });
-
     setDepts(prof.departamente ? [...prof.departamente] : []);
-
     setIsEditModalOpen(true);
   };
 
@@ -234,12 +203,11 @@ const Profesori = () => {
       const res = await fetch(`http://localhost:8080/profesori/${id}`, {
         method: "DELETE",
       });
-      const data = await res.json();
       if (res.ok) {
-        console.log(data);
-        console.log("Succes la stergere");
         setSuccessFeedback(true);
+        setDeleteCounter((cnt) => cnt + 1);
       } else {
+        const data = await res.json();
         throw new Error(data.message);
       }
     } catch (error) {
@@ -247,6 +215,37 @@ const Profesori = () => {
       setMesajEroare(error.message);
     }
   }
+
+  async function handleChangeDirector(departamentId, profesorId) {
+    try {
+      console.log(
+        `Schimbare director: Dept ${departamentId}, Prof ${profesorId}`
+      );
+
+      // MOCK FETCH - ÎNLOCUIEȘTE URL-UL CU CEL REAL
+      const res = await fetch(
+        `http://localhost:8080/profesor-departament/${departamentId}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ idMembru: profesorId }),
+        }
+      );
+
+      if (res.ok) {
+        setSuccessFeedback(true);
+        setTotalSaves((prev) => prev + 1);
+      } else {
+        const data = await res.json();
+        throw new Error(data.message || "Eroare la schimbarea directorului");
+      }
+    } catch (error) {
+      console.log(error);
+      setMesajEroare(error.message);
+      setErrorFeedback(true);
+    }
+  }
+
   return (
     <Box w="100%" minH="100vh" position="relative">
       <Flex justify="space-between" align="flex-end" mb="8" wrap="wrap" gap="4">
@@ -280,6 +279,25 @@ const Profesori = () => {
             />
           </Box>
 
+          {/* 4. BUTONUL NOU "SCHIMBĂ DIRECTOR" */}
+          <Button
+            bg="cyan.600"
+            color="white"
+            _hover={{
+              bg: "cyan.500",
+              transform: "translateY(-2px)",
+              boxShadow: "0 0 15px rgba(6, 182, 212, 0.5)",
+            }}
+            transition="all 0.2s"
+            size="lg"
+            borderRadius="xl"
+            boxShadow="lg"
+            leftIcon={<FiRefreshCw />}
+            onClick={() => setIsDirectorModalOpen(true)}
+          >
+            Schimbă Director
+          </Button>
+
           <Button
             bg="blue.600"
             color="white"
@@ -299,6 +317,7 @@ const Profesori = () => {
           </Button>
         </Flex>
       </Flex>
+
       {spinnerOpen ? (
         <Flex justify="center" align="center" minH="400px" w="100%">
           <Stack align="center" gap="4">
@@ -469,6 +488,7 @@ const Profesori = () => {
                         onClick={() => {
                           setIsDeleteModalOpen(true);
                           setIdDelete(prof.id);
+                          setNumeProfesorDelete(prof.nume + " " + prof.prenume);
                         }}
                         aria-label="Delete"
                         variant="ghost"
@@ -486,6 +506,8 @@ const Profesori = () => {
           </Table.Root>
         </Box>
       )}
+
+      {/* ... Celelalte modale ... */}
       {isProfileOpen && (
         <ProfesorDetailsModal
           isOpen={isProfileOpen}
@@ -502,17 +524,11 @@ const Profesori = () => {
           departamente={depts}
           setDepartamente={setDepts}
           onClose={() => {
-            setFormData({
-              nume: "",
-              prenume: "",
-              email: "",
-              telefon: "",
-            });
+            setFormData({ nume: "", prenume: "", email: "", telefon: "" });
             setIsCreateModalOpen(false);
           }}
         />
       )}
-
       {isEditModalOpen && (
         <EditProfesorModal
           isOpen={isEditModalOpen}
@@ -528,7 +544,6 @@ const Profesori = () => {
           setDepartamente={setDepts}
         />
       )}
-
       {isDeleteModalOpen && (
         <DeleteConfirmationModal
           isOpen={isDeleteModalOpen}
@@ -537,14 +552,24 @@ const Profesori = () => {
             deleteById(idDelete);
             setIsDeleteModalOpen(false);
           }}
-          departmentName={"Nume Profesor"}
+          departmentName={numeProfesorDelete}
           titlu={"Ștergere Profesor"}
-          descriere={`Urmeaza sa stergi profesorul`}
+          descriere={`Urmeaza sa stergi profesorul `}
           atentie={
             "Această acțiune va șterge profesorul din baza de date, această acțiune este ireversibila !"
           }
         />
       )}
+
+      {isDirectorModalOpen && (
+        <ChangeDirectorModal
+          isOpen={isDirectorModalOpen}
+          onClose={() => setIsDirectorModalOpen(false)}
+          listaProfesori={listaProfesori}
+          onSave={handleChangeDirector}
+        />
+      )}
+
       {successFeedback && (
         <SuccessFeedback
           onClose={() => setSuccessFeedback(false)}
