@@ -4,6 +4,8 @@ import com.example.profesori_departamente.dto.ProfesorDTO;
 import com.example.profesori_departamente.dto.request.CreateProfesorRequest;
 import com.example.profesori_departamente.dto.response.CreateProfesorResponse;
 import com.example.profesori_departamente.service.impl.ProfesorServiceImpl;
+
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,7 +29,7 @@ public class ProfesorController {
 	}
 
 	@PostMapping()
-	public CreateProfesorResponse save(@RequestBody CreateProfesorRequest createProfesorRequest){
+	public CreateProfesorResponse save(@RequestBody @Valid CreateProfesorRequest createProfesorRequest){
 		return profesorService.save(createProfesorRequest);
 	}
 

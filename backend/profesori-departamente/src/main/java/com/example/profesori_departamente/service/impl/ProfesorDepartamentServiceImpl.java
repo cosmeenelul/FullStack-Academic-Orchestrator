@@ -36,7 +36,7 @@ public class ProfesorDepartamentServiceImpl implements ProfesorDepartamentServic
 			profesorDepartamentRepository.save(vechiulDirector);
 		}
 
-		profesorDepartament.setProfesor(profesorMembru);
+		profesorDepartament.setRolDepartament(RolDepartament.Director);
 		profesorDepartamentRepository.save(profesorDepartament);
 		return profesorMapper.toDTO(profesorMembru);
 	}

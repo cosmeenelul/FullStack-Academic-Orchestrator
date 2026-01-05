@@ -20,4 +20,5 @@ public interface ProfesorDepartamentRepository extends JpaRepository<ProfesorDep
 
 	@Query("SELECT pd.profesor.id FROM ProfesorDepartament pd WHERE pd.departament.id = :idDept")
 	List<Integer> findProfesorIdsByDepartamentId(@Param("idDept") Integer idDept);
+
 }

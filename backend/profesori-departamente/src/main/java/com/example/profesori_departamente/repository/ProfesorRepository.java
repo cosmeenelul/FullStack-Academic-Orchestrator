@@ -10,4 +10,5 @@ import java.util.List;
 @Repository
 public interface ProfesorRepository extends JpaRepository<Profesor,Integer> {
 	boolean existsByTelefon(String telefon);
+
 }
