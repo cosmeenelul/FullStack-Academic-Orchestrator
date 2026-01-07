@@ -14,6 +14,7 @@ import {
   HStack,
   Icon,
   Spinner,
+  Menu,
 } from "@chakra-ui/react";
 import {
   FiPlus,
@@ -24,7 +25,8 @@ import {
   FiMail,
   FiMoreHorizontal,
   FiAward,
-  FiRefreshCw, // Import iconita noua
+  FiRefreshCw,
+  FiFilter,
 } from "react-icons/fi";
 import ProfesorDetailsModal from "@/components/ProfesorDetailsProfile";
 import ProfesorModal from "@/components/ProfesorModal";
@@ -32,7 +34,6 @@ import EditProfesorModal from "@/components/EditProfesorModal";
 import DeleteConfirmationModal from "@/components/DeleteConfirmationModal";
 import SuccessFeedback from "@/components/SuccessFeedback";
 import ErrorFeedback from "@/components/ErrorFeedback";
-// 1. IMPORT MODALUL NOU
 import ChangeDirectorModal from "@/components/ChangeDirectorModal";
 
 const Profesori = () => {
@@ -40,7 +41,6 @@ const Profesori = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  // 2. STATE PENTRU MODALUL NOU
   const [isDirectorModalOpen, setIsDirectorModalOpen] = useState(false);
 
   const [numeProfesorDelete, setNumeProfesorDelete] = useState("");
@@ -64,12 +64,28 @@ const Profesori = () => {
   const [idDelete, setIdDelete] = useState(null);
   const [deleteCounter, setDeleteCounter] = useState(0);
 
+  // State pentru filtrare
+  const [filterDepartamente, setFilterDepartamente] = useState([]);
+  const [selectedDeptFilter, setSelectedDeptFilter] = useState(null); // null = Toate
+
+  // 1. MODIFICARE FETCH PROFESORI (Server-Side Filtering)
   useEffect(() => {
-    async function getProfesori() {
+    async function fetchProfesori() {
       setSpinnerOpen(true);
       try {
-        const res = await fetch("http://localhost:8080/profesori");
+        let url = "http://localhost:8080/profesori";
+
+        if (selectedDeptFilter) {
+          url = `http://localhost:8080/profesori/departamente?departamentId=${selectedDeptFilter}`;
+        }
+
+        const res = await fetch(url);
+        if (!res.ok) {
+          throw new Error(`Eroare server: ${res.status}`);
+        }
+
         const data = await res.json();
+
         const profesoriProcesati = data.map((prof) => ({
           id: prof.id,
           nume: prof.nume,
@@ -87,16 +103,30 @@ const Profesori = () => {
 
         setListaProfesori(profesoriProcesati);
       } catch (error) {
-        console.log(error);
+        console.log("Eroare la fetch profesori:", error);
       } finally {
         setSpinnerOpen(false);
       }
     }
 
-    getProfesori();
-  }, [totalSaves, deleteCounter]);
+    fetchProfesori();
+  }, [totalSaves, deleteCounter, selectedDeptFilter]);
 
-  // ... (funcțiile existente getProfesorById, saveProfesor etc. rămân neschimbate) ...
+  useEffect(() => {
+    async function getDepartamenteFilter() {
+      try {
+        const res = await fetch("http://localhost:8080/departamente");
+        const data = await res.json();
+        if (res.ok) {
+          setFilterDepartamente(data);
+        }
+      } catch (error) {
+        console.log("Eroare incarcare departamente filtru:", error);
+      }
+    }
+    getDepartamenteFilter();
+  }, []);
+
   async function getProfesorById(idProfesor) {
     try {
       const res = await fetch(
@@ -218,11 +248,6 @@ const Profesori = () => {
 
   async function handleChangeDirector(departamentId, profesorId) {
     try {
-      console.log(
-        `Schimbare director: Dept ${departamentId}, Prof ${profesorId}`
-      );
-
-      // MOCK FETCH - ÎNLOCUIEȘTE URL-UL CU CEL REAL
       const res = await fetch(
         `http://localhost:8080/profesor-departament/${departamentId}`,
         {
@@ -246,6 +271,10 @@ const Profesori = () => {
     }
   }
 
+  const numeDepartamentSelectat = selectedDeptFilter
+    ? filterDepartamente.find((d) => d.id === selectedDeptFilter)?.nume
+    : "Toate departamentele";
+
   return (
     <Box w="100%" minH="100vh" position="relative">
       <Flex justify="space-between" align="flex-end" mb="8" wrap="wrap" gap="4">
@@ -259,6 +288,48 @@ const Profesori = () => {
         </Box>
 
         <Flex gap="4" align="center">
+          {/* BUTON DROPDOWN FILTRARE */}
+          <Menu.Root>
+            <Menu.Trigger asChild>
+              <Button
+                variant="outline"
+                color="white"
+                borderColor="whiteAlpha.200"
+                _hover={{ bg: "whiteAlpha.100", borderColor: "blue.400" }}
+                leftIcon={<FiFilter />}
+              >
+                {selectedDeptFilter
+                  ? numeDepartamentSelectat
+                  : "Filtrează Departament"}
+              </Button>
+            </Menu.Trigger>
+            <Menu.Positioner>
+              <Menu.Content bg="#0f172a" borderColor="whiteAlpha.200">
+                <Menu.Item
+                  value=""
+                  onClick={() => setSelectedDeptFilter(null)}
+                  color="white"
+                  _hover={{ bg: "whiteAlpha.100" }}
+                  cursor="pointer"
+                >
+                  Toate departamentele
+                </Menu.Item>
+                {filterDepartamente.map((dept) => (
+                  <Menu.Item
+                    key={dept.id}
+                    value={dept.id.toString()}
+                    onClick={() => setSelectedDeptFilter(dept.id)}
+                    color="white"
+                    _hover={{ bg: "whiteAlpha.100" }}
+                    cursor="pointer"
+                  >
+                    {dept.nume}
+                  </Menu.Item>
+                ))}
+              </Menu.Content>
+            </Menu.Positioner>
+          </Menu.Root>
+
           <Box position="relative" w="300px">
             <Box position="absolute" left="3" top="3" color="blue.400">
               <FiSearch />
@@ -279,7 +350,6 @@ const Profesori = () => {
             />
           </Box>
 
-          {/* 4. BUTONUL NOU "SCHIMBĂ DIRECTOR" */}
           <Button
             bg="cyan.600"
             color="white"
@@ -373,6 +443,7 @@ const Profesori = () => {
             </Table.Header>
 
             <Table.Body>
+              {/* 2. RENDĂM DIRECT listaProfesori (deja filtrată de server) */}
               {listaProfesori.map((prof, profIdx) => (
                 <Table.Row
                   key={prof.id || `prof-${profIdx}`}
@@ -507,7 +578,7 @@ const Profesori = () => {
         </Box>
       )}
 
-      {/* ... Celelalte modale ... */}
+      {/* MODALELE RĂMÂN NESCHIMBATE */}
       {isProfileOpen && (
         <ProfesorDetailsModal
           isOpen={isProfileOpen}
@@ -560,7 +631,6 @@ const Profesori = () => {
           }
         />
       )}
-
       {isDirectorModalOpen && (
         <ChangeDirectorModal
           isOpen={isDirectorModalOpen}
@@ -569,7 +639,6 @@ const Profesori = () => {
           onSave={handleChangeDirector}
         />
       )}
-
       {successFeedback && (
         <SuccessFeedback
           onClose={() => setSuccessFeedback(false)}
