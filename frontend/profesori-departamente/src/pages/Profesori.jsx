@@ -28,6 +28,7 @@ import {
   FiRefreshCw,
   FiFilter,
 } from "react-icons/fi";
+
 import ProfesorDetailsModal from "@/components/ProfesorDetailsProfile";
 import ProfesorModal from "@/components/ProfesorModal";
 import EditProfesorModal from "@/components/EditProfesorModal";
@@ -55,6 +56,7 @@ const Profesori = () => {
   const [listaProfesori, setListaProfesori] = useState([]);
   const [currentProfesorDetails, setCurrentProfesorDetails] = useState(null);
   const [depts, setDepts] = useState([]);
+
   const [successFeedback, setSuccessFeedback] = useState(false);
   const [errorFeedback, setErrorFeedback] = useState(false);
   const [totalSaves, setTotalSaves] = useState(0);
@@ -64,11 +66,10 @@ const Profesori = () => {
   const [idDelete, setIdDelete] = useState(null);
   const [deleteCounter, setDeleteCounter] = useState(0);
 
-  // State pentru filtrare
   const [filterDepartamente, setFilterDepartamente] = useState([]);
-  const [selectedDeptFilter, setSelectedDeptFilter] = useState(null); // null = Toate
+  const [selectedDeptFilter, setSelectedDeptFilter] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
-  // 1. MODIFICARE FETCH PROFESORI (Server-Side Filtering)
   useEffect(() => {
     async function fetchProfesori() {
       setSpinnerOpen(true);
@@ -76,7 +77,7 @@ const Profesori = () => {
         let url = "http://localhost:8080/profesori";
 
         if (selectedDeptFilter) {
-          url = `http://localhost:8080/profesori/departamente?departamentId=${selectedDeptFilter}`;
+          url = `http://localhost:8080/departamente?departamentId=${selectedDeptFilter}`;
         }
 
         const res = await fetch(url);
@@ -104,6 +105,8 @@ const Profesori = () => {
         setListaProfesori(profesoriProcesati);
       } catch (error) {
         console.log("Eroare la fetch profesori:", error);
+        setMesajEroare("Nu s-au putut încărca profesorii.");
+        setErrorFeedback(true);
       } finally {
         setSpinnerOpen(false);
       }
@@ -111,7 +114,6 @@ const Profesori = () => {
 
     fetchProfesori();
   }, [totalSaves, deleteCounter, selectedDeptFilter]);
-
   useEffect(() => {
     async function getDepartamenteFilter() {
       try {
@@ -126,6 +128,21 @@ const Profesori = () => {
     }
     getDepartamenteFilter();
   }, []);
+
+  const profesoriAfisati = listaProfesori.filter((prof) => {
+    if (!searchQuery) return true;
+
+    const query = searchQuery.toLowerCase();
+
+    const matchTelefon =
+      prof.telefon && prof.telefon.toLowerCase().includes(query);
+    const matchNume = prof.nume && prof.nume.toLowerCase().includes(query);
+    const matchPrenume =
+      prof.prenume && prof.prenume.toLowerCase().includes(query);
+    const matchEmail = prof.email && prof.email.toLowerCase().includes(query);
+
+    return matchTelefon || matchNume || matchPrenume || matchEmail;
+  });
 
   async function getProfesorById(idProfesor) {
     try {
@@ -288,7 +305,6 @@ const Profesori = () => {
         </Box>
 
         <Flex gap="4" align="center">
-          {/* BUTON DROPDOWN FILTRARE */}
           <Menu.Root>
             <Menu.Trigger asChild>
               <Button
@@ -335,7 +351,7 @@ const Profesori = () => {
               <FiSearch />
             </Box>
             <Input
-              placeholder="Caută după nume sau email..."
+              placeholder="Caută după telefon, nume..."
               pl="10"
               bg="rgba(13, 16, 30, 0.5)"
               border="1px solid"
@@ -347,6 +363,8 @@ const Profesori = () => {
                 boxShadow: "0 0 15px rgba(49, 130, 206, 0.3)",
                 bg: "rgba(13, 16, 30, 0.8)",
               }}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
           </Box>
 
@@ -443,8 +461,7 @@ const Profesori = () => {
             </Table.Header>
 
             <Table.Body>
-              {/* 2. RENDĂM DIRECT listaProfesori (deja filtrată de server) */}
-              {listaProfesori.map((prof, profIdx) => (
+              {profesoriAfisati.map((prof, profIdx) => (
                 <Table.Row
                   key={prof.id || `prof-${profIdx}`}
                   _hover={{ bg: "whiteAlpha.50" }}
@@ -484,7 +501,13 @@ const Profesori = () => {
                       </Flex>
                       <Flex align="center" gap="2" color="gray.400">
                         <Icon as={FiPhone} color="green.400" boxSize="3.5" />
-                        <Text fontSize="xs">{prof.telefon}</Text>
+                        <Text
+                          fontSize="xs"
+                          fontWeight={searchQuery ? "bold" : "normal"}
+                          color={searchQuery ? "yellow.300" : "gray.300"}
+                        >
+                          {prof.telefon}
+                        </Text>
                       </Flex>
                     </Stack>
                   </Table.Cell>
@@ -578,7 +601,6 @@ const Profesori = () => {
         </Box>
       )}
 
-      {/* MODALELE RĂMÂN NESCHIMBATE */}
       {isProfileOpen && (
         <ProfesorDetailsModal
           isOpen={isProfileOpen}
@@ -651,7 +673,7 @@ const Profesori = () => {
           onClose={() => setErrorFeedback(false)}
           onRetry={() => {
             setErrorFeedback(false);
-            if (tipOperatiune == "ADD") setIsCreateModalOpen(true);
+            if (tipOperatiune === "ADD") setIsCreateModalOpen(true);
             else setIsEditModalOpen(true);
           }}
         />
