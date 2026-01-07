@@ -28,11 +28,10 @@ import {
 } from "react-icons/fi";
 
 const Home = () => {
-  // AM ELIMINAT: const [profesori, setProfesori] = useState([]); -> Nu era folosit la afișare
   const [departamente, setDepartamente] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // State-uri pentru statistici calculate
+  // State-uri pentru statistici
   const [stats, setStats] = useState([
     {
       label: "Total Profesori",
@@ -68,46 +67,81 @@ const Home = () => {
     },
   ]);
 
-  // Fetch Data
   useEffect(() => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        // Facem request-urile în paralel pentru performanță
+
+        // 1. Fetch paralel pentru Profesori și Departamente
         const [resProfesori, resDepartamente] = await Promise.all([
           fetch("http://localhost:8080/profesori"),
           fetch("http://localhost:8080/departamente"),
         ]);
 
         const dataProfesori = await resProfesori.json();
-        const dataDepartamente = await resDepartamente.json();
+        const dataDepartamenteRaw = await resDepartamente.json();
 
-        // setProfesori(dataProfesori); -> AM ELIMINAT ACEASTĂ LINIE (cauza erorii)
-        setDepartamente(dataDepartamente);
+        // 2. CORELARE DATE (CLIENT-SIDE JOIN)
+        // Problema: dataDepartamenteRaw vine cu lista 'profesori' goală din backend.
+        // Soluția: Populăm noi lista folosind dataProfesori (care conține relațiile).
 
-        // --- CALCUL LOGICĂ STATISTICI ---
+        const departamenteProcesate = dataDepartamenteRaw.map((dept) => {
+          // Găsim toți profesorii care sunt asignați acestui departament
+          const membriDepartament = dataProfesori.filter(
+            (prof) =>
+              prof.departamente &&
+              prof.departamente.some(
+                (d) =>
+                  d.id === dept.id ||
+                  (d.departament && d.departament.id === dept.id)
+              )
+          );
 
-        // 1. Calcul Directori (Căutăm câți profesori au rol de Director în departamentele lor)
+          // Mapăm structura pentru a fi compatibilă cu logica de afișare (căutare rol Director)
+          const profesoriMapati = membriDepartament.map((prof) => {
+            // Găsim detaliile specifice legăturii cu acest departament (rolul)
+            // Structura din API poate varia ușor, verificăm ambele cazuri comune
+            const legatura = prof.departamente.find(
+              (d) =>
+                d.id === dept.id ||
+                (d.departament && d.departament.id === dept.id)
+            );
+
+            return {
+              profesor: prof,
+              rolDepartament: legatura ? legatura.rolDepartament : "Membru",
+            };
+          });
+
+          return {
+            ...dept,
+            profesori: profesoriMapati, // Suprascriem lista goală cu cea calculată
+          };
+        });
+
+        setDepartamente(departamenteProcesate);
+
+        // --- 3. CALCUL STATISTICI ---
+
+        // Calcul Directori (Căutăm câți profesori au rol de Director în departamentele procesate)
         let countDirectori = 0;
-        dataDepartamente.forEach((dept) => {
-          // Verificăm în lista de profesori a departamentului dacă există cineva cu rol 'Director'
+        departamenteProcesate.forEach((dept) => {
           const areDirector =
             dept.profesori &&
             dept.profesori.some((p) => p.rolDepartament === "Director");
           if (areDirector) countDirectori++;
         });
 
-        // 2. Calcul Medie
+        // Calcul Medie
         const medie =
-          dataDepartamente.length > 0
-            ? (dataProfesori.length / dataDepartamente.length).toFixed(1)
+          departamenteProcesate.length > 0
+            ? (dataProfesori.length / departamenteProcesate.length).toFixed(1)
             : "0";
 
-        // Actualizare Carduri Statistici folosind variabilele locale dataProfesori
         setStats([
           {
             label: "Total Profesori",
-            value: dataProfesori.length.toString(), // Folosim variabila locală, nu state-ul
+            value: dataProfesori.length.toString(),
             change: "Actualizat",
             color: "blue",
             icon: FiUsers,
@@ -115,7 +149,7 @@ const Home = () => {
           },
           {
             label: "Departamente",
-            value: dataDepartamente.length.toString(),
+            value: departamenteProcesate.length.toString(),
             change: "Total",
             color: "purple",
             icon: FiLayers,
@@ -123,7 +157,7 @@ const Home = () => {
           },
           {
             label: "Directori Numiți",
-            value: `${countDirectori} / ${dataDepartamente.length}`,
+            value: `${countDirectori} / ${departamenteProcesate.length}`,
             change: "Acoperire",
             color: "green",
             icon: FiAward,
@@ -150,11 +184,12 @@ const Home = () => {
 
   // Helper pentru a găsi numele directorului dintr-un departament
   const getDirectorName = (dept) => {
-    if (!dept.profesori) return "Nedesemnat";
-    // Caută în setul de ProfesoriDepartamentDTO
+    if (!dept.profesori || dept.profesori.length === 0) return "Nedesemnat";
+
     const directorEntry = dept.profesori.find(
       (p) => p.rolDepartament === "Director"
     );
+
     if (directorEntry && directorEntry.profesor) {
       return `${directorEntry.profesor.nume} ${directorEntry.profesor.prenume}`;
     }
@@ -167,7 +202,7 @@ const Home = () => {
       <Flex justify="space-between" align="center" wrap="wrap" gap="4">
         <Box>
           <Heading size="xl" color="white" mb="2">
-            Dashboard Universitar
+            Dashboard Overview
           </Heading>
           <Text color="gray.400">
             Privire de ansamblu asupra corpului profesoral și departamentelor.
@@ -451,7 +486,7 @@ const Home = () => {
             </Box>
           </Box>
 
-          {/* Notifications Panel - Dinamic sumar */}
+          {/* Notifications Panel */}
           <Box
             bg="rgba(13, 16, 30, 0.6)"
             borderRadius="2xl"
@@ -475,9 +510,7 @@ const Home = () => {
                   </Text>
                 </Box>
               </HStack>
-              {departamente.some(
-                (d) => !getDirectorName(d).includes("Nedesemnat")
-              ) ? (
+              {departamente.some((d) => getDirectorName(d) !== "Nedesemnat") ? (
                 <HStack align="start">
                   <Icon as={FiCheckCircle} color="green.400" mt="1" />
                   <Box>
