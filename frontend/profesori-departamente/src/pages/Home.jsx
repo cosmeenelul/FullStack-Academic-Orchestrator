@@ -25,13 +25,21 @@ import {
   FiCheckCircle,
   FiAlertCircle,
   FiExternalLink,
+  FiWifi,
+  FiWifiOff,
 } from "react-icons/fi";
 
 const Home = () => {
   const [departamente, setDepartamente] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingData, setIsLoadingData] = useState(true);
 
-  // State-uri pentru statistici
+  const [serverHealth, setServerHealth] = useState({
+    isOnline: false,
+    latency: null,
+    statusText: "Se verifică...",
+    color: "gray",
+  });
+
   const [stats, setStats] = useState([
     {
       label: "Total Profesori",
@@ -70,9 +78,7 @@ const Home = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setIsLoading(true);
-
-        // 1. Fetch paralel pentru Profesori și Departamente
+        setIsLoadingData(true);
         const [resProfesori, resDepartamente] = await Promise.all([
           fetch("http://localhost:8080/profesori"),
           fetch("http://localhost:8080/departamente"),
@@ -81,12 +87,7 @@ const Home = () => {
         const dataProfesori = await resProfesori.json();
         const dataDepartamenteRaw = await resDepartamente.json();
 
-        // 2. CORELARE DATE (CLIENT-SIDE JOIN)
-        // Problema: dataDepartamenteRaw vine cu lista 'profesori' goală din backend.
-        // Soluția: Populăm noi lista folosind dataProfesori (care conține relațiile).
-
         const departamenteProcesate = dataDepartamenteRaw.map((dept) => {
-          // Găsim toți profesorii care sunt asignați acestui departament
           const membriDepartament = dataProfesori.filter(
             (prof) =>
               prof.departamente &&
@@ -97,42 +98,33 @@ const Home = () => {
               )
           );
 
-          // Mapăm structura pentru a fi compatibilă cu logica de afișare (căutare rol Director)
           const profesoriMapati = membriDepartament.map((prof) => {
-            // Găsim detaliile specifice legăturii cu acest departament (rolul)
-            // Structura din API poate varia ușor, verificăm ambele cazuri comune
             const legatura = prof.departamente.find(
               (d) =>
                 d.id === dept.id ||
                 (d.departament && d.departament.id === dept.id)
             );
-
             return {
               profesor: prof,
               rolDepartament: legatura ? legatura.rolDepartament : "Membru",
             };
           });
 
-          return {
-            ...dept,
-            profesori: profesoriMapati, // Suprascriem lista goală cu cea calculată
-          };
+          return { ...dept, profesori: profesoriMapati };
         });
 
         setDepartamente(departamenteProcesate);
 
-        // --- 3. CALCUL STATISTICI ---
-
-        // Calcul Directori (Căutăm câți profesori au rol de Director în departamentele procesate)
         let countDirectori = 0;
         departamenteProcesate.forEach((dept) => {
-          const areDirector =
+          if (
             dept.profesori &&
-            dept.profesori.some((p) => p.rolDepartament === "Director");
-          if (areDirector) countDirectori++;
+            dept.profesori.some((p) => p.rolDepartament === "Director")
+          ) {
+            countDirectori++;
+          }
         });
 
-        // Calcul Medie
         const medie =
           departamenteProcesate.length > 0
             ? (dataProfesori.length / departamenteProcesate.length).toFixed(1)
@@ -175,21 +167,57 @@ const Home = () => {
       } catch (error) {
         console.error("Eroare la fetch dashboard:", error);
       } finally {
-        setIsLoading(false);
+        setIsLoadingData(false);
       }
     };
 
     fetchData();
   }, []);
 
-  // Helper pentru a găsi numele directorului dintr-un departament
+  useEffect(() => {
+    const checkServer = async () => {
+      const start = Date.now();
+      try {
+        const res = await fetch("http://localhost:8080/profesori/ping");
+        const end = Date.now();
+        const latency = end - start;
+
+        if (res.ok) {
+          setServerHealth({
+            isOnline: true,
+            latency: latency,
+            statusText: "Online",
+            color: latency > 200 ? "orange" : "blue",
+          });
+        } else {
+          setServerHealth({
+            isOnline: true,
+            latency: latency,
+            statusText: `Eroare ${res.status}`,
+            color: "orange",
+          });
+        }
+      } catch (error) {
+        setServerHealth({
+          isOnline: false,
+          latency: null,
+          statusText: "Offline",
+          color: "red",
+        });
+      }
+    };
+
+    checkServer();
+    const intervalId = setInterval(checkServer, 10000);
+
+    return () => clearInterval(intervalId);
+  }, []);
+
   const getDirectorName = (dept) => {
     if (!dept.profesori || dept.profesori.length === 0) return "Nedesemnat";
-
     const directorEntry = dept.profesori.find(
       (p) => p.rolDepartament === "Director"
     );
-
     if (directorEntry && directorEntry.profesor) {
       return `${directorEntry.profesor.nume} ${directorEntry.profesor.prenume}`;
     }
@@ -198,7 +226,6 @@ const Home = () => {
 
   return (
     <Stack gap="8" align="stretch" w="100%" maxW="100%" overflowX="hidden">
-      {/* --- HEADER DASHBOARD --- */}
       <Flex justify="space-between" align="center" wrap="wrap" gap="4">
         <Box>
           <Heading size="xl" color="white" mb="2">
@@ -222,7 +249,6 @@ const Home = () => {
         </HStack>
       </Flex>
 
-      {/* --- STATS CARDS --- */}
       <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} gap="6">
         {stats.map((stat, index) => (
           <Box
@@ -253,7 +279,6 @@ const Home = () => {
               opacity="0.3"
               borderRadius="full"
             />
-
             <Flex justify="space-between" align="start" mb="4">
               <Box p="3" bg="whiteAlpha.100" borderRadius="xl">
                 <Icon as={stat.icon} boxSize="6" color={`${stat.color}.300`} />
@@ -267,11 +292,10 @@ const Home = () => {
                 <Icon as={FiTrendingUp} mr="1" /> {stat.change}
               </Badge>
             </Flex>
-
             <Text color="gray.400" fontSize="sm" fontWeight="medium">
               {stat.label}
             </Text>
-            {isLoading ? (
+            {isLoadingData ? (
               <Spinner size="sm" color="white" mt="2" />
             ) : (
               <Heading size="2xl" color="white" mt="1">
@@ -282,9 +306,7 @@ const Home = () => {
         ))}
       </SimpleGrid>
 
-      {/* --- CONTENT GRID: TABLE + SYSTEM STATUS --- */}
       <Grid templateColumns={{ base: "1fr", xl: "3fr 1fr" }} gap="6">
-        {/* PARTEA STANGA: TABEL DEPARTAMENTE DINAMIC */}
         <Box
           bg="rgba(13, 16, 30, 0.7)"
           backdropFilter="blur(12px)"
@@ -330,7 +352,7 @@ const Home = () => {
               </Table.Header>
 
               <Table.Body>
-                {isLoading ? (
+                {isLoadingData ? (
                   <Table.Row>
                     <Table.Cell
                       colSpan={5}
@@ -357,7 +379,6 @@ const Home = () => {
                     const directorName = getDirectorName(dept);
                     const hasDirector = directorName !== "Nedesemnat";
                     const nrMembri = dept.profesori ? dept.profesori.length : 0;
-
                     return (
                       <Table.Row
                         key={dept.id}
@@ -368,7 +389,6 @@ const Home = () => {
                         <Table.Cell pl="6" fontWeight="bold" color="white">
                           {dept.nume}
                         </Table.Cell>
-
                         <Table.Cell color="gray.300">
                           <Flex align="center" gap="2">
                             <Box
@@ -380,13 +400,11 @@ const Home = () => {
                             <Text fontSize="sm">{directorName}</Text>
                           </Flex>
                         </Table.Cell>
-
                         <Table.Cell color="gray.400">
                           <Flex align="center" gap="2">
                             <Icon as={FiUsers} /> {nrMembri}
                           </Flex>
                         </Table.Cell>
-
                         <Table.Cell>
                           <Badge
                             colorPalette={hasDirector ? "green" : "orange"}
@@ -396,7 +414,6 @@ const Home = () => {
                             {hasDirector ? "Activ" : "Fără Director"}
                           </Badge>
                         </Table.Cell>
-
                         <Table.Cell textAlign="right" pr="6">
                           <Stack align="flex-end" gap="0">
                             <Text
@@ -429,18 +446,16 @@ const Home = () => {
           </Box>
         </Box>
 
-        {/* PARTEA DREAPTA: STATUS SISTEM */}
         <Stack gap="6">
-          {/* Quick Actions Panel */}
           <Box
             bgGradient="linear(to-b, blue.900, rgba(13, 16, 30, 0.9))"
             borderRadius="2xl"
             p="6"
             border="1px solid"
-            borderColor="blue.700"
+            borderColor={serverHealth.isOnline ? "blue.700" : "red.700"}
           >
             <Heading size="sm" color="white" mb="4">
-              Stare Server
+              Stare Server (Live)
             </Heading>
 
             <Stack gap="4">
@@ -449,15 +464,22 @@ const Home = () => {
                   <Text fontSize="xs" color="blue.200">
                     API Status
                   </Text>
-                  <Text fontSize="xs" color="blue.200">
-                    Online
+                  <Text
+                    fontSize="xs"
+                    color={serverHealth.isOnline ? "green.300" : "red.300"}
+                    fontWeight="bold"
+                  >
+                    {serverHealth.statusText}
                   </Text>
                 </Flex>
+
                 <Progress.Root
-                  value={100}
-                  colorPalette="blue"
+                  value={serverHealth.isOnline ? 100 : 100}
+                  colorPalette={
+                    serverHealth.isOnline ? serverHealth.color : "red"
+                  }
                   size="sm"
-                  striped
+                  striped={serverHealth.isOnline}
                 >
                   <Progress.Track bg="whiteAlpha.200">
                     <Progress.Range />
@@ -473,20 +495,27 @@ const Home = () => {
               borderColor="whiteAlpha.200"
             >
               <HStack gap="3">
-                <Icon as={FiCheckCircle} color="green.400" />
+                <Icon
+                  as={serverHealth.isOnline ? FiWifi : FiWifiOff}
+                  color={serverHealth.isOnline ? "green.400" : "red.400"}
+                  boxSize="6"
+                />
                 <Box>
                   <Text fontSize="sm" color="white" fontWeight="bold">
-                    Conexiune Stabilă
+                    {serverHealth.isOnline
+                      ? "Conexiune Stabilă"
+                      : "Server Deconectat"}
                   </Text>
                   <Text fontSize="xs" color="gray.400">
-                    Backend: port 8080
+                    Backend: port 8080{" "}
+                    {serverHealth.latency !== null &&
+                      `• Ping: ${serverHealth.latency}ms`}
                   </Text>
                 </Box>
               </HStack>
             </Box>
           </Box>
 
-          {/* Notifications Panel */}
           <Box
             bg="rgba(13, 16, 30, 0.6)"
             borderRadius="2xl"
@@ -505,8 +534,8 @@ const Home = () => {
                     Au fost încărcate{" "}
                     <Text as="span" color="white" fontWeight="bold">
                       {departamente.length} departamente
-                    </Text>{" "}
-                    cu succes.
+                    </Text>
+                    .
                   </Text>
                 </Box>
               </HStack>
