@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   SimpleGrid,
   Table,
@@ -12,7 +12,8 @@ import {
   HStack,
   Progress,
   Grid,
-  Button, // <--- AM ADĂUGAT IMPORTUL LIPSĂ AICI
+  Spinner,
+  Link,
 } from "@chakra-ui/react";
 import {
   FiUsers,
@@ -21,89 +22,144 @@ import {
   FiActivity,
   FiTrendingUp,
   FiCalendar,
-  FiAlertCircle,
   FiCheckCircle,
+  FiAlertCircle,
+  FiExternalLink,
 } from "react-icons/fi";
 
 const Home = () => {
-  // --- DATE MOCKUP (RELEVANTE PENTRU UNIVERSITATE) ---
-  const stats = [
+  // AM ELIMINAT: const [profesori, setProfesori] = useState([]); -> Nu era folosit la afișare
+  const [departamente, setDepartamente] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // State-uri pentru statistici calculate
+  const [stats, setStats] = useState([
     {
       label: "Total Profesori",
-      value: "42",
-      change: "+4 luna asta",
+      value: "0",
+      change: "loading...",
       color: "blue",
       icon: FiUsers,
       gradient: "linear(to-br, blue.600, blue.900)",
     },
     {
       label: "Departamente",
-      value: "8",
-      change: "Toate active",
+      value: "0",
+      change: "Active",
       color: "purple",
       icon: FiLayers,
       gradient: "linear(to-br, purple.600, purple.900)",
     },
     {
-      label: "Directori Numiti",
-      value: "8",
-      change: "100% acoperire",
+      label: "Directori Numiți",
+      value: "0",
+      change: "din total dept.",
       color: "green",
       icon: FiAward,
       gradient: "linear(to-br, green.600, green.900)",
     },
     {
-      label: "Grad Încărcare",
-      value: "85%",
-      change: "Nivel optim",
+      label: "Medie Prof/Dept",
+      value: "0",
+      change: "Grad ocupare",
       color: "orange",
       icon: FiActivity,
       gradient: "linear(to-br, orange.600, orange.900)",
     },
-  ];
+  ]);
 
-  const departmentPerformance = [
-    {
-      id: 101,
-      name: "Ingineria Sistemelor",
-      director: "Popescu Andrei",
-      members: 12,
-      status: "Activ",
-      budget: "95%",
-    },
-    {
-      id: 102,
-      name: "Automatică și Calc.",
-      director: "Ionescu Maria",
-      members: 24,
-      status: "Activ",
-      budget: "88%",
-    },
-    {
-      id: 103,
-      name: "Electronică Aplicată",
-      director: "Vasilescu Dan",
-      members: 9,
-      status: "Revizie",
-      budget: "60%",
-    },
-    {
-      id: 104,
-      name: "Telecomunicații",
-      director: "Georgescu Elena",
-      members: 15,
-      status: "Activ",
-      budget: "92%",
-    },
-    {
-      id: 105,
-      name: "Fizică",
-      director: "Dumitrescu Ion",
-      members: 6,
-      status: "Activ",
-      budget: "75%",
-    },
-  ];
+  // Fetch Data
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        // Facem request-urile în paralel pentru performanță
+        const [resProfesori, resDepartamente] = await Promise.all([
+          fetch("http://localhost:8080/profesori"),
+          fetch("http://localhost:8080/departamente"),
+        ]);
+
+        const dataProfesori = await resProfesori.json();
+        const dataDepartamente = await resDepartamente.json();
+
+        // setProfesori(dataProfesori); -> AM ELIMINAT ACEASTĂ LINIE (cauza erorii)
+        setDepartamente(dataDepartamente);
+
+        // --- CALCUL LOGICĂ STATISTICI ---
+
+        // 1. Calcul Directori (Căutăm câți profesori au rol de Director în departamentele lor)
+        let countDirectori = 0;
+        dataDepartamente.forEach((dept) => {
+          // Verificăm în lista de profesori a departamentului dacă există cineva cu rol 'Director'
+          const areDirector =
+            dept.profesori &&
+            dept.profesori.some((p) => p.rolDepartament === "Director");
+          if (areDirector) countDirectori++;
+        });
+
+        // 2. Calcul Medie
+        const medie =
+          dataDepartamente.length > 0
+            ? (dataProfesori.length / dataDepartamente.length).toFixed(1)
+            : "0";
+
+        // Actualizare Carduri Statistici folosind variabilele locale dataProfesori
+        setStats([
+          {
+            label: "Total Profesori",
+            value: dataProfesori.length.toString(), // Folosim variabila locală, nu state-ul
+            change: "Actualizat",
+            color: "blue",
+            icon: FiUsers,
+            gradient: "linear(to-br, blue.600, blue.900)",
+          },
+          {
+            label: "Departamente",
+            value: dataDepartamente.length.toString(),
+            change: "Total",
+            color: "purple",
+            icon: FiLayers,
+            gradient: "linear(to-br, purple.600, purple.900)",
+          },
+          {
+            label: "Directori Numiți",
+            value: `${countDirectori} / ${dataDepartamente.length}`,
+            change: "Acoperire",
+            color: "green",
+            icon: FiAward,
+            gradient: "linear(to-br, green.600, green.900)",
+          },
+          {
+            label: "Medie Prof/Dept",
+            value: medie,
+            change: "Distribuție",
+            color: "orange",
+            icon: FiActivity,
+            gradient: "linear(to-br, orange.600, orange.900)",
+          },
+        ]);
+      } catch (error) {
+        console.error("Eroare la fetch dashboard:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // Helper pentru a găsi numele directorului dintr-un departament
+  const getDirectorName = (dept) => {
+    if (!dept.profesori) return "Nedesemnat";
+    // Caută în setul de ProfesoriDepartamentDTO
+    const directorEntry = dept.profesori.find(
+      (p) => p.rolDepartament === "Director"
+    );
+    if (directorEntry && directorEntry.profesor) {
+      return `${directorEntry.profesor.nume} ${directorEntry.profesor.prenume}`;
+    }
+    return "Nedesemnat";
+  };
 
   return (
     <Stack gap="8" align="stretch" w="100%" maxW="100%" overflowX="hidden">
@@ -126,7 +182,7 @@ const Home = () => {
         >
           <Icon as={FiCalendar} color="blue.300" />
           <Text color="white" fontSize="sm" fontWeight="bold">
-            An Universitar: 2024 - 2025
+            Data: {new Date().toLocaleDateString("ro-RO")}
           </Text>
         </HStack>
       </Flex>
@@ -136,7 +192,7 @@ const Home = () => {
         {stats.map((stat, index) => (
           <Box
             key={index}
-            bg="rgba(13, 16, 30, 0.6)" // Dark transparent background
+            bg="rgba(13, 16, 30, 0.6)"
             backdropFilter="blur(10px)"
             p="6"
             borderRadius="2xl"
@@ -151,7 +207,6 @@ const Home = () => {
               boxShadow: "lg",
             }}
           >
-            {/* Background Glow Effect */}
             <Box
               position="absolute"
               top="-20px"
@@ -181,16 +236,20 @@ const Home = () => {
             <Text color="gray.400" fontSize="sm" fontWeight="medium">
               {stat.label}
             </Text>
-            <Heading size="2xl" color="white" mt="1">
-              {stat.value}
-            </Heading>
+            {isLoading ? (
+              <Spinner size="sm" color="white" mt="2" />
+            ) : (
+              <Heading size="2xl" color="white" mt="1">
+                {stat.value}
+              </Heading>
+            )}
           </Box>
         ))}
       </SimpleGrid>
 
       {/* --- CONTENT GRID: TABLE + SYSTEM STATUS --- */}
       <Grid templateColumns={{ base: "1fr", xl: "3fr 1fr" }} gap="6">
-        {/* PARTEA STANGA: TABEL DEPARTAMENTE */}
+        {/* PARTEA STANGA: TABEL DEPARTAMENTE DINAMIC */}
         <Box
           bg="rgba(13, 16, 30, 0.7)"
           backdropFilter="blur(12px)"
@@ -198,7 +257,7 @@ const Home = () => {
           borderColor="whiteAlpha.100"
           borderRadius="2xl"
           boxShadow="xl"
-          p="0" // Reset padding for cleaner table
+          p="0"
           overflow="hidden"
         >
           <Flex
@@ -211,9 +270,6 @@ const Home = () => {
             <Heading size="md" color="white">
               Performanță Departamente
             </Heading>
-            <Button size="xs" variant="ghost" color="blue.300">
-              Vezi Toate
-            </Button>
           </Flex>
 
           <Box overflowX="auto">
@@ -227,71 +283,118 @@ const Home = () => {
                     DIRECTOR
                   </Table.ColumnHeader>
                   <Table.ColumnHeader color="gray.400">
-                    MEMBRI
+                    NR. MEMBRI
                   </Table.ColumnHeader>
                   <Table.ColumnHeader color="gray.400">
                     STATUS
                   </Table.ColumnHeader>
                   <Table.ColumnHeader color="gray.400" textAlign="right" pr="6">
-                    BUGET
+                    CONTACT / INFO
                   </Table.ColumnHeader>
                 </Table.Row>
               </Table.Header>
 
               <Table.Body>
-                {departmentPerformance.map((dept) => (
-                  <Table.Row
-                    key={dept.id}
-                    _hover={{ bg: "whiteAlpha.50" }}
-                    borderColor="whiteAlpha.50"
-                    transition="0.2s"
-                  >
-                    <Table.Cell pl="6" fontWeight="bold" color="white">
-                      {dept.name}
-                    </Table.Cell>
-                    <Table.Cell color="gray.300">
-                      <Flex align="center" gap="2">
-                        <Box
-                          w="6px"
-                          h="6px"
-                          borderRadius="full"
-                          bg="blue.400"
-                        />
-                        {dept.director}
-                      </Flex>
-                    </Table.Cell>
-                    <Table.Cell color="gray.400">
-                      <Flex align="center" gap="2">
-                        <Icon as={FiUsers} /> {dept.members}
-                      </Flex>
-                    </Table.Cell>
-                    <Table.Cell>
-                      <Badge
-                        colorPalette={
-                          dept.status === "Activ" ? "green" : "orange"
-                        }
-                        variant="solid"
-                        borderRadius="full"
-                      >
-                        {dept.status}
-                      </Badge>
-                    </Table.Cell>
+                {isLoading ? (
+                  <Table.Row>
                     <Table.Cell
-                      textAlign="right"
-                      pr="6"
+                      colSpan={5}
+                      textAlign="center"
+                      py="10"
                       color="white"
-                      fontWeight="bold"
                     >
-                      {dept.budget}
+                      <Spinner size="xl" />
                     </Table.Cell>
                   </Table.Row>
-                ))}
+                ) : departamente.length === 0 ? (
+                  <Table.Row>
+                    <Table.Cell
+                      colSpan={5}
+                      textAlign="center"
+                      py="4"
+                      color="gray.400"
+                    >
+                      Nu există departamente.
+                    </Table.Cell>
+                  </Table.Row>
+                ) : (
+                  departamente.map((dept) => {
+                    const directorName = getDirectorName(dept);
+                    const hasDirector = directorName !== "Nedesemnat";
+                    const nrMembri = dept.profesori ? dept.profesori.length : 0;
+
+                    return (
+                      <Table.Row
+                        key={dept.id}
+                        _hover={{ bg: "whiteAlpha.50" }}
+                        borderColor="whiteAlpha.50"
+                        transition="0.2s"
+                      >
+                        <Table.Cell pl="6" fontWeight="bold" color="white">
+                          {dept.nume}
+                        </Table.Cell>
+
+                        <Table.Cell color="gray.300">
+                          <Flex align="center" gap="2">
+                            <Box
+                              w="6px"
+                              h="6px"
+                              borderRadius="full"
+                              bg={hasDirector ? "blue.400" : "red.400"}
+                            />
+                            <Text fontSize="sm">{directorName}</Text>
+                          </Flex>
+                        </Table.Cell>
+
+                        <Table.Cell color="gray.400">
+                          <Flex align="center" gap="2">
+                            <Icon as={FiUsers} /> {nrMembri}
+                          </Flex>
+                        </Table.Cell>
+
+                        <Table.Cell>
+                          <Badge
+                            colorPalette={hasDirector ? "green" : "orange"}
+                            variant="solid"
+                            borderRadius="full"
+                          >
+                            {hasDirector ? "Activ" : "Fără Director"}
+                          </Badge>
+                        </Table.Cell>
+
+                        <Table.Cell textAlign="right" pr="6">
+                          <Stack align="flex-end" gap="0">
+                            <Text
+                              color="gray.300"
+                              fontSize="xs"
+                              fontWeight="bold"
+                            >
+                              {dept.telefon || "-"}
+                            </Text>
+                            {dept.linkWeb && (
+                              <Link
+                                href={dept.linkWeb}
+                                isExternal
+                                fontSize="xs"
+                                color="blue.300"
+                                display="flex"
+                                alignItems="center"
+                              >
+                                Web <Icon as={FiExternalLink} ml="1" />
+                              </Link>
+                            )}
+                          </Stack>
+                        </Table.Cell>
+                      </Table.Row>
+                    );
+                  })
+                )}
               </Table.Body>
             </Table.Root>
           </Box>
         </Box>
 
-        {/* PARTEA DREAPTA: STATUS SISTEM / ACTIUNI RAPIDE */}
+        {/* PARTEA DREAPTA: STATUS SISTEM */}
         <Stack gap="6">
           {/* Quick Actions Panel */}
           <Box
@@ -302,35 +405,25 @@ const Home = () => {
             borderColor="blue.700"
           >
             <Heading size="sm" color="white" mb="4">
-              Stare Sistem
+              Stare Server
             </Heading>
 
             <Stack gap="4">
               <Box>
                 <Flex justify="space-between" mb="1">
                   <Text fontSize="xs" color="blue.200">
-                    Server Load
+                    API Status
                   </Text>
                   <Text fontSize="xs" color="blue.200">
-                    24%
+                    Online
                   </Text>
                 </Flex>
-                <Progress.Root value={24} colorPalette="blue" size="sm">
-                  <Progress.Track bg="whiteAlpha.200">
-                    <Progress.Range />
-                  </Progress.Track>
-                </Progress.Root>
-              </Box>
-              <Box>
-                <Flex justify="space-between" mb="1">
-                  <Text fontSize="xs" color="purple.200">
-                    Database
-                  </Text>
-                  <Text fontSize="xs" color="purple.200">
-                    Stable
-                  </Text>
-                </Flex>
-                <Progress.Root value={98} colorPalette="purple" size="sm">
+                <Progress.Root
+                  value={100}
+                  colorPalette="blue"
+                  size="sm"
+                  striped
+                >
                   <Progress.Track bg="whiteAlpha.200">
                     <Progress.Range />
                   </Progress.Track>
@@ -348,17 +441,17 @@ const Home = () => {
                 <Icon as={FiCheckCircle} color="green.400" />
                 <Box>
                   <Text fontSize="sm" color="white" fontWeight="bold">
-                    Sistemele sunt online
+                    Conexiune Stabilă
                   </Text>
                   <Text fontSize="xs" color="gray.400">
-                    Ultimul check: acum 2 min
+                    Backend: port 8080
                   </Text>
                 </Box>
               </HStack>
             </Box>
           </Box>
 
-          {/* Notifications Panel */}
+          {/* Notifications Panel - Dinamic sumar */}
           <Box
             bg="rgba(13, 16, 30, 0.6)"
             borderRadius="2xl"
@@ -367,38 +460,50 @@ const Home = () => {
             borderColor="whiteAlpha.100"
           >
             <Heading size="sm" color="white" mb="4">
-              Notificări Recente
+              Rezumat Rapid
             </Heading>
             <Stack gap="3">
-              <HStack align="start">
-                <Icon as={FiAlertCircle} color="orange.400" mt="1" />
-                <Box>
-                  <Text fontSize="xs" color="gray.300">
-                    <Text as="span" color="white" fontWeight="bold">
-                      Electronică
-                    </Text>{" "}
-                    necesită validare buget.
-                  </Text>
-                  <Text fontSize="10px" color="gray.500">
-                    Acum 2 ore
-                  </Text>
-                </Box>
-              </HStack>
               <HStack align="start">
                 <Icon as={FiCheckCircle} color="blue.400" mt="1" />
                 <Box>
                   <Text fontSize="xs" color="gray.300">
-                    Profesor nou adăugat în{" "}
+                    Au fost încărcate{" "}
                     <Text as="span" color="white" fontWeight="bold">
-                      Automatică
-                    </Text>
-                    .
-                  </Text>
-                  <Text fontSize="10px" color="gray.500">
-                    Ieri
+                      {departamente.length} departamente
+                    </Text>{" "}
+                    cu succes.
                   </Text>
                 </Box>
               </HStack>
+              {departamente.some(
+                (d) => !getDirectorName(d).includes("Nedesemnat")
+              ) ? (
+                <HStack align="start">
+                  <Icon as={FiCheckCircle} color="green.400" mt="1" />
+                  <Box>
+                    <Text fontSize="xs" color="gray.300">
+                      Există departamente cu{" "}
+                      <Text as="span" color="white" fontWeight="bold">
+                        Directori numiți
+                      </Text>
+                      .
+                    </Text>
+                  </Box>
+                </HStack>
+              ) : (
+                <HStack align="start">
+                  <Icon as={FiAlertCircle} color="orange.400" mt="1" />
+                  <Box>
+                    <Text fontSize="xs" color="gray.300">
+                      Atenție: Unele departamente nu au{" "}
+                      <Text as="span" color="white" fontWeight="bold">
+                        Director
+                      </Text>
+                      .
+                    </Text>
+                  </Box>
+                </HStack>
+              )}
             </Stack>
           </Box>
         </Stack>
