@@ -7,6 +7,7 @@ import com.example.profesori_departamente.service.impl.ProfesorServiceImpl;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,6 +18,12 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:5173")
 public class ProfesorController {
 	private final ProfesorServiceImpl profesorService;
+
+	@GetMapping("/ping")
+	public ResponseEntity<String> ping() {
+		return ResponseEntity.ok("pong");
+	}
+
 
 	@GetMapping()
 	public List<ProfesorDTO> findAll(){
