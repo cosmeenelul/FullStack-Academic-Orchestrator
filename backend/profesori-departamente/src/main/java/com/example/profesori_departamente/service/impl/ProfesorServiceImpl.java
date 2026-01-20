@@ -64,7 +64,8 @@ public class ProfesorServiceImpl implements ProfesorService {
 
 	@Override
 	public ProfesorDTO deleteById(Integer idProfesor) {
-		ProfesorDTO profesorSters = profesorMapper.toDTO(profesorRepository.findById(idProfesor).orElseThrow(()->new RuntimeException("Nu exista acest profesor in baza de date!")));
+		ProfesorDTO profesorSters = profesorMapper.toDTO(profesorRepository.findById(idProfesor)
+				.orElseThrow(()->new RuntimeException("Nu exista acest profesor in baza de date!")));
 		profesorRepository.deleteById(idProfesor);
 		return profesorSters;
 	}
@@ -98,7 +99,7 @@ public class ProfesorServiceImpl implements ProfesorService {
 
 		departamente.forEach((cheie, val)->{
 			if(val.equals(RolDepartament.Director))
-				validateMemberDepartmentRole(RolDepartament.Director,cheie);
+				validateMemberDepartmentRole(cheie);
 		});
 
 
@@ -131,7 +132,8 @@ public class ProfesorServiceImpl implements ProfesorService {
 		return departamentRepository.findById(idDepartament).orElseThrow(()->new RuntimeException("Nu exista departamentul"));
 	}
 
-	private CreateProfesorResponse processProfesorUpdate(Integer idProfesor,String nume, String prenume, String telefon, String email, Map<Integer,RolDepartament> departamente){
+	private CreateProfesorResponse processProfesorUpdate(Integer idProfesor,String nume, String prenume, String telefon,
+	                                                     String email, Map<Integer,RolDepartament> departamente){
 
 		Profesor profesor = profesorRepository.findById(idProfesor).orElseThrow(()->new RuntimeException("Profesorul nu a fost gasit in baza de date!"));
 
@@ -141,7 +143,7 @@ public class ProfesorServiceImpl implements ProfesorService {
 
 		departamente.forEach((cheie, val)->{
 			if(val.equals(RolDepartament.Director))
-				validateMemberDepartmentRole(RolDepartament.Director,cheie);
+				validateMemberDepartmentRole(cheie);
 		});
 
 		profesor.getDepartamente().removeIf(legatura ->
@@ -168,8 +170,8 @@ public class ProfesorServiceImpl implements ProfesorService {
 		return new CreateProfesorResponse(profesorDTO);
 	}
 
-	private void validateMemberDepartmentRole(RolDepartament rolDepartament,Integer departmentId){
-		if(profesorDepartamentService.existsByDepartmentRoleAndDepartmentId(rolDepartament,departmentId))
+	private void validateMemberDepartmentRole(Integer departmentId){
+		if(profesorDepartamentService.existsByDepartmentRoleAndDepartmentId(RolDepartament.Director,departmentId))
 			throw new RuntimeException("Exista deja un Director in acest departament, folositi functia de Schimbare Director!");
 	}
 
