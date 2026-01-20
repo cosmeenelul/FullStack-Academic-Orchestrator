@@ -19,7 +19,7 @@ import {
   FiUser,
   FiLayers,
   FiChevronDown,
-  FiAlertCircle, // Import iconita eroare
+  FiAlertCircle, 
 } from "react-icons/fi";
 
 const EditProfesorModal = ({
@@ -28,20 +28,18 @@ const EditProfesorModal = ({
   formData,
   setFormData,
   onSave,
-  departamente, // Lista departamentelor asignate (state din parinte)
-  setDepartamente, // Setter pentru departamente asignate
+  departamente, 
+  setDepartamente, 
 }) => {
   const [listaDepartamente, setListaDepatamente] = useState([]);
 
-  // --- 1. STATE PENTRU ERORI (Logica adaugata) ---
+ 
   const [errors, setErrors] = useState({});
 
-  // State local pentru ID departamente (pentru afisare in lista din modal)
-  // Nota: In ProfesorModal exista distinctia intre idDepartamente (local) si departamente (prop).
-  // Aici vom sincroniza prop-ul 'departamente' cu afisarea.
+ 
 
   const [selectedDeptId, setSelectedDeptId] = useState([]);
-  // Rolul este fix "Membru" conform cerintei
+  
   const [selectedRole, setSelectedRole] = useState(["Membru"]);
 
   const departmentsCollection = useMemo(() => {
@@ -57,7 +55,7 @@ const EditProfesorModal = ({
     items: [{ label: "Membru", value: "Membru" }],
   });
 
-  // Fetch lista tuturor departamentelor disponibile pentru dropdown
+  
   useEffect(() => {
     async function getDepartamente() {
       try {
@@ -73,7 +71,7 @@ const EditProfesorModal = ({
     getDepartamente();
   }, []);
 
-  // Resetare erori la deschidere
+
   useEffect(() => {
     if (isOpen) {
       setErrors({});
@@ -84,7 +82,7 @@ const EditProfesorModal = ({
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
 
-    // Sterge eroarea cand utilizatorul scrie
+   
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: false }));
     }
@@ -100,7 +98,7 @@ const EditProfesorModal = ({
       (d) => d.value === deptIdVal
     );
 
-    // Verificam daca exista deja in lista primita ca prop
+    
     const alreadyExists = departamente.find(
       (d) => d.id === parseInt(deptIdVal)
     );
@@ -113,10 +111,10 @@ const EditProfesorModal = ({
     const newAssignment = {
       id: parseInt(deptObj.value),
       nume: deptObj.label,
-      rolDepartament: roleVal, // Folosim aceeasi cheie ca in ProfesorModal
+      rolDepartament: roleVal, 
     };
 
-    // Actualizam prop-ul din parinte
+    
     setDepartamente([...departamente, newAssignment]);
     setSelectedDeptId([]);
   };
@@ -149,7 +147,7 @@ const EditProfesorModal = ({
     setErrors(newErrors);
 
     if (isValid) {
-      onSave(); // Apelam functia de salvare din parinte daca totul e ok
+      onSave(); 
     }
   };
 
@@ -208,7 +206,7 @@ const EditProfesorModal = ({
           flexDirection="column"
           animation="slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards"
         >
-          {/* HEADER */}
+          
           <Box
             p="6"
             bgGradient="linear(to-r, orange.900, red.900)"
@@ -238,10 +236,10 @@ const EditProfesorModal = ({
             </Button>
           </Box>
 
-          {/* BODY */}
+        
           <Box flex="1" overflowY="auto" p="6">
             <Stack spacing="6">
-              {/* INFO PERSONALE */}
+           
               <Box>
                 <Flex align="center" gap="2" color="orange.300" mb="4">
                   <Icon as={FiUser} />
@@ -304,7 +302,7 @@ const EditProfesorModal = ({
 
               <Box h="1px" bg="whiteAlpha.100" />
 
-              {/* ZONA AFILIERE */}
+          
               <Box>
                 <Flex align="center" gap="2" color="orange.300" mb="4">
                   <Icon as={FiLayers} />
@@ -325,7 +323,7 @@ const EditProfesorModal = ({
                     gap="3"
                     alignItems="end"
                   >
-                    {/* --- SELECT DEPARTAMENT --- */}
+                  
                     <Box>
                       <Text color="gray.400" fontSize="xs" mb="1">
                         DEPARTAMENT
@@ -385,7 +383,7 @@ const EditProfesorModal = ({
                       </Select.Root>
                     </Box>
 
-                    {/* --- SELECT ROL (Doar Membru - Blocat Vizual) --- */}
+                  
                     <Box>
                       <Text color="gray.400" fontSize="xs" mb="1">
                         ROL (Fix)
@@ -394,7 +392,7 @@ const EditProfesorModal = ({
                       <Select.Root
                         collection={rolesCollection}
                         value={selectedRole}
-                        disabled={true} // Blocat
+                        disabled={true} 
                       >
                         <Select.HiddenSelect />
                         <Select.Control>
@@ -432,7 +430,7 @@ const EditProfesorModal = ({
                   </Grid>
                 </Box>
 
-                {/* LISTA DEPARTAMENTE */}
+              
                 <Stack mt="4" spacing="2">
                   {departamente.map((dept, idx) => (
                     <Flex
@@ -451,7 +449,7 @@ const EditProfesorModal = ({
                         </Text>
                         <Text color="gray.400" fontSize="xs">
                           {dept.rolDepartament}{" "}
-                          {/* Am unificat cheia cu cea din ProfesorModal */}
+                         
                         </Text>
                       </Box>
 
@@ -473,7 +471,7 @@ const EditProfesorModal = ({
             </Stack>
           </Box>
 
-          {/* FOOTER CU VALIDARE MESAJ */}
+
           <Flex
             p="4"
             bg="blackAlpha.300"
@@ -481,7 +479,7 @@ const EditProfesorModal = ({
             gap="3"
             align="center"
           >
-            {/* Mesaj de eroare similar cu ProfesorModal */}
+          
             {Object.keys(errors).length > 0 && (
               <Flex align="center" gap="2" color="red.400" mr="auto">
                 <Icon as={FiAlertCircle} />

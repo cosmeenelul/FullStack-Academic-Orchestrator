@@ -38,7 +38,6 @@ const SuccessFeedback = ({
       </style>
 
       <VStack spacing={6} textAlign="center" maxW="400px">
-        {/* Icon Container cu efect de Glow și Pulse */}
         <Box
           position="relative"
           w="100px"
@@ -52,7 +51,6 @@ const SuccessFeedback = ({
           borderColor="green.500"
           animation="pulseGreen 2s infinite"
         >
-          {/* Background Glow */}
           <Box
             position="absolute"
             inset="0"

@@ -32,7 +32,7 @@ const ChangeDirectorModal = ({ isOpen, onClose, onSave }) => {
     if (!prof || !prof.departamente) return false;
 
     return prof.departamente.some(
-      (d) => d.id === deptId && d.rolDepartament === "Director"
+      (d) => d.id === deptId && d.rolDepartament === "Director",
     );
   };
 
@@ -49,7 +49,6 @@ const ChangeDirectorModal = ({ isOpen, onClose, onSave }) => {
     if (isOpen) getDepartamente();
   }, [isOpen]);
 
-  // 3. Fetch Profesori (Când se selectează un Departament)
   useEffect(() => {
     if (!selectedDeptId) {
       setProfesoriInDept([]);
@@ -66,18 +65,18 @@ const ChangeDirectorModal = ({ isOpen, onClose, onSave }) => {
         const res = await fetch(url);
 
         if (res.ok) {
-          const data = await res.json(); // Lista de ProfesorDTO
+          const data = await res.json(); 
 
-          // Putem sorta acum, deoarece isDirector este deja definită sus
+         
           const sorted = data.sort((a, b) => {
             const aIsDirector = isDirector(a, deptIdInt);
             const bIsDirector = isDirector(b, deptIdInt);
 
-            // Directorul apare primul
+          
             if (aIsDirector) return -1;
             if (bIsDirector) return 1;
 
-            // Apoi alfabetic
+           
             const numeA = a.nume || "";
             const numeB = b.nume || "";
             return numeA.localeCompare(numeB);
@@ -95,8 +94,8 @@ const ChangeDirectorModal = ({ isOpen, onClose, onSave }) => {
     };
 
     fetchProfesoriByDept();
-    setSelectedProfId(null); // Resetăm selecția anterioară
-  }, [selectedDeptId]); // Se execută când se schimbă ID-ul departamentului
+    setSelectedProfId(null); 
+  }, [selectedDeptId]); 
 
   const departmentsCollection = useMemo(() => {
     return createListCollection({
@@ -127,7 +126,7 @@ const ChangeDirectorModal = ({ isOpen, onClose, onSave }) => {
         `}
       </style>
 
-      {/* OVERLAY */}
+      
       <Box
         position="fixed"
         top="0"
@@ -143,7 +142,7 @@ const ChangeDirectorModal = ({ isOpen, onClose, onSave }) => {
         animation="fadeIn 0.2s ease-out"
         onClick={onClose}
       >
-        {/* MODAL CARD */}
+        
         <Box
           bg="#0f172a"
           w="800px"
@@ -159,7 +158,7 @@ const ChangeDirectorModal = ({ isOpen, onClose, onSave }) => {
           onClick={(e) => e.stopPropagation()}
           animation="slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)"
         >
-          {/* HEADER */}
+          
           <Flex
             p="6"
             bgGradient="linear(to-r, cyan.900, blue.900)"
@@ -193,9 +192,9 @@ const ChangeDirectorModal = ({ isOpen, onClose, onSave }) => {
             </Button>
           </Flex>
 
-          {/* CONTENT */}
+         
           <Flex direction="column" flex="1" overflow="hidden" p="6" gap="6">
-            {/* 1. SELECTARE DEPARTAMENT */}
+           
             <Box>
               <Text
                 color="cyan.400"
@@ -254,7 +253,7 @@ const ChangeDirectorModal = ({ isOpen, onClose, onSave }) => {
               </Select.Root>
             </Box>
 
-            {/* 2. SELECTARE PROFESOR (GRID) */}
+          
             <Box
               flex="1"
               overflowY="hidden"
@@ -311,7 +310,7 @@ const ChangeDirectorModal = ({ isOpen, onClose, onSave }) => {
                       const isActive = selectedProfId === prof.id;
                       const isCurrentDirector = isDirector(
                         prof,
-                        parseInt(selectedDeptId)
+                        parseInt(selectedDeptId),
                       );
 
                       return (
@@ -326,16 +325,16 @@ const ChangeDirectorModal = ({ isOpen, onClose, onSave }) => {
                             isActive
                               ? "cyan.900"
                               : isCurrentDirector
-                              ? "whiteAlpha.100"
-                              : "whiteAlpha.50"
+                                ? "whiteAlpha.100"
+                                : "whiteAlpha.50"
                           }
                           border="1px solid"
                           borderColor={
                             isActive
                               ? "cyan.400"
                               : isCurrentDirector
-                              ? "purple.500"
-                              : "whiteAlpha.100"
+                                ? "purple.500"
+                                : "whiteAlpha.100"
                           }
                           borderRadius="xl"
                           p="4"
@@ -357,8 +356,8 @@ const ChangeDirectorModal = ({ isOpen, onClose, onSave }) => {
                                 isActive
                                   ? "cyan.400"
                                   : isCurrentDirector
-                                  ? "purple.400"
-                                  : "transparent"
+                                    ? "purple.400"
+                                    : "transparent"
                               }
                             >
                               <Avatar.Fallback
@@ -386,7 +385,7 @@ const ChangeDirectorModal = ({ isOpen, onClose, onSave }) => {
                             </Box>
                           </Flex>
 
-                          {/* Badge-uri */}
+                          
                           <Box mt="3">
                             {isCurrentDirector ? (
                               <Badge

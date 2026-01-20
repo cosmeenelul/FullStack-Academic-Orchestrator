@@ -77,7 +77,7 @@ const Profesori = () => {
         let url = "http://localhost:8080/profesori";
 
         if (selectedDeptFilter) {
-          url = `http://localhost:8080/departamente?departamentId=${selectedDeptFilter}`;
+          url = `http://localhost:8080/profesori/departamente?departamentId=${selectedDeptFilter}`;
         }
 
         const res = await fetch(url);
@@ -147,7 +147,7 @@ const Profesori = () => {
   async function getProfesorById(idProfesor) {
     try {
       const res = await fetch(
-        `http://localhost:8080/profesori/profil/${idProfesor}`
+        `http://localhost:8080/profesori/profil/${idProfesor}`,
       );
       const data = await res.json();
       if (res.ok) console.log(data);
@@ -191,7 +191,7 @@ const Profesori = () => {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
-        }
+        },
       );
       const data = await res.json();
       if (res.ok) {
@@ -271,7 +271,7 @@ const Profesori = () => {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ idMembru: profesorId }),
-        }
+        },
       );
 
       if (res.ok) {

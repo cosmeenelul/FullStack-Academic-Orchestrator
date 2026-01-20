@@ -19,7 +19,7 @@ import {
   FiUser,
   FiLayers,
   FiChevronDown,
-  FiAlertCircle, // Iconita pentru eroare
+  FiAlertCircle, 
 } from "react-icons/fi";
 
 const ProfesorModal = ({
@@ -205,7 +205,7 @@ const ProfesorModal = ({
           flexDirection="column"
           animation="slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards"
         >
-          {/* HEADER */}
+          
           <Box
             p="6"
             bgGradient="linear(to-r, blue.900, purple.900)"
@@ -246,7 +246,7 @@ const ProfesorModal = ({
                 </Flex>
 
                 <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap="4">
-                  {/* --- INPUTURI CU VALIDARE --- */}
+                 
                   <Input
                     name="prenume"
                     placeholder="Prenume"
@@ -254,7 +254,7 @@ const ProfesorModal = ({
                     onChange={handleChange}
                     color="white"
                     bg="whiteAlpha.50"
-                    borderColor={errors.prenume ? "red.500" : "whiteAlpha.200"} // Border Rosu
+                    borderColor={errors.prenume ? "red.500" : "whiteAlpha.200"} 
                     _focus={{
                       borderColor: errors.prenume ? "red.500" : "blue.500",
                     }}
@@ -266,7 +266,7 @@ const ProfesorModal = ({
                     onChange={handleChange}
                     color="white"
                     bg="whiteAlpha.50"
-                    borderColor={errors.nume ? "red.500" : "whiteAlpha.200"} // Border Rosu
+                    borderColor={errors.nume ? "red.500" : "whiteAlpha.200"} 
                     _focus={{
                       borderColor: errors.nume ? "red.500" : "blue.500",
                     }}
@@ -278,7 +278,7 @@ const ProfesorModal = ({
                     onChange={handleChange}
                     color="white"
                     bg="whiteAlpha.50"
-                    borderColor={errors.email ? "red.500" : "whiteAlpha.200"} // Border Rosu
+                    borderColor={errors.email ? "red.500" : "whiteAlpha.200"} 
                     _focus={{
                       borderColor: errors.email ? "red.500" : "blue.500",
                     }}
@@ -290,7 +290,7 @@ const ProfesorModal = ({
                     onChange={handleChange}
                     color="white"
                     bg="whiteAlpha.50"
-                    borderColor={errors.telefon ? "red.500" : "whiteAlpha.200"} // Border Rosu
+                    borderColor={errors.telefon ? "red.500" : "whiteAlpha.200"} 
                     _focus={{
                       borderColor: errors.telefon ? "red.500" : "blue.500",
                     }}
@@ -320,7 +320,7 @@ const ProfesorModal = ({
                     gap="3"
                     alignItems="end"
                   >
-                    {/* --- SELECT DEPARTAMENT --- */}
+                    
                     <Box>
                       <Text color="gray.400" fontSize="xs" mb="1">
                         DEPARTAMENT
@@ -448,7 +448,7 @@ const ProfesorModal = ({
                   </Grid>
                 </Box>
 
-                {/* LISTA DEPARTAMENTE */}
+              
                 <Stack mt="4" spacing="2">
                   {idDepartamente.map((dept) => (
                     <Flex
@@ -488,7 +488,7 @@ const ProfesorModal = ({
             </Stack>
           </Box>
 
-          {/* FOOTER */}
+         
           <Flex
             p="4"
             bg="blackAlpha.300"
@@ -496,7 +496,7 @@ const ProfesorModal = ({
             align="center"
             gap="3"
           >
-            {/* MESAJ DE EROARE */}
+          
             {Object.keys(errors).length > 0 && (
               <Flex align="center" gap="2" color="red.400" mr="auto">
                 <Icon as={FiAlertCircle} />
@@ -509,7 +509,7 @@ const ProfesorModal = ({
             <Button onClick={onClose} variant="ghost" color="gray.400">
               Anulează
             </Button>
-            {/* Schimbat onSave cu handleSaveClick */}
+           
             <Button
               onClick={handleSaveClick}
               bg="blue.600"

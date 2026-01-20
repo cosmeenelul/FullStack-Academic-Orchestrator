@@ -15,7 +15,6 @@ const DeleteConfirmationModal = ({
 
   return (
     <>
-     
       <style>
         {`
           @keyframes fadeIn {
@@ -34,7 +33,6 @@ const DeleteConfirmationModal = ({
         `}
       </style>
 
-      {/* --- OVERLAY --- */}
       <Box
         position="fixed"
         top="0"
@@ -108,7 +106,6 @@ const DeleteConfirmationModal = ({
             </Text>
           </Box>
 
-          {/* Butoane Acțiune */}
           <Flex justify="center" gap="4">
             <Button
               onClick={onClose}

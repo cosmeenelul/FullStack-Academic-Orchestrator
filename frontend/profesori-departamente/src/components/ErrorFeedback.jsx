@@ -53,7 +53,7 @@ const ErrorFeedback = ({
           borderColor="red.500"
           animation="pulseRed 2s infinite"
         >
-          {/* Background Glow */}
+          
           <Box
             position="absolute"
             inset="0"
@@ -76,7 +76,7 @@ const ErrorFeedback = ({
         </Box>
 
         <Box display="flex" gap="4">
-          {/* Buton Închide */}
+          
           {onClose && (
             <Button
               onClick={onClose}

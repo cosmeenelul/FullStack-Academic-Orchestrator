@@ -93,13 +93,10 @@ const ProfesorDetailsModal = ({ isOpen, onClose, profesor }) => {
             }}
             transition="all 0.3s"
           >
-            {/* Iconița explicită */}
             <FiX size={18} />
           </IconButton>
 
-          {/* --- ZONA STATICĂ (Header + Avatar) --- */}
           <Box flexShrink={0}>
-            {/* Header Gradient */}
             <Box
               h="120px"
               bgGradient="to-r"
@@ -107,7 +104,6 @@ const ProfesorDetailsModal = ({ isOpen, onClose, profesor }) => {
               gradientTo="purple.900"
             />
 
-            {/* Avatar și Nume */}
             <Flex direction="column" align="center" mt="-60px" px="6" pb="2">
               <Box p="1.5" bg="#0f172a" borderRadius="full">
                 <Avatar.Root
@@ -204,10 +200,8 @@ const ProfesorDetailsModal = ({ isOpen, onClose, profesor }) => {
               </Flex>
             </Grid>
 
-            {/* Separator */}
             <Box as="hr" border="none" h="1px" bg="whiteAlpha.200" mb="6" />
 
-            {/* Departamente */}
             <Box>
               <Stack
                 direction="row"

@@ -44,7 +44,6 @@ const DepartamentModal = ({
         `}
       </style>
 
-      {/* --- OVERLAY (FUNDALUL NEGRU) --- */}
       <Box
         position="fixed"
         top="0"
@@ -59,7 +58,6 @@ const DepartamentModal = ({
         animation="fadeIn 0.3s ease-out forwards"
         onClick={onClose}
       >
-        {/* --- FEREASTRA MODALĂ --- */}
         <Box
           bg="#0f172a"
           w="500px"
@@ -70,10 +68,9 @@ const DepartamentModal = ({
           boxShadow="0 25px 50px -12px rgba(0, 0, 0, 0.8)"
           p="6"
           position="relative"
-          onClick={(e) => e.stopPropagation()} // Oprește click-ul să ajungă la fundal
+          onClick={(e) => e.stopPropagation()}
           animation="slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards"
         >
-          {/* Header */}
           <Flex justify="space-between" align="center" mb="6">
             <Box>
               <Heading size="lg" color="white">
@@ -97,7 +94,6 @@ const DepartamentModal = ({
             </IconButton>
           </Flex>
 
-          {/* Formular */}
           <Stack gap="5">
             <Box>
               <Text
@@ -176,7 +172,6 @@ const DepartamentModal = ({
             </Box>
           </Stack>
 
-          {/* Footer Butoane */}
           <Flex mt="8" justify="flex-end" gap="3">
             <Button
               onClick={onClose}
