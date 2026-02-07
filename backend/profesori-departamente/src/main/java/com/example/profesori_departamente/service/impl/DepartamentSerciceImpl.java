@@ -67,6 +67,7 @@ public class DepartamentSerciceImpl implements DepartamentService {
 	}
 
 	@Override
+	@Transactional
 	public DepartamentDTO updateById(Integer id, CreateDepartamentRequest createDepartamentRequest) {
 		Departament departament = departamentRepository.findById(id).orElseThrow(()->new RuntimeException("Acest departament nu exista!"));
 

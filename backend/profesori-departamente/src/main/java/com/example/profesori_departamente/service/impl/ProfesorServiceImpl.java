@@ -63,6 +63,7 @@ public class ProfesorServiceImpl implements ProfesorService {
 	}
 
 	@Override
+	@Transactional
 	public ProfesorDTO deleteById(Integer idProfesor) {
 		ProfesorDTO profesorSters = profesorMapper.toDTO(profesorRepository.findById(idProfesor)
 				.orElseThrow(()->new RuntimeException("Nu exista acest profesor in baza de date!")));
