@@ -7,9 +7,25 @@ services:
       MYSQL_ROOT_PASSWORD: password
       MYSQL_DATABASE: profesoriDepartamenteDB
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - mysql-data-prof-dep:/var/lib/mysql
+    networks:
+      - prof-dep-network
 
+  backend:
+    image: backend-profesori-img
+    container_name: spring-backend-container
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    networks:
+      - prof-dep-network
+
+networks:
+  prof-dep-network:
+    driver: "bridge"
+    name: prof-dep-network
 volumes:
   mysql-data-prof-dep:

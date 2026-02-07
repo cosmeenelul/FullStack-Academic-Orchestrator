@@ -1,5 +1,10 @@
+DROP DATABASE IF EXISTS profesoriDepartamenteDB;
+CREATE DATABASE profesoriDepartamenteDB;
 USE profesoriDepartamenteDB;
 
+DROP TABLE IF EXISTS tblDepartamente;
+DROP TABLE IF EXISTS tblProfesori;
+DROP TABLE IF EXISTS tblProfesoriDepartamente;
 CREATE TABLE tblDepartamente(
 	id INT AUTO_INCREMENT PRIMARY KEY,
     nume VARCHAR(100) NOT NULL,
