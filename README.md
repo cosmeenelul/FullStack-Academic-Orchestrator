@@ -8,7 +8,7 @@
 
 Un sistem modern și performant de management pentru cadre didactice și departamente universitare. Proiectul demonstrează implementarea unei arhitecturi **Full-Stack** complet containerizate, aflată într-o rețea Docker.
 
-[arhitectura-retea.png]
+![Arhitectură Rețea](./docs/arhitectura-retea.png)
 
 ## 🛠️ Stack Tehnologic
 
