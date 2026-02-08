@@ -16,6 +16,7 @@ Un sistem modern și performant de management pentru cadre didactice și departa
 ![Pagina Profesori](./docs/profesori.jpg)
 ![Profesor Nou Modal](./docs/profesor-nou.jpg)
 ![Schimbare Director](./docs/schimbare-director.jpg)
+![Profil Profesor](./docs/profil-profesor.jpg)
 
 ![Arhitectură Rețea](./docs/arhitectura-retea.png)
 
