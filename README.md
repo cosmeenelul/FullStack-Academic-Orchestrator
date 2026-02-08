@@ -56,14 +56,14 @@ Proiectul utilizează o rețea de tip `bridge` izolată, numită `prof-dep-netwo
 
 * **Frontend (Nginx):**
     * **Rol:** Servește fișierele statice rezultate din build-ul de React (Vite).
-    * **Networking:** Ascultă pe portul `80` în interiorul rețelei Docker, dar este mapat pe portul **`5173`** pe laptopul tău (Host).
+    * **Networking:** Ascultă pe portul `80` în interiorul rețelei Docker, dar este mapat pe portul **`5173`**.
 * **Backend (Spring Boot):**
     * **Rol:** Gestionează logica de business și expune endpoint-urile REST.
     * **Networking:** Comunică cu baza de date folosind direct numele containerului: `mysql-prof-dep-container` pe portul `3306`.
 * **Database (MySQL):**
     * **Rol:** Stocarea persistentă a datelor despre profesori și departamente.
-    * **Persistență:** Utilizează un volum Docker persistent numit `mysql-data-prof-dep`. Aceasta asigură că datele tale rămân intacte chiar dacă oprești sau ștergi containerele.
-    * **Acces extern:** Este mapat pe portul **`3307`** pe host pentru a permite interogări din unelte precum MySQL Workbench sau IntelliJ, fără a intra în conflict cu alte baze de date locale.
+    * **Persistență:** Utilizează un volum Docker persistent numit `mysql-data-prof-dep`. Aceasta asigură că datele rămân intacte chiar dacă se opresc containerele.
+    * **Acces extern:** Este mapat pe portul **`3307`** pe host pentru a permite interogări
 
 ---
 
