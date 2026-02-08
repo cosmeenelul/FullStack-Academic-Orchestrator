@@ -19,7 +19,7 @@ import {
   FiUser,
   FiLayers,
   FiChevronDown,
-  FiAlertCircle, 
+  FiAlertCircle,
 } from "react-icons/fi";
 
 const EditProfesorModal = ({
@@ -28,18 +28,15 @@ const EditProfesorModal = ({
   formData,
   setFormData,
   onSave,
-  departamente, 
-  setDepartamente, 
+  departamente,
+  setDepartamente,
 }) => {
   const [listaDepartamente, setListaDepatamente] = useState([]);
 
- 
   const [errors, setErrors] = useState({});
 
- 
-
   const [selectedDeptId, setSelectedDeptId] = useState([]);
-  
+
   const [selectedRole, setSelectedRole] = useState(["Membru"]);
 
   const departmentsCollection = useMemo(() => {
@@ -55,7 +52,6 @@ const EditProfesorModal = ({
     items: [{ label: "Membru", value: "Membru" }],
   });
 
-  
   useEffect(() => {
     async function getDepartamente() {
       try {
@@ -71,7 +67,6 @@ const EditProfesorModal = ({
     getDepartamente();
   }, []);
 
-
   useEffect(() => {
     if (isOpen) {
       setErrors({});
@@ -82,7 +77,6 @@ const EditProfesorModal = ({
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
 
-   
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: false }));
     }
@@ -95,12 +89,11 @@ const EditProfesorModal = ({
     if (!deptIdVal) return;
 
     const deptObj = departmentsCollection.items.find(
-      (d) => d.value === deptIdVal
+      (d) => d.value === deptIdVal,
     );
 
-    
     const alreadyExists = departamente.find(
-      (d) => d.id === parseInt(deptIdVal)
+      (d) => d.id === parseInt(deptIdVal),
     );
 
     if (alreadyExists) {
@@ -111,10 +104,9 @@ const EditProfesorModal = ({
     const newAssignment = {
       id: parseInt(deptObj.value),
       nume: deptObj.label,
-      rolDepartament: roleVal, 
+      rolDepartament: roleVal,
     };
 
-    
     setDepartamente([...departamente, newAssignment]);
     setSelectedDeptId([]);
   };
@@ -147,7 +139,7 @@ const EditProfesorModal = ({
     setErrors(newErrors);
 
     if (isValid) {
-      onSave(); 
+      onSave();
     }
   };
 
@@ -206,7 +198,6 @@ const EditProfesorModal = ({
           flexDirection="column"
           animation="slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards"
         >
-          
           <Box
             p="6"
             bgGradient="linear(to-r, orange.900, red.900)"
@@ -236,10 +227,8 @@ const EditProfesorModal = ({
             </Button>
           </Box>
 
-        
           <Box flex="1" overflowY="auto" p="6">
             <Stack spacing="6">
-           
               <Box>
                 <Flex align="center" gap="2" color="orange.300" mb="4">
                   <Icon as={FiUser} />
@@ -302,7 +291,6 @@ const EditProfesorModal = ({
 
               <Box h="1px" bg="whiteAlpha.100" />
 
-          
               <Box>
                 <Flex align="center" gap="2" color="orange.300" mb="4">
                   <Icon as={FiLayers} />
@@ -323,7 +311,6 @@ const EditProfesorModal = ({
                     gap="3"
                     alignItems="end"
                   >
-                  
                     <Box>
                       <Text color="gray.400" fontSize="xs" mb="1">
                         DEPARTAMENT
@@ -383,7 +370,6 @@ const EditProfesorModal = ({
                       </Select.Root>
                     </Box>
 
-                  
                     <Box>
                       <Text color="gray.400" fontSize="xs" mb="1">
                         ROL (Fix)
@@ -392,7 +378,7 @@ const EditProfesorModal = ({
                       <Select.Root
                         collection={rolesCollection}
                         value={selectedRole}
-                        disabled={true} 
+                        disabled={true}
                       >
                         <Select.HiddenSelect />
                         <Select.Control>
@@ -430,7 +416,6 @@ const EditProfesorModal = ({
                   </Grid>
                 </Box>
 
-              
                 <Stack mt="4" spacing="2">
                   {departamente.map((dept, idx) => (
                     <Flex
@@ -449,7 +434,6 @@ const EditProfesorModal = ({
                         </Text>
                         <Text color="gray.400" fontSize="xs">
                           {dept.rolDepartament}{" "}
-                         
                         </Text>
                       </Box>
 
@@ -471,7 +455,6 @@ const EditProfesorModal = ({
             </Stack>
           </Box>
 
-
           <Flex
             p="4"
             bg="blackAlpha.300"
@@ -479,7 +462,6 @@ const EditProfesorModal = ({
             gap="3"
             align="center"
           >
-          
             {Object.keys(errors).length > 0 && (
               <Flex align="center" gap="2" color="red.400" mr="auto">
                 <Icon as={FiAlertCircle} />

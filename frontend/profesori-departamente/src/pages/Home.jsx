@@ -94,15 +94,15 @@ const Home = () => {
               prof.departamente.some(
                 (d) =>
                   d.id === dept.id ||
-                  (d.departament && d.departament.id === dept.id)
-              )
+                  (d.departament && d.departament.id === dept.id),
+              ),
           );
 
           const profesoriMapati = membriDepartament.map((prof) => {
             const legatura = prof.departamente.find(
               (d) =>
                 d.id === dept.id ||
-                (d.departament && d.departament.id === dept.id)
+                (d.departament && d.departament.id === dept.id),
             );
             return {
               profesor: prof,
@@ -216,7 +216,7 @@ const Home = () => {
   const getDirectorName = (dept) => {
     if (!dept.profesori || dept.profesori.length === 0) return "Nedesemnat";
     const directorEntry = dept.profesori.find(
-      (p) => p.rolDepartament === "Director"
+      (p) => p.rolDepartament === "Director",
     );
     if (directorEntry && directorEntry.profesor) {
       return `${directorEntry.profesor.nume} ${directorEntry.profesor.prenume}`;

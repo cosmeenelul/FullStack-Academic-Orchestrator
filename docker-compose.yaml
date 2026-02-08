@@ -23,6 +23,15 @@ services:
     networks:
       - prof-dep-network
 
+  frontend:
+    build:
+      context: ./frontend/profesori-departamente
+      dockerfile: Dockerfile
+    container_name: react-vite-frontend
+    ports:
+      - "5173:80"
+    networks:
+      - prof-dep-network
 networks:
   prof-dep-network:
     driver: "bridge"

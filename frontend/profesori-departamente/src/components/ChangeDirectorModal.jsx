@@ -65,18 +65,15 @@ const ChangeDirectorModal = ({ isOpen, onClose, onSave }) => {
         const res = await fetch(url);
 
         if (res.ok) {
-          const data = await res.json(); 
+          const data = await res.json();
 
-         
           const sorted = data.sort((a, b) => {
             const aIsDirector = isDirector(a, deptIdInt);
             const bIsDirector = isDirector(b, deptIdInt);
 
-          
             if (aIsDirector) return -1;
             if (bIsDirector) return 1;
 
-           
             const numeA = a.nume || "";
             const numeB = b.nume || "";
             return numeA.localeCompare(numeB);
@@ -94,8 +91,8 @@ const ChangeDirectorModal = ({ isOpen, onClose, onSave }) => {
     };
 
     fetchProfesoriByDept();
-    setSelectedProfId(null); 
-  }, [selectedDeptId]); 
+    setSelectedProfId(null);
+  }, [selectedDeptId]);
 
   const departmentsCollection = useMemo(() => {
     return createListCollection({
@@ -126,7 +123,6 @@ const ChangeDirectorModal = ({ isOpen, onClose, onSave }) => {
         `}
       </style>
 
-      
       <Box
         position="fixed"
         top="0"
@@ -142,7 +138,6 @@ const ChangeDirectorModal = ({ isOpen, onClose, onSave }) => {
         animation="fadeIn 0.2s ease-out"
         onClick={onClose}
       >
-        
         <Box
           bg="#0f172a"
           w="800px"
@@ -158,7 +153,6 @@ const ChangeDirectorModal = ({ isOpen, onClose, onSave }) => {
           onClick={(e) => e.stopPropagation()}
           animation="slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)"
         >
-          
           <Flex
             p="6"
             bgGradient="linear(to-r, cyan.900, blue.900)"
@@ -192,9 +186,7 @@ const ChangeDirectorModal = ({ isOpen, onClose, onSave }) => {
             </Button>
           </Flex>
 
-         
           <Flex direction="column" flex="1" overflow="hidden" p="6" gap="6">
-           
             <Box>
               <Text
                 color="cyan.400"
@@ -253,7 +245,6 @@ const ChangeDirectorModal = ({ isOpen, onClose, onSave }) => {
               </Select.Root>
             </Box>
 
-          
             <Box
               flex="1"
               overflowY="hidden"
@@ -385,7 +376,6 @@ const ChangeDirectorModal = ({ isOpen, onClose, onSave }) => {
                             </Box>
                           </Flex>
 
-                          
                           <Box mt="3">
                             {isCurrentDirector ? (
                               <Badge
