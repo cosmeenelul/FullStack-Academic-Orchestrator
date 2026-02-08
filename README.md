@@ -3,8 +3,10 @@
 [![Java](https://img.shields.io/badge/Java-17-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)](https://www.oracle.com/java/)
 [![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.0-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white)](https://spring.io/projects/spring-boot)
 [![React](https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://reactjs.org/)
+[![Chakra UI](https://img.shields.io/badge/Chakra--UI-319795?style=for-the-badge&logo=chakra-ui&logoColor=white)](https://chakra-ui.com/)
 [![Vite](https://img.shields.io/badge/Vite-5.0-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
 [![Docker](https://img.shields.io/badge/Docker-Container-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
+
 
 Un sistem modern și performant de management pentru cadre didactice și departamente universitare. Proiectul demonstrează implementarea unei arhitecturi **Full-Stack** complet containerizate, aflată într-o rețea Docker.
 
@@ -27,7 +29,9 @@ Un sistem modern și performant de management pentru cadre didactice și departa
 * **Management Dependențe:** Maven
 
 ### **Frontend**
-* **Limbaj:** React 18 (JavaScript)
+* **Limbaj:** JavaScript
+* * **Framework:** React 18
+* * **Librarie:** Chakra UI
 * **Build Tool:** Vite 
 * **Server Producție:** Nginx
 * **Client HTTP:** Fetch API
