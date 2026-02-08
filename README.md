@@ -12,7 +12,7 @@ Un sistem modern și performant de management pentru cadre didactice și departa
 
 ## 🛠️ Stack Tehnologic
 
-### **Backend **
+### **Backend**
 * **Framework:** Spring Boot 3
 * **Limbaj:** Java 17
 * **Persistență:** Spring Data JPA (Hibernate)
