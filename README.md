@@ -6,9 +6,10 @@
 [![Chakra UI](https://img.shields.io/badge/Chakra--UI-319795?style=for-the-badge&logo=chakra-ui&logoColor=white)](https://chakra-ui.com/)
 [![Vite](https://img.shields.io/badge/Vite-5.0-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
 [![Docker](https://img.shields.io/badge/Docker-Container-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
+[![AWS](https://img.shields.io/badge/Deployed_on-AWS_Lightsail-FF9900?style=for-the-badge&logo=amazon-aws&logoColor=white)](https://aws.amazon.com/lightsail/)
+[![Docker Hub](https://img.shields.io/badge/Images_on-Docker_Hub-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://hub.docker.com/u/cosmeenelul)
 
-
-Un sistem modern și performant de management pentru cadre didactice și departamente universitare. Proiectul demonstrează implementarea unei arhitecturi **Full-Stack** complet containerizate, aflată într-o rețea Docker.
+Un sistem modern și performant de management pentru cadre didactice și departamente universitare. Proiectul demonstrează implementarea unei arhitecturi **Full-Stack** complet containerizate, care se află într-o rețea Docker, migrată din mediul de dezvoltare local în **Cloud (AWS)** folosind Amazon Lightsail și un flux de lucru de tip CI/CD manual.
 
 ## 📷 Imagini Demo ale Aplicației
 ![Pagina Home](./docs/home.jpg)
@@ -39,24 +40,37 @@ Un sistem modern și performant de management pentru cadre didactice și departa
 * **Server Producție:** Nginx
 * **Client HTTP:** Fetch API
 
-### **Infrastructure**
-* **Orchestrare:** Docker & Docker Compose
-* **Imagini:** Multi-stage build pentru reducerea dimensiunii imaginilor
-* **Networking:** Rețea izolată Docker pentru securitatea comunicării între containere
+## ⚙️ Infrastructure & DevOps Architecture
+
+* **Orchestrare Multi-Container:** Utilizarea **Docker Compose** pentru definirea și gestionarea întregului stack și pentru deploy pe server.
+* **Repository Containere:** Am utilizat *Docker Hub* pentru a urca imaginile create local, ulterior folosind-ule pentru un deploy rapid si fluid.
+* **Imagini Optimizate (Multi-Stage Builds):** Implementarea strategiei de *Multi-Stage Build* pentru a separa mediul de compilare de cel de rulare, rezultând imagini de producție de dimensiuni reduse și securitate sporită.
+* **Networking Izolat & Securizat:** Arhitectură de rețea privată de tip *bridge*, care izolează baza de date și backend-ul de accesul public. Comunicarea între servicii se realizează exclusiv prin DNS-ul intern Docker.
+* **High Availability & Auto-Healing:** Configurare de politici de restart (`on-failure`) și mecanisme de **Healthcheck**, asigurând repornirea automată a serviciilor în caz de erori critice.
+* **Cloud Performance Tuning:** Optimizarea instanței VPS prin configurarea de **Virtual Memory (SWAP)** pentru a gestiona eficient consumul de resurse al JVM-ului și al bazei de date.
 
 ---
 
 ## 🚀 Pornirea Rapidă (Quick Start)
 
-Nu este necesară instalarea locală a Java, Node.js sau MySQL. Proiectul este complet automatizat prin Docker.
+Aveți nevoie de Docker instalat, dar nu este necesară instalarea locală a Java, Node.js sau MySQL. Proiectul este complet automatizat prin Docker.
 
-### 1. Clonarea proiectului
+### Deploy rapid (producție/server)
+```bash
+docker compose up -f docker-compose.prod.yaml -d
+docker ps
+```
+
+
+### Deploy rapid (local)
 ```bash
 git clone [https://github.com/username-ul-tau/FullStack-Academic-Orchestrator.git](https://github.com/username-ul-tau/FullStack-Academic-Orchestrator.git)
 cd FullStack-Academic-Orchestrator
 docker compose up -d --build
 docker ps
 ```
+
+
 ### **Accesarea Serviciilor**
 * **Frontend (React)**:	http://localhost:5173	
 * **Backend (API)**:	http://localhost:8080
