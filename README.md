@@ -57,6 +57,7 @@ Aveți nevoie de Docker instalat, dar nu este necesară instalarea locală a Jav
 
 ### Deploy rapid (producție/server)
 ```bash
+cd mysql-init/
 docker compose up -f docker-compose.prod.yaml -d
 docker ps
 ```
