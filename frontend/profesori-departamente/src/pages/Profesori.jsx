@@ -74,10 +74,10 @@ const Profesori = () => {
     async function fetchProfesori() {
       setSpinnerOpen(true);
       try {
-        let url = "http://localhost:8080/profesori";
+        let url = "/api/profesori";
 
         if (selectedDeptFilter) {
-          url = `http://localhost:8080/profesori/departamente?departamentId=${selectedDeptFilter}`;
+          url = `/api/profesori/departamente?departamentId=${selectedDeptFilter}`;
         }
 
         const res = await fetch(url);
@@ -117,7 +117,7 @@ const Profesori = () => {
   useEffect(() => {
     async function getDepartamenteFilter() {
       try {
-        const res = await fetch("http://localhost:8080/departamente");
+        const res = await fetch("/api/departamente");
         const data = await res.json();
         if (res.ok) {
           setFilterDepartamente(data);
@@ -146,9 +146,7 @@ const Profesori = () => {
 
   async function getProfesorById(idProfesor) {
     try {
-      const res = await fetch(
-        `http://localhost:8080/profesori/profil/${idProfesor}`,
-      );
+      const res = await fetch(`/api/profesori/profil/${idProfesor}`);
       const data = await res.json();
       if (res.ok) console.log(data);
       else throw new Error(data.message);
@@ -161,7 +159,7 @@ const Profesori = () => {
   async function saveProfesor(payload) {
     setTipOperatiune("ADD");
     try {
-      const res = await fetch("http://localhost:8080/profesori", {
+      const res = await fetch("/api/profesori", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -185,14 +183,11 @@ const Profesori = () => {
   async function editProfesor(payload) {
     setTipOperatiune("EDIT");
     try {
-      const res = await fetch(
-        `http://localhost:8080/profesori/${currentEditId}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        },
-      );
+      const res = await fetch(`/api/profesori/${currentEditId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
       const data = await res.json();
       if (res.ok) {
         setSuccessFeedback(true);
@@ -247,7 +242,7 @@ const Profesori = () => {
 
   async function deleteById(id) {
     try {
-      const res = await fetch(`http://localhost:8080/profesori/${id}`, {
+      const res = await fetch(`/api/profesori/${id}`, {
         method: "DELETE",
       });
       if (res.ok) {
@@ -265,14 +260,11 @@ const Profesori = () => {
 
   async function handleChangeDirector(departamentId, profesorId) {
     try {
-      const res = await fetch(
-        `http://localhost:8080/profesor-departament/${departamentId}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ idMembru: profesorId }),
-        },
-      );
+      const res = await fetch(`/api/profesor-departament/${departamentId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idMembru: profesorId }),
+      });
 
       if (res.ok) {
         setSuccessFeedback(true);

@@ -80,8 +80,8 @@ const Home = () => {
       try {
         setIsLoadingData(true);
         const [resProfesori, resDepartamente] = await Promise.all([
-          fetch("http://localhost:8080/profesori"),
-          fetch("http://localhost:8080/departamente"),
+          fetch("/api/profesori"),
+          fetch("/api/departamente"),
         ]);
 
         const dataProfesori = await resProfesori.json();
@@ -178,7 +178,7 @@ const Home = () => {
     const checkServer = async () => {
       const start = Date.now();
       try {
-        const res = await fetch("http://localhost:8080/profesori/ping");
+        const res = await fetch("/api/profesori/ping");
         const end = Date.now();
         const latency = end - start;
 

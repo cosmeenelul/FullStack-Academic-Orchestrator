@@ -49,7 +49,7 @@ const Departamente = () => {
   useEffect(() => {
     async function getDepartamente() {
       try {
-        const res = await fetch("http://localhost:8080/departamente");
+        const res = await fetch("/api/departamente");
         const departamente = await res.json();
         console.log(departamente);
         setListaDepartamente(departamente);
@@ -65,7 +65,7 @@ const Departamente = () => {
   async function saveNewDepartment() {
     setTipOperatiune("ADD");
     try {
-      const res = await fetch("http://localhost:8080/departamente", {
+      const res = await fetch("/api/departamente", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(dateFormular),
@@ -94,7 +94,7 @@ const Departamente = () => {
 
   async function deleteDepartament(id) {
     try {
-      const res = await fetch(`http://localhost:8080/departamente/${id}`, {
+      const res = await fetch(`/api/departamente/${id}`, {
         method: "DELETE",
       });
 
@@ -111,7 +111,7 @@ const Departamente = () => {
   async function editDepartament(id) {
     setTipOperatiune("EDIT");
     try {
-      const res = await fetch(`http://localhost:8080/departamente/${id}`, {
+      const res = await fetch(`/api/departamente/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(dateFormular),

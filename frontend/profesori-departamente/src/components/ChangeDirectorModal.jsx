@@ -39,7 +39,7 @@ const ChangeDirectorModal = ({ isOpen, onClose, onSave }) => {
   useEffect(() => {
     async function getDepartamente() {
       try {
-        const res = await fetch("http://localhost:8080/departamente");
+        const res = await fetch("/api/departamente");
         const data = await res.json();
         if (res.ok) setListaDepartamente(data);
       } catch (error) {
@@ -60,7 +60,7 @@ const ChangeDirectorModal = ({ isOpen, onClose, onSave }) => {
     const fetchProfesoriByDept = async () => {
       setIsLoadingProfs(true);
       try {
-        const url = `http://localhost:8080/profesori/departamente?departamentId=${deptIdInt}`;
+        const url = `api/profesori/departamente?departamentId=${deptIdInt}`;
 
         const res = await fetch(url);
 

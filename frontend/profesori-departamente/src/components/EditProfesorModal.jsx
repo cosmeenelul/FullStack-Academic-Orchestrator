@@ -55,7 +55,7 @@ const EditProfesorModal = ({
   useEffect(() => {
     async function getDepartamente() {
       try {
-        const res = await fetch("http://localhost:8080/departamente");
+        const res = await fetch("/api/departamente");
         const data = await res.json();
         if (res.ok) {
           setListaDepatamente(data);
