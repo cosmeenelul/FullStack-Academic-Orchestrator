@@ -1,4 +1,6 @@
 # 🎓 FullStack Academic Orchestrator
+***Puteți accesa aplicația la adresa:*** http://63.182.19.214/
+
 
 [![Java](https://img.shields.io/badge/Java-17-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)](https://www.oracle.com/java/)
 [![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.0-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white)](https://spring.io/projects/spring-boot)
@@ -72,9 +74,9 @@ docker ps
 ```
 
 
-### **Accesarea Serviciilor**
-* **Frontend (React)**:	http://localhost:5173	
-* **Backend (API)**:	http://localhost:8080
+### **Accesare Web App Local:** http://localhost
+### **Accesare Web App Producție:** http://IP-UL TAU PUBLIC
+
 
 ## 🏗️ Arhitectura de Rețea Docker
 
@@ -85,7 +87,7 @@ Proiectul utilizează o rețea de tip `bridge` izolată, numită `prof-dep-netwo
 
 * **Frontend (Nginx):**
     * **Rol:** Servește fișierele statice rezultate din build-ul de React (Vite).
-    * **Networking:** Ascultă pe portul `80` în interiorul rețelei Docker, dar este mapat pe portul **`5173`**.
+    * **Networking:** Ascultă pe portul `80` în interiorul rețelei Docker, și este mapat pe portul **`80`**.
 * **Backend (Spring Boot):**
     * **Rol:** Gestionează logica de business și expune endpoint-urile REST.
     * **Networking:** Comunică cu baza de date folosind direct numele containerului: `mysql-prof-dep-container` pe portul `3306`.
