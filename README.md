@@ -18,6 +18,8 @@ Un sistem modern și performant de management pentru cadre didactice și departa
 ![Schimbare Director](./docs/schimbare-director.jpg)
 ![Profil Profesor](./docs/profil-profesor.jpg)
 
+
+## 📷 Arhitectura Rețelei
 ![Arhitectură Rețea](./docs/arhitectura-retea.png)
 
 ## 🛠️ Stack Tehnologic
