@@ -10,6 +10,7 @@ services:
       - "3307:3306"
     volumes:
       - mysql-data-prof-dep:/var/lib/mysql
+      - ./mysql-init:/docker-entrypoint-initdb.d
     networks:
       - prof-dep-network
 
@@ -20,6 +21,7 @@ services:
       - "8080:8080"
     depends_on:
       - db
+    restart: on-failure
     networks:
       - prof-dep-network
 
