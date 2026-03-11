@@ -59,7 +59,7 @@ Aveți nevoie de Docker instalat, dar nu este necesară instalarea locală a Jav
 
 ### Deploy rapid (producție/server)
 ```bash
-docker compose up -f docker-compose.prod.yaml -d
+docker compose up -f docker-compose.yaml -d
 docker ps
 ```
 
