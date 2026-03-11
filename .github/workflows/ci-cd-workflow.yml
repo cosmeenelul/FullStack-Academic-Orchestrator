@@ -41,7 +41,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: ./backend/profesori-departamente
-          file: Dockerfile
+          file: ./backend/profesori-departamente/Dockerfile
           push: true
           tags: ${{ vars.DOCKERHUB_USERNAME }}/backend-profesori:latest
 
@@ -82,7 +82,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: ./frontend/profesori-departamente
-          file: Dockerfile
+          file: ./frontend/profesori-departamente/Dockerfile
           push: true
           tags: ${{ vars.DOCKERHUB_USERNAME }}/frontend-profesori:latest
       # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
