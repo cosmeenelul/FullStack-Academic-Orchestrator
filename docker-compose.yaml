@@ -10,7 +10,6 @@ services:
       - "3307:3306"
     volumes:
       - mysql-data-prof-dep:/var/lib/mysql
-      - ./mysql-init:/docker-entrypoint-initdb.d
     networks:
       - prof-dep-network
     deploy:
@@ -19,7 +18,7 @@ services:
           memory: 350M
 
   backend:
-    image: backend-profesori-img
+    image: cosmeenelul/backend-profesori:latest
     container_name: spring-backend-container
     ports:
       - "8080:8080"
@@ -34,17 +33,22 @@ services:
           memory: 450M
 
   frontend:
-    build:
-      context: ./frontend/profesori-departamente
-      dockerfile: Dockerfile
+    image: cosmeenelul/frontend-profesori:latest
     container_name: react-vite-frontend
     ports:
       - "80:80"
+    restart: always
     networks:
       - prof-dep-network
+    deploy:
+      resources:
+        limits:
+          memory: 200M
+
 networks:
   prof-dep-network:
     driver: "bridge"
     name: prof-dep-network
+
 volumes:
   mysql-data-prof-dep:
