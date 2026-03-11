@@ -81,7 +81,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [backend-build, frontend]
     steps:
-      - uses: checkout/actions@v4
+      - uses: actions/checkout@v4
       - name: Copy docker-compose to Lightsail
         uses: appleboy/scp-action@v0.1.7
         with:
