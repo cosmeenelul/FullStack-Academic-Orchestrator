@@ -99,4 +99,4 @@ jobs:
           key: ${{ secrets.LIGHTSAIL_SSH_KEY }}
           script: |
             cd /home/${{ secrets.LIGHTSAIL_USER }}/EDU-Manager-App
-            docker compose up -d --build
+            docker-compose up -d --build
