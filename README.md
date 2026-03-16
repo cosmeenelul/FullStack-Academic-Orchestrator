@@ -3,6 +3,7 @@
 
 [![Docker](https://img.shields.io/badge/Docker-Container-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
 [![AWS](https://img.shields.io/badge/Deployed_on-AWS_Lightsail-FF9900?style=for-the-badge&logo=amazon-aws&logoColor=white)](https://aws.amazon.com/lightsail/)
+[![CI/CD Pipeline](https://img.shields.io/badge/CI%2FCD-GitHub_Actions-2088FF?style=for-the-badge&logo=github-actions&logoColor=white)](https://github.com/features/actions)
 [![Docker Hub](https://img.shields.io/badge/Images_on-Docker_Hub-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://hub.docker.com/u/cosmeenelul)
 [![Java](https://img.shields.io/badge/Java-17-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)](https://www.oracle.com/java/)
 [![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.0-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white)](https://spring.io/projects/spring-boot)
@@ -11,7 +12,7 @@
 [![Vite](https://img.shields.io/badge/Vite-5.0-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
 
 
-Un sistem modern și performant de management pentru cadre didactice și departamente universitare. Proiectul demonstrează implementarea unei arhitecturi **Full-Stack** complet containerizate, care se află într-o rețea Docker, migrată din mediul de dezvoltare local în **Cloud (AWS)** folosind **Amazon Lightsail** și un flux de lucru de tip CI/CD manual.
+Un sistem modern și performant de management pentru cadre didactice și departamente universitare. Proiectul demonstrează implementarea unei arhitecturi Full-Stack complet **containerizate**, orchestrată prin **Docker Compose** și găzduită în **Cloud (AWS Lightsail)**. Ciclul de viață al aplicației este susținut de un **pipeline CI/CD** complet automatizat prin **GitHub Actions**, eliminând nevoia de deployment manual.
 
 ## 📷 Imagini Demo ale Aplicației
 ![Pagina Home](./docs/home.jpg)
@@ -42,14 +43,24 @@ Un sistem modern și performant de management pentru cadre didactice și departa
 * **Server Producție:** Nginx
 * **Client HTTP:** Fetch API
 
-## ⚙️ Infrastructure & DevOps Architecture
 
-* **Orchestrare Multi-Container:** Utilizarea **Docker Compose** pentru definirea și gestionarea întregului stack și pentru deploy pe server.
-* **Repository Containere:** Am utilizat *Docker Hub* pentru a urca imaginile create local, ulterior folosind-ule pentru un deploy rapid si fluid.
-* **Imagini Optimizate (Multi-Stage Builds):** Implementarea strategiei de *Multi-Stage Build* pentru a separa mediul de compilare de cel de rulare, rezultând imagini de producție de dimensiuni reduse și securitate sporită.
-* **Networking Izolat & Securizat:** Arhitectură de rețea privată de tip *bridge*, care izolează baza de date și backend-ul de accesul public. Comunicarea între servicii se realizează exclusiv prin DNS-ul intern Docker.
-* **High Availability & Auto-Healing:** Configurare de politici de restart (`on-failure`) și mecanisme de **Healthcheck**, asigurând repornirea automată a serviciilor în caz de erori critice.
-* **Cloud Performance Tuning:** Optimizarea instanței VPS prin configurarea de **Virtual Memory (SWAP)** pentru a gestiona eficient consumul de resurse al JVM-ului și al bazei de date.
+### **DevOps & Cloud**
+* **CI/CD:** GitHub Actions
+* **Containerizare:** Docker & Docker Compose
+* **Container Registry:** Docker Hub
+* **Cloud Provider:** Amazon Web Services (AWS Lightsail)
+* **OS Server:** Linux (Ubuntu)
+
+
+## ⚙️ Infrastructure & Automated CI/CD Pipeline
+
+Acest proiect foloseste practicile moderne de DevOps, folosind **GitHub Actions** pentru a automatiza complet fluxul de la cod la productie:
+
+* **Continuous Integration (CI):** La fiecare push pe branch-ul `main`, pipeline-ul declanseaza automat build-ul aplicației de Spring Boot (Maven) și a celei de React (Vite).
+* **Automated Docker Registry Push:** Imaginile sunt construite și urcate automat pe **Docker Hub**.
+* **Continuous Deployment (CD) via SSH:** Pipeline-ul se conecteaza securizat (prin GitHub Secrets) la instanta **AWS Lightsail**, actualizeaza fisierul `docker-compose.yaml` și forteaza serverul sa faca *pull* noilor imagini, repornind containerele cu noile modificari.
+* **Networking Izolat & Securizat:** Arhitectura de rețea privată de tip *bridge*, care izolează baza de date și backend-ul de accesul public.
+* **High Availability & Auto-Healing:** Configurare de politici de restart (`always` / `on-failure`), asigurând repornirea automată a serviciilor în caz de erori critice sau restart al serverului.
 
 ---
 
@@ -57,11 +68,12 @@ Un sistem modern și performant de management pentru cadre didactice și departa
 
 Aveți nevoie de Docker instalat, dar nu este necesară instalarea locală a Java, Node.js sau MySQL. Proiectul este complet automatizat prin Docker.
 
-### Deploy rapid (producție/server)
-```bash
-docker compose up -f docker-compose.yaml -d
-docker ps
-```
+### Deploy în Producție (Complet Automatizat)
+In urma integrarii cu **GitHub Actions**, orice `git push` pe branch-ul `main` declanseaza automat:
+1. Build-ul imaginilor.
+2. Push către Docker Hub.
+3. Conectarea SSH pe AWS Lightsail și rularea comenzilor de `docker compose pull && docker compose up -d`.
+*Nu este necesară nicio intervenție manuală pe server!*
 
 
 ### Deploy rapid (local)
