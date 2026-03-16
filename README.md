@@ -12,7 +12,7 @@
 [![Vite](https://img.shields.io/badge/Vite-5.0-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
 
 
-Un sistem modern și performant de management pentru cadre didactice și departamente universitare. Proiectul demonstrează implementarea unei arhitecturi Full-Stack complet **containerizate**, orchestrată prin **Docker Compose** și găzduită în **Cloud (AWS Lightsail)**. Ciclul de viață al aplicației este susținut de un **pipeline CI/CD** complet automatizat prin **GitHub Actions**, eliminând nevoia de deployment manual.
+Un sistem  management pentru cadre didactice și departamente universitare. Proiectul implementeaza o arhitectura Full-Stack complet **containerizata**, orchestrata prin **Docker Compose** și gazduita în **Cloud (AWS Lightsail)**. Ciclul de viata al aplicatiei este sustinut de un **pipeline CI/CD** complet automatizat prin **GitHub Actions**, eliminand nevoia de deployment manual.
 
 ## 📷 Imagini Demo ale Aplicației
 ![Pagina Home](./docs/home.jpg)
